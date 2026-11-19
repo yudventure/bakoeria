@@ -1,0 +1,67 @@
+{
+  "malam-laut": {
+    "name": "Malam Laut",
+    "hex": "#041C3E",
+    "role": "Warna dasar: latar utama, teks gelap"
+  },
+  "malam-dalam": {
+    "name": "Malam Dalam",
+    "hex": "#020F26",
+    "role": "Latar footer, bagian paling gelap"
+  },
+  "malam-lembut": {
+    "name": "Malam Lembut",
+    "hex": "#0B2A5B",
+    "role": "Permukaan kartu di atas Malam Laut"
+  },
+  "emas-lentera": {
+    "name": "Emas Lentera",
+    "hex": "#E2B05E",
+    "role": "Logo, judul, garis, tombol utama"
+  },
+  "emas-muda": {
+    "name": "Emas Muda",
+    "hex": "#F5DB9D",
+    "role": "Sorotan, judul besar di atas gelap"
+  },
+  "emas-tua": {
+    "name": "Emas Tua",
+    "hex": "#B98A3A",
+    "role": "Ujung gradasi, garis di atas terang"
+  },
+  "ambar-lampu": {
+    "name": "Ambar Lampu",
+    "hex": "#D69521",
+    "role": "Aksen cahaya hangat, ikon aktif"
+  },
+  "kayu-jati": {
+    "name": "Kayu Jati",
+    "hex": "#422D1B",
+    "role": "Permukaan hangat: papan, kemasan"
+  },
+  "jati-terang": {
+    "name": "Jati Terang",
+    "hex": "#6B4A1E",
+    "role": "Garis dan bayangan hangat"
+  },
+  "pasir": {
+    "name": "Pasir",
+    "hex": "#E6D5B3",
+    "role": "Teks pendukung dan latar netral"
+  },
+  "gading": {
+    "name": "Gading",
+    "hex": "#F7F0DF",
+    "role": "Teks di atas gelap, latar cetak"
+  },
+  "palem": {
+    "name": "Palem",
+    "hex": "#7E9A3A",
+    "role": "Aksen: status baik, alam"
+  },
+  "karang": {
+    "name": "Karang",
+    "hex": "#2A8A93",
+    "role": "Aksen: konteks selam siang hari"
+  }
+}

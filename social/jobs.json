@@ -1,0 +1,146 @@
+[
+ {
+  "src": "social/src/ig-feed-01-tagline.html",
+  "out": "social/export/ig-feed-01-tagline.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "src": "social/src/ig-feed-02-foto.html",
+  "out": "social/export/ig-feed-02-foto.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "src": "social/src/ig-feed-03-program.html",
+  "out": "social/export/ig-feed-03-program.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "src": "social/src/ig-carousel-01-sampul.html",
+  "out": "social/export/ig-carousel-01-sampul.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "src": "social/src/ig-carousel-02-tips.html",
+  "out": "social/export/ig-carousel-02-tips.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "src": "social/src/ig-carousel-03-tips.html",
+  "out": "social/export/ig-carousel-03-tips.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "src": "social/src/ig-carousel-04-tips.html",
+  "out": "social/export/ig-carousel-04-tips.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "src": "social/src/ig-carousel-05-tips.html",
+  "out": "social/export/ig-carousel-05-tips.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "src": "social/src/ig-carousel-06-tips.html",
+  "out": "social/export/ig-carousel-06-tips.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "src": "social/src/ig-feed-04-ulasan.html",
+  "out": "social/export/ig-feed-04-ulasan.png",
+  "w": 1080,
+  "h": 1350
+ },
+ {
+  "src": "social/src/ig-square-01-pengumuman.html",
+  "out": "social/export/ig-square-01-pengumuman.png",
+  "w": 1080,
+  "h": 1080
+ },
+ {
+  "src": "social/src/ig-story-01-foto.html",
+  "out": "social/export/ig-story-01-foto.png",
+  "w": 1080,
+  "h": 1920
+ },
+ {
+  "src": "social/src/ig-story-02-jadwal.html",
+  "out": "social/export/ig-story-02-jadwal.png",
+  "w": 1080,
+  "h": 1920
+ },
+ {
+  "src": "social/src/ig-story-03-tanya.html",
+  "out": "social/export/ig-story-03-tanya.png",
+  "w": 1080,
+  "h": 1920
+ },
+ {
+  "src": "social/src/ig-highlight-menyelam.html",
+  "out": "social/export/ig-highlight-menyelam.png",
+  "w": 1080,
+  "h": 1920
+ },
+ {
+  "src": "social/src/ig-highlight-cottage.html",
+  "out": "social/export/ig-highlight-cottage.png",
+  "w": 1080,
+  "h": 1920
+ },
+ {
+  "src": "social/src/ig-highlight-lokasi.html",
+  "out": "social/export/ig-highlight-lokasi.png",
+  "w": 1080,
+  "h": 1920
+ },
+ {
+  "src": "social/src/ig-highlight-tarif.html",
+  "out": "social/export/ig-highlight-tarif.png",
+  "w": 1080,
+  "h": 1920
+ },
+ {
+  "src": "social/src/ig-highlight-ulasan.html",
+  "out": "social/export/ig-highlight-ulasan.png",
+  "w": 1080,
+  "h": 1920
+ },
+ {
+  "src": "social/src/ig-highlight-galeri.html",
+  "out": "social/export/ig-highlight-galeri.png",
+  "w": 1080,
+  "h": 1920
+ },
+ {
+  "src": "social/src/facebook-cover.html",
+  "out": "social/export/facebook-cover.png",
+  "w": 1640,
+  "h": 624
+ },
+ {
+  "src": "social/src/og-image-website.html",
+  "out": "social/export/og-image-website.png",
+  "w": 1200,
+  "h": 630
+ },
+ {
+  "src": "social/src/whatsapp-katalog-cover.html",
+  "out": "social/export/whatsapp-katalog-cover.png",
+  "w": 1600,
+  "h": 900
+ },
+ {
+  "src": "social/src/youtube-banner.html",
+  "out": "social/export/youtube-banner.png",
+  "w": 2560,
+  "h": 1440
+ }
+]

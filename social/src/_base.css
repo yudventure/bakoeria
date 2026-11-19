@@ -1,0 +1,17 @@
+@import url(../../assets/fonts.css);
+:root{--malam:#041C3E;--dalam:#020F26;--lembut:#0B2A5B;--emas:#E2B05E;--emas-muda:#F5DB9D;--emas-tua:#B98A3A;--jati:#422D1B;--jati-terang:#6B4A1E;--pasir:#E6D5B3;--gading:#F7F0DF;--karang:#2A8A93;--palem:#7E9A3A;
+--grad:linear-gradient(160deg,#F8E7B0 0%,#EECB7C 50%,#D6A851 100%);--garis:rgba(226,176,94,.4)}
+*{box-sizing:border-box;margin:0}
+html,body{width:100%;height:100%}
+body{font-family:'Lato',sans-serif;color:var(--gading);background:var(--malam);overflow:hidden;-webkit-font-smoothing:antialiased}
+.f{position:absolute;inset:0;display:flex;flex-direction:column}
+.sky{background:linear-gradient(180deg,#020F26 0%,#041C3E 55%,#0A2C5E 100%)}
+.stars{position:absolute;inset:0;background-image:radial-gradient(2.4px 2.4px at 12% 12%,rgba(247,240,223,.85) 50%,transparent 51%),radial-gradient(2px 2px at 27% 31%,rgba(247,240,223,.5) 50%,transparent 51%),radial-gradient(2.6px 2.6px at 41% 8%,rgba(247,240,223,.7) 50%,transparent 51%),radial-gradient(2px 2px at 58% 22%,rgba(247,240,223,.5) 50%,transparent 51%),radial-gradient(2.5px 2.5px at 73% 10%,rgba(247,240,223,.8) 50%,transparent 51%),radial-gradient(2px 2px at 86% 28%,rgba(247,240,223,.5) 50%,transparent 51%),radial-gradient(2.2px 2.2px at 93% 6%,rgba(247,240,223,.7) 50%,transparent 51%),radial-gradient(2px 2px at 6% 40%,rgba(247,240,223,.45) 50%,transparent 51%),radial-gradient(2px 2px at 49% 44%,rgba(247,240,223,.35) 50%,transparent 51%),radial-gradient(2.2px 2.2px at 66% 38%,rgba(247,240,223,.5) 50%,transparent 51%),radial-gradient(2px 2px at 19% 55%,rgba(247,240,223,.3) 50%,transparent 51%),radial-gradient(2px 2px at 81% 52%,rgba(247,240,223,.3) 50%,transparent 51%)}
+.frame{position:absolute;inset:36px;border:1.5px solid var(--garis);pointer-events:none}
+.d{font-family:'Crimson Pro',serif;font-weight:500;text-transform:uppercase;letter-spacing:.07em;line-height:1.12;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.it{font-family:'Crimson Pro',serif;font-style:italic;font-weight:400;color:var(--pasir)}
+.lb{font-weight:700;text-transform:uppercase;letter-spacing:.28em;color:var(--emas)}
+.rule{display:flex;align-items:center;justify-content:center;gap:26px}
+.rule i{display:block;height:2px;width:90px;background:var(--emas)}
+.photo{position:absolute;inset:0;background-size:cover;background-position:center}
+.c{align-items:center;text-align:center}

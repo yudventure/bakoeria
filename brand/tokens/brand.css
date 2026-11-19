@@ -1,0 +1,21 @@
+:root{
+  --malam-laut: #041C3E;
+  --malam-dalam: #020F26;
+  --malam-lembut: #0B2A5B;
+  --emas-lentera: #E2B05E;
+  --emas-muda: #F5DB9D;
+  --emas-tua: #B98A3A;
+  --ambar-lampu: #D69521;
+  --kayu-jati: #422D1B;
+  --jati-terang: #6B4A1E;
+  --pasir: #E6D5B3;
+  --gading: #F7F0DF;
+  --palem: #7E9A3A;
+  --karang: #2A8A93;
+  --gold-gradient: linear-gradient(160deg,#F8E7B0 0%,#EECB7C 50%,#D6A851 100%);
+  --font-display: 'Crimson Pro','Crimson Text',Georgia,serif;
+  --font-body: 'Lato','Helvetica Neue',Arial,sans-serif;
+  --tracking-display: .07em; --tracking-label: .28em;
+  --radius-sm: 2px; --radius-md: 4px;
+  --line-gold: rgba(226,176,94,.28);
+}

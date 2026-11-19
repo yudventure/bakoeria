@@ -1,0 +1,56 @@
+[
+ {
+  "src": "mockups/src/01-kartu-nama.html",
+  "out": "mockups/export/01-kartu-nama.png",
+  "w": 2400,
+  "h": 1600
+ },
+ {
+  "src": "mockups/src/02-kop-surat-amplop.html",
+  "out": "mockups/export/02-kop-surat-amplop.png",
+  "w": 2400,
+  "h": 1600
+ },
+ {
+  "src": "mockups/src/03-papan-nama.html",
+  "out": "mockups/export/03-papan-nama.png",
+  "w": 2400,
+  "h": 1600
+ },
+ {
+  "src": "mockups/src/04-kunci-dan-kamar.html",
+  "out": "mockups/export/04-kunci-dan-kamar.png",
+  "w": 2400,
+  "h": 1600
+ },
+ {
+  "src": "mockups/src/05-seragam-dan-tas.html",
+  "out": "mockups/export/05-seragam-dan-tas.png",
+  "w": 2400,
+  "h": 1600
+ },
+ {
+  "src": "mockups/src/06-website-digital.html",
+  "out": "mockups/export/06-website-digital.png",
+  "w": 2400,
+  "h": 1600
+ },
+ {
+  "src": "mockups/src/07-instagram.html",
+  "out": "mockups/export/07-instagram.png",
+  "w": 2400,
+  "h": 1600
+ },
+ {
+  "src": "mockups/src/08-perlengkapan-selam.html",
+  "out": "mockups/export/08-perlengkapan-selam.png",
+  "w": 2400,
+  "h": 1600
+ },
+ {
+  "src": "mockups/src/00-brand-board.html",
+  "out": "mockups/export/00-brand-board.png",
+  "w": 2400,
+  "h": 1600
+ }
+]
