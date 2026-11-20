@@ -1,0 +1,10 @@
+{
+  "name": "bakoeria",
+  "private": true,
+  "description": "Akar repo. Aplikasi ada di web/. Script di sini supaya Hostinger bisa membangun dan menjalankannya langsung dari akar repo.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "npm --prefix web ci --include=dev --no-audit --no-fund && npm --prefix web run build && cd web && node scripts/package.mjs",
+    "start": "node server.js"
+  }
+}

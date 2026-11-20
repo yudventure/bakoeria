@@ -61,6 +61,26 @@ memang akar branch itu (`server.js`, `.next`, `public`, `node_modules`).
 Jangan pilih `npm run start` sebagai build command: server akan menyala sebagai
 langkah build lalu menggantung.
 
+### Bila Hostinger hanya menawarkan branch kode sumber
+
+Alur Hostinger Agent kadang memakai branch default repo dan tidak menawarkan
+`deploy`. Akar repo juga bisa di-deploy langsung: `package.json` dan
+`server.js` di akar membangun `web/` lalu menjalankannya.
+
+```
+Branch           : main (atau branch default)
+Preset framework : Next.js
+Root directory   : ./
+Build command    : npm run build
+Direktori output : ./
+Entry file       : server.js
+Versi Node       : 22
+```
+
+Build-nya terjadi di Hostinger (sekitar 25 detik, puncak memori sekitar 800 MB
+saat diukur). Jalur branch `deploy` tetap lebih ringan karena tidak membangun
+apa pun di server.
+
 ## Langkah 3: Variabel lingkungan di Hostinger
 
 Di panel aplikasi Node.js → **Environment variables**:
