@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@font-face { font-family: "Crimson Pro"; font-weight: 400; font-display: swap; src: url(/fonts/crimson-pro-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Crimson Pro"; font-weight: 500; font-display: swap; src: url(/fonts/crimson-pro-latin-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "Crimson Pro"; font-weight: 600; font-display: swap; src: url(/fonts/crimson-pro-latin-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "Crimson Pro"; font-weight: 400; font-style: italic; font-display: swap; src: url(/fonts/crimson-pro-latin-400-italic.woff2) format("woff2"); }
+@font-face { font-family: "Crimson Pro"; font-weight: 500; font-style: italic; font-display: swap; src: url(/fonts/crimson-pro-latin-500-italic.woff2) format("woff2"); }
+@font-face { font-family: "Lato"; font-weight: 300; font-display: swap; src: url(/fonts/lato-latin-300-normal.woff2) format("woff2"); }
+@font-face { font-family: "Lato"; font-weight: 400; font-display: swap; src: url(/fonts/lato-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Lato"; font-weight: 700; font-display: swap; src: url(/fonts/lato-latin-700-normal.woff2) format("woff2"); }
+
+/* Token brand Bakoeria. Sama dengan brand/tokens/brand.css di akar repo. */
+@theme {
+  --font-display: "Crimson Pro", Georgia, serif;
+  --font-sans: "Lato", "Helvetica Neue", Arial, sans-serif;
+
+  --color-malam: #041c3e;
+  --color-malam-dalam: #020f26;
+  --color-malam-lembut: #0b2a5b;
+  --color-emas: #e2b05e;
+  --color-emas-muda: #f5db9d;
+  --color-emas-tua: #b98a3a;
+  --color-ambar: #d69521;
+  --color-jati: #422d1b;
+  --color-jati-terang: #6b4a1e;
+  --color-pasir: #e6d5b3;
+  --color-gading: #f7f0df;
+  --color-palem: #7e9a3a;
+  --color-karang: #2a8a93;
+
+  /* Panel admin: terang dan netral, dengan navy sebagai warna utama dan emas sebagai aksen. */
+  --color-panel-latar: #f4f3ef;
+  --color-panel-garis: #e5e2da;
+  --color-panel-tinta: #18202e;
+  --color-panel-redup: #5f6675;
+  --color-panel-utama: #041c3e;
+  --color-panel-utama-2: #0b2a5b;
+  --color-panel-lembut: #eef1f6;
+  --color-panel-emas-lembut: #fbf1dc;
+  --color-panel-hijau: #2f7a4f;
+  --color-panel-hijau-lembut: #e3f1e8;
+  --color-panel-merah: #b03826;
+  --color-panel-merah-lembut: #fbe4de;
+  --color-panel-kuning: #9a6a10;
+  --color-panel-kuning-lembut: #fbf0d6;
+
+  --shadow-panel: 0 1px 2px rgba(4, 28, 62, 0.05), 0 4px 16px rgba(4, 28, 62, 0.06);
+  --shadow-angkat: 0 12px 40px rgba(4, 28, 62, 0.18);
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+.angka { font-variant-numeric: tabular-nums lining-nums; }
+.emas-gradasi { background: linear-gradient(160deg, #f8e7b0 0%, #eecb7c 50%, #d6a851 100%); }
+.teks-emas { background: linear-gradient(160deg, #f8e7b0 0%, #eecb7c 50%, #d6a851 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+:focus-visible { outline: 2px solid var(--color-emas); outline-offset: 2px; }
+
+/* Situs publik: muncul saat digulir. Konten tetap terlihat tanpa JS (kelas .js dipasang oleh skrip). */
+.js .muncul { opacity: 0; transform: translateY(18px); transition: opacity .8s ease, transform .8s ease; }
+.js .muncul.tampil { opacity: 1; transform: none; }
+.bintang {
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 22%, rgba(247,240,223,.8) 50%, transparent 51%),
+    radial-gradient(1px 1px at 27% 58%, rgba(247,240,223,.55) 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 41% 14%, rgba(247,240,223,.7) 50%, transparent 51%),
+    radial-gradient(1px 1px at 58% 40%, rgba(247,240,223,.5) 50%, transparent 51%),
+    radial-gradient(1.3px 1.3px at 73% 18%, rgba(247,240,223,.75) 50%, transparent 51%),
+    radial-gradient(1px 1px at 86% 52%, rgba(247,240,223,.5) 50%, transparent 51%),
+    radial-gradient(1.1px 1.1px at 93% 9%, rgba(247,240,223,.7) 50%, transparent 51%),
+    radial-gradient(1px 1px at 6% 70%, rgba(247,240,223,.45) 50%, transparent 51%);
+}
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }

@@ -9,7 +9,8 @@
 | `brand/favicon/` | Ikon situs, ikon aplikasi, avatar 1080 px |
 | `brand/tokens/` | Warna dan font sebagai `brand.css`, `colors.json`, `tailwind.config.js` |
 | `assets/` | Font WOFF2 (Crimson Pro, Lato) dan potongan foto |
-| `website/` | Situs satu halaman siap unggah. Buka `website/index.html` |
+| `web/` | **Aplikasi Next.js (React + Tailwind): situs publik dan dashboard `/kelola`.** Deploy ke Hostinger: `web/DEPLOY.md` |
+| `website/` | Versi statis awal situs (acuan desain) |
 | `social/export/` | 24 PNG: feed 4:5, carousel, story, sampul highlight, cover Facebook, banner YouTube, gambar OG |
 | `social/src/` | Sumber HTML tiap template, bisa diedit teksnya |
 | `mockups/export/` | 9 mockup 2400 × 1600: brand board, kartu nama, kop surat, papan nama, kunci, seragam, website, Instagram, perlengkapan selam |

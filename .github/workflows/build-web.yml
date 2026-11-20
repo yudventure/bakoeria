@@ -1,0 +1,85 @@
+# Membangun aplikasi web Bakoeria di GitHub Actions dan menerbitkan hasilnya ke
+# branch `deploy`, yang ditarik Hostinger Node.js Web Apps. Hostinger tidak perlu
+# membangun apa pun: `next build` butuh sekitar 1,5 GB memori, terlalu besar
+# untuk hosting bersama. Pola ini sama dengan Unmehopa Management.
+
+name: Build web
+
+on:
+  push:
+    branches: [main]
+    paths: ["web/**", ".github/workflows/build-web.yml"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: web
+    env:
+      # Untuk metadata situs (og:image dan tautan kanonik). Tidak rahasia.
+      SITE_URL: ${{ vars.SITE_URL }}
+      # Untuk langkah migrasi. Alamat LANGSUNG ke database, bukan lewat pooler.
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run uji
+      - run: npm run build
+      - run: npm run package:archive
+
+      # Sesudah build berhasil dan sebelum kode baru tayang, supaya kolom yang
+      # dibutuhkan kode baru sudah ada. `migrate deploy` hanya menerapkan berkas
+      # migrasi yang ada, tidak pernah menghapus data. Tidur sampai secret diisi.
+      - name: Terapkan migrasi database
+        if: github.ref == 'refs/heads/main' && (env.DIRECT_URL != '' || env.DATABASE_URL != '')
+        run: npx prisma migrate deploy
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: |
+            web/dist/app.tar.gz
+            web/dist/app.zip
+          retention-days: 14
+
+      # Branch `deploy` hanya berisi hasil build (server.js, .next, public,
+      # node_modules), selalu satu commit. Hostinger menariknya otomatis.
+      - name: Terbitkan ke branch deploy
+        if: github.ref == 'refs/heads/main'
+        working-directory: web/.next/standalone
+        run: |
+          set -euo pipefail
+          git init -q -b deploy
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Build dari ${GITHUB_SHA:0:7}"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:deploy
+          echo "branch deploy diperbarui dari ${GITHUB_SHA:0:7}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Menunggu sampai situs benar-benar menyajikan build ini. Aktif bila
+      # variabel SITE_URL diisi.
+      - name: Tunggu situs menyajikan build ini
+        if: github.ref == 'refs/heads/main' && env.SITE_URL != ''
+        run: |
+          for i in $(seq 1 40); do
+            live=$(curl -fsS -m 20 "$SITE_URL/version.json" 2>/dev/null | jq -r '.commit // ""' || true)
+            if [ "$live" = "$GITHUB_SHA" ]; then echo "tayang setelah $(( (i - 1) * 15 )) detik"; exit 0; fi
+            echo "  masih ${live:0:7}, menunggu..."; sleep 15
+          done
+          echo "::error::sepuluh menit dan $SITE_URL belum menyajikan ${GITHUB_SHA:0:7}"; exit 1
