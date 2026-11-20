@@ -4,7 +4,7 @@ import { jumlahMalam, rupiah, tanggalSah, tglPanjang, hariIniWit } from "@/lib/b
 import { databaseReady } from "@/lib/db";
 import { BentrokError, bookingDalam, buatBooking, hargaOtomatis } from "@/lib/server/buku";
 import { MENEMPATI, tumpang } from "@/lib/booking";
-import { kirimEmail } from "@/lib/server/email";
+import { alamatSaja, kirimEmail, pengirim } from "@/lib/server/email";
 import { badan, gagal, ok } from "@/lib/server/rute";
 import { bacaPengaturan } from "@/lib/server/simpanan";
 
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
       "Situs web",
     );
     const ringkas = `${p.code}\n${nama} (${tamu} tamu)\n${p.roomName}, ${tglPanjang(masuk)} sampai ${tglPanjang(keluar)} (${jumlahMalam(masuk, keluar)} malam)\nPerkiraan ${rupiah(harga.total)}\nWhatsApp: ${telepon || "-"}\nEmail: ${email || "-"}\n${minat ? "Minat: " + minat + "\n" : ""}${catatan ? "Catatan: " + catatan + "\n" : ""}\nTahanan berlaku ${set.jamTahanan} jam. Konfirmasi di dashboard /kelola.`;
-    await kirimEmail(set.emailNotifikasi, `Pesanan baru ${p.code} dari website`, ringkas, email || undefined);
+    await kirimEmail(set.emailNotifikasi || alamatSaja(pengirim()), `Pesanan baru ${p.code} dari website`, ringkas, email || undefined);
     if (email) await kirimEmail(email, `Permintaan pemesanan ${p.code} diterima`, `Halo ${nama},\n\nTerima kasih. Permintaan Anda sudah kami terima:\n${p.roomName}, ${tglPanjang(masuk)} sampai ${tglPanjang(keluar)}\nPerkiraan ${rupiah(harga.total)}\n\nKami akan membalas dengan konfirmasi dan cara pembayaran. Kode pesanan Anda: ${p.code}.\n\nSalam hangat,\n${set.namaResort}`);
     return ok({ kode: p.code, total: harga.total, jamTahanan: set.jamTahanan, persenDp: set.persenDp }, 201);
   } catch (e) {

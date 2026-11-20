@@ -52,7 +52,7 @@ export default function Pengaturan() {
       <Kartu judul="Resort">
         <div className="grid gap-4 sm:grid-cols-2">
           <Bidang label="Nama resort"><input className={masukan} disabled={!boleh} value={p.namaResort} onChange={(e) => setP({ ...p, namaResort: e.target.value })} /></Bidang>
-          <Bidang label="Email pemberitahuan pesanan" ket="Pesanan dari website dikirim ke sini. Perlu RESEND_API_KEY dan EMAIL_DARI."><input className={masukan} disabled={!boleh} type="email" value={p.emailNotifikasi} onChange={(e) => setP({ ...p, emailNotifikasi: e.target.value })} /></Bidang>
+          <Bidang label="Email pemberitahuan pesanan" ket="Pesanan dari website dikirim ke sini. Kosong berarti ke alamat pengirim (SMTP_USER)."><input className={masukan} disabled={!boleh} type="email" value={p.emailNotifikasi} onChange={(e) => setP({ ...p, emailNotifikasi: e.target.value })} /></Bidang>
           <Bidang label="Lama tahanan dari website (jam)" ket="Tahanan yang tidak dikonfirmasi batal sendiri setelah ini."><input className={masukan} disabled={!boleh} type="number" min={1} max={168} value={p.jamTahanan} onChange={(e) => setP({ ...p, jamTahanan: Number(e.target.value) })} /></Bidang>
           <Bidang label="Uang muka yang diminta (%)"><input className={masukan} disabled={!boleh} type="number" min={0} max={100} value={p.persenDp} onChange={(e) => setP({ ...p, persenDp: Number(e.target.value) })} /></Bidang>
           <label className="flex items-center gap-2 text-sm font-bold sm:col-span-2"><input type="checkbox" className="size-4" disabled={!boleh} checked={p.terimaPesananWeb} onChange={(e) => setP({ ...p, terimaPesananWeb: e.target.checked })} /> Terima pemesanan langsung dari website</label>
@@ -72,7 +72,7 @@ export default function Pengaturan() {
           {baris(st.database, "DATABASE_URL", "PostgreSQL untuk kalender, pesanan, tamu, dan laporan.")}
           {baris(st.penyiapanKunci, "PENYIAPAN_KUNCI", "Hanya untuk membuat akun pertama.")}
           {baris(st.sessionSecret, "SESSION_SECRET", "Opsional. Tanpa ini rahasia sesi dibuat sekali dan disimpan di folder data.")}
-          {baris(st.email, "RESEND_API_KEY dan EMAIL_DARI", "Opsional. Untuk email pemberitahuan pesanan website.")}
+          {baris(st.email, "SMTP_HOST, SMTP_USER, SMTP_PASS", "Opsional. Email pemberitahuan pesanan website, misalnya lewat email Hostinger.")}
           {baris(st.folderData, "BAKOERIA_DATA_DIR", "Opsional. Tanpa ini data akun dan isi website disimpan di ~/.bakoeria-data.")}
         </ul>
       </Kartu>

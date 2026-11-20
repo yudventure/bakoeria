@@ -2,6 +2,7 @@ import { wajib } from "@/lib/server/akses";
 import { badan, ok } from "@/lib/server/rute";
 import { bacaPengaturan, simpanPengaturan } from "@/lib/server/simpanan";
 import { databaseReady } from "@/lib/db";
+import { emailSiap } from "@/lib/server/email";
 
 /** Pengaturan resort, beserta pemeriksaan kesiapan server. */
 export async function GET() {
@@ -13,7 +14,7 @@ export async function GET() {
       database: databaseReady(),
       sessionSecret: Boolean(process.env.SESSION_SECRET?.trim()),
       penyiapanKunci: Boolean(process.env.PENYIAPAN_KUNCI?.trim()),
-      email: Boolean(process.env.RESEND_API_KEY?.trim() && process.env.EMAIL_DARI?.trim()),
+      email: emailSiap(),
       folderData: Boolean(process.env.BAKOERIA_DATA_DIR?.trim()),
     },
   });

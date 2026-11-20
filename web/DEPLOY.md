@@ -72,7 +72,7 @@ Di panel aplikasi Node.js → **Environment variables**:
 | `SITE_URL` | disarankan | Pratinjau tautan memakai localhost |
 | `SESSION_SECRET` | tidak | Dibuat sekali dan disimpan di folder data |
 | `BAKOERIA_DATA_DIR` | tidak | Memakai `~/.bakoeria-data` |
-| `RESEND_API_KEY`, `EMAIL_DARI` | tidak | Pesanan website tidak dikirim lewat email (tetap masuk dashboard) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_DARI` | tidak | Pesanan website tidak dikirim lewat email (tetap masuk dashboard). Untuk email Hostinger: `smtp.hostinger.com`, port `465` |
 
 Daftar lengkap ada di `.env.example`. Jangan mengisi `PORT`: Hostinger yang
 menentukannya dan `server.js` membacanya sendiri.
