@@ -6,6 +6,7 @@ import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
 import { Ikon, ikonProgram } from "@/components/situs/ikon";
 import { Nav } from "@/components/situs/interaksi";
+import { Gerak, JudulHero } from "@/components/situs/gerak";
 import Pemesanan from "@/components/situs/pemesanan";
 import Footer from "@/components/situs/footer";
 
@@ -67,22 +68,20 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
     <div className="bg-[#F6F4EF] text-[16px] leading-relaxed text-malam">
       <a href="#isi" className="absolute -left-[999px] top-0 z-50 rounded-full bg-malam px-4 py-2 text-white focus:left-3 focus:top-3">{t.lewati}</a>
       <Nav bahasa={bahasa} />
+      <Gerak />
 
       <main id="isi">
         {/* HERO */}
         <section id="atas" className="relative scroll-mt-24 px-2 sm:px-3">
           <div className="relative flex min-h-[560px] flex-col overflow-hidden rounded-[2rem] rounded-b-[2.5rem] sm:min-h-[600px] lg:h-[min(78svh,700px)]">
-            <img src="/img/resort-night.jpg" alt={alt.hero} className="absolute inset-0 h-full w-full object-cover object-[58%_70%]" />
+            <div className="hero-masuk absolute inset-0">
+              <img data-hero-foto src="/img/resort-night.jpg" alt={alt.hero} className="h-full w-full object-cover object-[58%_70%] will-change-transform" />
+            </div>
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,28,62,.6)_0%,rgba(4,28,62,.2)_40%,rgba(4,28,62,.05)_62%,rgba(4,28,62,.5)_100%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_22%_52%,rgba(4,28,62,.62)_0%,rgba(4,28,62,0)_58%)]" />
             <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-5 pb-16 pt-12">
-              <div className="flex items-start gap-4">
-                <h1 className="font-display text-[clamp(64px,13.5vw,190px)] font-normal leading-[0.82] tracking-[-0.035em] text-white">
-                  bakoeria
-                </h1>
-                <span className="mt-[2vw] hidden text-[13px] tracking-[0.18em] text-white [text-shadow:0_1px_10px_rgba(4,28,62,.7)] sm:block">dive resort</span>
-              </div>
-              <p className="mt-6 max-w-[17rem] text-[15px] leading-snug text-white [text-shadow:0_1px_12px_rgba(4,28,62,.6)]">{k.tagline}</p>
+              <JudulHero awalan={k.heroAwalan} kata={k.heroKata} />
+              <p className="muncul-lambat mt-6 max-w-[19rem] text-[15px] leading-snug text-white [text-shadow:0_1px_12px_rgba(4,28,62,.6)]" style={{ "--tunda-ms": "1250ms" } as React.CSSProperties}>{k.tagline}</p>
               {k.pengumuman && <p className="mt-5 max-w-md rounded-2xl border border-white/30 bg-white/10 px-4 py-3 text-sm text-white backdrop-blur-md">{k.pengumuman}</p>}
             </div>
           </div>
@@ -98,7 +97,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         <section id="tentang" className="scroll-mt-24 px-5 pb-20 pt-16 sm:pt-20">
           <div className="mx-auto max-w-6xl">
             <div className="muncul grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-              <h2 className="font-display text-[clamp(56px,8vw,104px)] font-normal leading-[0.9] tracking-[-0.03em] text-malam/80">{t.tentangKami}</h2>
+              <h2 data-geser="-0.9" className="font-display text-[clamp(56px,8vw,104px)] font-normal leading-[0.9] tracking-[-0.03em] text-malam/80 will-change-transform">{t.tentangKami}</h2>
               <div className="relative">
                 <Bintang className="absolute -top-2 right-0 text-2xl" />
                 <p className="pr-8 text-[clamp(18px,2.1vw,25px)] font-normal uppercase leading-[1.35] tracking-[0.02em] text-malam">
@@ -112,11 +111,11 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_0.85fr] lg:items-center">
               {FOTO.slice(0, 3).map((f, i) => (
-                <figure key={f} className="muncul m-0 aspect-[4/3] overflow-hidden rounded-[1.4rem]">
-                  <img src={f} alt={alt.foto[i]} loading="lazy" className="h-full w-full object-cover transition duration-700 hover:scale-[1.04]" />
+                <figure key={f} className="muncul-foto m-0 aspect-[4/3] overflow-hidden rounded-[1.4rem]" style={{ "--tunda": i } as React.CSSProperties}>
+                  <img src={f} alt={alt.foto[i]} loading="lazy" className="h-full w-full object-cover" />
                 </figure>
               ))}
-              <div className="muncul text-[14px] leading-relaxed text-malam/65 sm:col-span-2 lg:col-span-1 lg:pl-4">
+              <div className="muncul text-[14px] leading-relaxed text-malam/65 sm:col-span-2 lg:col-span-1 lg:pl-4" style={{ "--tunda": 3 } as React.CSSProperties}>
                 <p className="font-bold text-malam">{k.introJudul}</p>
                 <p className="mt-2">{k.introIsi}</p>
               </div>
@@ -127,15 +126,15 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         {/* KEUNGGULAN */}
         {k.keunggulan.length > 0 && (
           <section className="relative overflow-hidden">
-            <img src="/img/palms.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+            <img data-parallax="0.6" src="/img/palms.jpg" alt="" className="absolute inset-0 h-full w-full object-cover will-change-transform" loading="lazy" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,28,62,.82)_0%,rgba(4,28,62,.55)_45%,rgba(4,28,62,.35)_100%)]" />
             <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <h2 className="muncul font-display text-[clamp(40px,5.2vw,64px)] font-normal leading-[0.98] tracking-[-0.02em] text-white">
                 {k.keunggulanJudul} <Bintang className="text-xl" />
               </h2>
               <div className="grid gap-3 sm:grid-cols-2">
-                {k.keunggulan.map((x) => (
-                  <div key={x.judul} className="muncul flex gap-4 rounded-[1.4rem] border border-white/30 bg-white/12 p-5 text-white backdrop-blur-md">
+                {k.keunggulan.map((x, n) => (
+                  <div key={x.judul} style={{ "--tunda": n } as React.CSSProperties} className="muncul flex gap-4 rounded-[1.4rem] border border-white/30 bg-white/12 p-5 text-white backdrop-blur-md">
                     <Ikon nama={x.ikon} className="size-8 shrink-0 text-white/90" />
                     <div>
                       <h3 className="text-[15px] font-bold leading-snug">{x.judul}</h3>
@@ -159,8 +158,8 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
             {kamar.length > 0 ? (
               <div className={`grid gap-4 sm:grid-cols-2 ${kamar.length === 4 ? "xl:grid-cols-4" : kamar.length % 3 === 1 && kamar.length > 4 ? "xl:grid-cols-2" : "xl:grid-cols-3"}`}>
                 {kamar.map((r, i) => (
-                  <article key={r.id} className="muncul overflow-hidden rounded-[1.4rem] bg-white shadow-[0_10px_30px_rgba(4,28,62,.07)] ring-1 ring-malam/5">
-                    <img src={FOTO[i % 3]} alt={r.name} loading="lazy" className="aspect-[16/10] w-full object-cover" />
+                  <article key={r.id} style={{ "--tunda": i % 4 } as React.CSSProperties} className="muncul group overflow-hidden rounded-[1.4rem] bg-white transition-shadow duration-500 hover:shadow-[0_18px_44px_rgba(4,28,62,.14)] shadow-[0_10px_30px_rgba(4,28,62,.07)] ring-1 ring-malam/5">
+                    <div className="overflow-hidden"><img src={FOTO[i % 3]} alt={r.name} loading="lazy" className="aspect-[16/10] w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.06]" /></div>
                     <div className="p-5">
                       <h3 className="text-[16px] font-bold">{r.name}</h3>
                       <p className="mt-1 text-[13px] text-malam/55">{r.roomType ? `${r.roomType} · ` : ""}{t.hingga(r.capAdult + r.capChild)}</p>
@@ -226,7 +225,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
             </div>
             <ol className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
               {k.jadwal.map((j, i) => (
-                <li key={i} className="flex gap-4 border-t border-malam/8 pt-4">
+                <li key={i} style={{ "--tunda": i } as React.CSSProperties} className="muncul flex gap-4 border-t border-malam/8 pt-4">
                   <time className="font-display text-[28px] leading-none text-emas-tua [font-variant-numeric:lining-nums]">{j.jam}</time>
                   <div>
                     <h3 className="text-[15px] font-bold">{j.judul}</h3>

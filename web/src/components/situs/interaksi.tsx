@@ -6,9 +6,8 @@ import { KAMUS, awalanBahasa, type Bahasa } from "@/lib/kamus";
 /**
  * Menu atas: logo di kiri, menu dan tombol ganti bahasa di kanan, di atas foto hero
  * dengan latar terang halaman. Menempel di atas saat digulir.
- * Juga memasang animasi muncul yang aman: elemen yang sudah terlihat saat
- * halaman dibuka tidak pernah disembunyikan, dan semuanya dipaksa tampil
- * setelah 2,5 detik.
+ * Juga memasang animasi muncul: elemen yang sudah terlihat saat halaman
+ * dibuka tidak pernah disembunyikan.
  */
 export function Nav({ bahasa }: { bahasa: Bahasa }) {
   const t = KAMUS[bahasa];
@@ -18,17 +17,18 @@ export function Nav({ bahasa }: { bahasa: Bahasa }) {
     const f = () => setSolid(window.scrollY > 8);
     f();
     window.addEventListener("scroll", f, { passive: true });
-    const semua = [...document.querySelectorAll<HTMLElement>(".muncul")];
-    const bawah = semua.filter((el) => el.getBoundingClientRect().top > window.innerHeight);
+    // Elemen yang sudah terlihat saat halaman dibuka tidak pernah disembunyikan;
+    // sisanya muncul saat masuk layar. Tanpa IntersectionObserver, semua tampil.
+    const semua = [...document.querySelectorAll<HTMLElement>(".muncul, .muncul-foto")];
+    const bawah = semua.filter((el) => el.getBoundingClientRect().top > window.innerHeight * 0.92);
     semua.filter((el) => !bawah.includes(el)).forEach((el) => el.classList.add("tampil"));
+    if (!("IntersectionObserver" in window)) return () => window.removeEventListener("scroll", f);
     document.documentElement.classList.add("js");
-    const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && (e.target.classList.add("tampil"), io.unobserve(e.target))), { threshold: 0.12 });
+    const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && (e.target.classList.add("tampil"), io.unobserve(e.target))), { threshold: 0.14, rootMargin: "0px 0px -6% 0px" });
     bawah.forEach((el) => io.observe(el));
-    const aman = setTimeout(() => semua.forEach((el) => el.classList.add("tampil")), 2500);
     return () => {
       window.removeEventListener("scroll", f);
       io.disconnect();
-      clearTimeout(aman);
     };
   }, []);
   const menu = [
@@ -56,6 +56,9 @@ export function Nav({ bahasa }: { bahasa: Bahasa }) {
         <button className="grid size-11 place-items-center rounded-full text-malam lg:hidden" aria-expanded={buka} aria-controls="menu-ponsel" aria-label={buka ? t.tutupMenu : t.bukaMenu} onClick={() => setBuka(!buka)}>
           <span className="block h-px w-5 bg-current shadow-[0_5px_0_currentColor,0_-5px_0_currentColor]" />
         </button>
+      </div>
+      <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[2px] overflow-hidden">
+        <div data-kemajuan className="h-full origin-left scale-x-0 bg-emas-tua" />
       </div>
       {buka && (
         <nav id="menu-ponsel" aria-label="Menu" className="grid gap-1 border-t border-malam/10 bg-[#F6F4EF] px-5 pb-5 pt-2 lg:hidden">

@@ -29,6 +29,10 @@ export interface Keunggulan {
 }
 export interface Konten {
   tagline: string;
+  /** Awalan baris kata berganti di hero, misalnya "Here for". */
+  heroAwalan: string;
+  /** Kata atau frasa yang bergantian di hero. */
+  heroKata: string[];
   introJudul: string;
   introIsi: string;
   programCatatan: string;
@@ -57,6 +61,8 @@ export const IKON_KEUNGGULAN = ["selam", "rumah", "tenang", "orang", "perahu", "
 
 export const KONTEN_BAWAAN: Konten = {
   tagline: "Menyelam siang, bermalam di bawah bintang.",
+  heroAwalan: "Datang untuk",
+  heroKata: ["menyelam di karang", "cottage kayu jati", "kelompok kecil", "malam berbintang"],
   introJudul: "Tempat laut menjadi rumah",
   introIsi:
     "Bakoeria Dive Resort adalah resor selam butik yang tenang dan personal. Siang hari Anda ada di bawah air bersama pemandu yang mengenal lokasinya. Malam hari Anda pulang ke cottage kayu jati, dengan lampu gantung hangat dan pasir di bawah kaki.",
@@ -108,6 +114,8 @@ export const KONTEN_BAWAAN: Konten = {
 export const KONTEN_BAWAAN_EN: Konten = {
   ...KONTEN_BAWAAN,
   tagline: "Dive by day, sleep under the stars.",
+  heroAwalan: "Here for",
+  heroKata: ["reef dives", "teak cottages", "small groups", "starry nights"],
   introJudul: "Where the sea feels like home",
   introIsi:
     "Bakoeria Dive Resort is a small, quiet dive resort. By day you are underwater with guides who know these sites well. By night you come home to a teak cottage, with warm hanging lights and sand under your feet.",
@@ -166,6 +174,8 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
   const kontak = (k.kontak ?? {}) as Record<string, unknown>;
   return {
     tagline: s(k.tagline, b.tagline),
+    heroAwalan: s(k.heroAwalan, b.heroAwalan).slice(0, 40),
+    heroKata: Array.isArray(k.heroKata) ? k.heroKata.filter((x): x is string => typeof x === "string" && x.trim() !== "").map((x) => x.trim().slice(0, 40)).slice(0, 8) : b.heroKata,
     introJudul: s(k.introJudul, b.introJudul),
     introIsi: s(k.introIsi, b.introIsi),
     programCatatan: s(k.programCatatan, b.programCatatan),

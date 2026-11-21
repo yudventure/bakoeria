@@ -87,6 +87,10 @@ export default function Website() {
       <Kartu judul="Pembuka">
         <div className="grid gap-4">
           <Bidang label="Tagline"><input className={masukan} value={k.tagline} onChange={(e) => set("tagline", e.target.value)} /></Bidang>
+          <div className="grid gap-4 sm:grid-cols-[14rem_1fr]">
+            <Bidang label="Awalan kata berganti" ket="Tampil di bawah judul hero."><input className={masukan} value={k.heroAwalan} onChange={(e) => set("heroAwalan", e.target.value)} /></Bidang>
+            <Bidang label="Kata yang bergantian" ket="Satu baris satu frasa, sebaiknya pendek (2–3 kata). Bergantian setiap beberapa detik."><textarea rows={4} className={masukan} value={k.heroKata.join("\n")} onChange={(e) => set("heroKata", e.target.value.split("\n"))} /></Bidang>
+          </div>
           <Bidang label="Judul sambutan"><input className={masukan} value={k.introJudul} onChange={(e) => set("introJudul", e.target.value)} /></Bidang>
           <Bidang label="Isi sambutan"><textarea rows={4} className={masukan} value={k.introIsi} onChange={(e) => set("introIsi", e.target.value)} /></Bidang>
         </div>
