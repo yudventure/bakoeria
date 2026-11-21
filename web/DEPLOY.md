@@ -1,141 +1,111 @@
 # Deploy ke Hostinger (Node.js Web Apps)
 
-Satu aplikasi Next.js (React + Tailwind CSS) melayani dua hal:
+Satu aplikasi Next.js (React + Tailwind CSS) dengan database MySQL Hostinger,
+dipasang dengan cara yang sama seperti Mambetron Homestay.
 
-| Alamat | Isi | Untuk |
+| Alamat | Isi |
+|---|---|
+| `/` | Situs publik, termasuk cek ketersediaan dan pemesanan langsung |
+| `/kelola` | Dashboard resort |
+| `/api/health` | Status server dan database |
+
+## 1. Buat database MySQL
+
+hPanel → **Databases → MySQL Databases**. Buat database dan penggunanya, catat
+nama database, nama pengguna, dan kata sandinya (biasanya berawalan
+`u123456789_`). Tidak perlu mengimpor apa pun: tabel dibuat sendiri pada
+kunjungan pertama. Bila tetap ingin lewat phpMyAdmin, impor `database/skema.sql`.
+
+## 2. Buat aplikasi Node.js
+
+hPanel → **Websites → Node.js Web Apps → Add**, sumber **GitHub**, repositori
+`yudventure/bakoeria`.
+
+| Isian | Nilai |
+|---|---|
+| Branch | `main` (atau branch default repo) |
+| Preset framework | Next.js |
+| Versi node | 22.x |
+| **Root directory** | **`./web`** |
+| Build command | `npm run build` |
+| Package manager | npm |
+| Direktori output | `.next` |
+| Entry file | `server.js` |
+
+Root directory wajib `./web`; aplikasinya ada di folder itu.
+
+## 3. Variabel environment
+
+Salin dari `.env.example`, hapus baris yang dikosongkan.
+
+| Variabel | Wajib | Isi |
 |---|---|---|
-| `/` | Situs publik Bakoeria Dive Resort, termasuk pemesanan langsung | tamu |
-| `/kelola` | Dashboard resort | pemilik dan staf |
-| `/version.json` | Commit yang sedang tayang | pemeriksaan deploy |
-| `/api/health` | Status server dan database | monitor |
+| `DB_NAME`, `DB_USER`, `DB_PASSWORD` | ya | Dari langkah 1 |
+| `DB_HOST` | tidak | `localhost` (bawaan) |
+| `PENYIAPAN_KUNCI` | ya, sekali | Kata acak untuk membuat akun pertama di `/kelola` |
+| `SITE_URL` | disarankan | `https://domainanda.com` |
+| `SESSION_SECRET` | tidak | 64 karakter acak |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_DARI` | tidak | Email Hostinger untuk pemberitahuan pesanan: `smtp.hostinger.com`, `465` |
 
-Cara kerjanya sama dengan Unmehopa Management: **build di GitHub Actions, hasilnya
-diterbitkan ke branch `deploy`, dan Hostinger menariknya.** Hostinger tidak pernah
-menjalankan `next build`, karena build butuh sekitar 1,5 GB memori.
+Untuk host `localhost`, aplikasi mencoba soket MySQL lebih dulu, lalu
+`127.0.0.1`, lalu nama host itu sendiri, seperti Mambetron. Jalur soket tertentu
+bisa dipaksa dengan `DB_SOCKET`. `DATABASE_URL` berbentuk
+`mysql://pengguna:sandi@host:3306/nama` juga terbaca.
 
-## Yang dibutuhkan
+## 4. Deploy dan periksa
 
-1. **Paket Hostinger dengan Node.js Web Apps** (Business Web Hosting atau Cloud).
-2. **Database PostgreSQL.** Hostinger hosting bersama hanya menyediakan MySQL, jadi
-   pakai Postgres terkelola, misalnya Neon atau Supabase (paket gratis cukup untuk
-   mulai). Catat dua alamat: yang *pooled* (untuk aplikasi) dan yang *direct*
-   (untuk migrasi).
-3. Repositori ini di GitHub dengan branch `main`.
+1. Jalankan deploy. Log build harus menampilkan `next build --webpack` lalu selesai.
+2. Buka `/api/health` → `{"ok":true,"database":"ok"}`.
+3. Buka `/kelola` → **Buat akun pertama** dengan `PENYIAPAN_KUNCI`.
+4. Isi cottage di **Kamar & tarif** dan kontak di **Website**, lalu coba satu
+   pemesanan dari situs publik.
 
-Kenapa PostgreSQL: pencegah pesanan ganda dijaga oleh database
-(`EXCLUDE USING gist`), bukan oleh kode. Dua resepsionis yang menyimpan kamar sama
-pada detik yang sama tetap tidak bisa membuat dua pesanan bertabrakan.
+## Catatan versi
 
-## Langkah 1: GitHub
+**Next.js sengaja dikunci di 16.2.12 dan dibangun dengan webpack**
+(`next build --webpack`), sama seperti Mambetron. Mulai 16.3 mesin kompilasi
+Next.js butuh glibc yang lebih baru daripada server build Hostinger, sehingga
+build gagal dengan pesan tentang `GLIBC_2.29` atau `@next/swc-linux-x64-gnu`.
+Turbopack juga bermasalah di server build Hostinger. Jangan menaikkan versi
+Next.js sebelum memastikan Hostinger mendukungnya.
 
-Di **Settings → Secrets and variables → Actions**:
+Perkakas build (Tailwind, TypeScript) ada di `dependencies`, bukan
+`devDependencies`, karena Hostinger bisa melewati devDependencies saat memasang.
 
-| Jenis | Nama | Isi |
-|---|---|---|
-| Secret | `DIRECT_URL` | Alamat Postgres *direct* (untuk migrasi otomatis) |
-| Variable | `SITE_URL` | `https://domainanda.com` (opsional; workflow menunggu sampai build baru tayang) |
+## Pencegah pesanan ganda
 
-Lalu push ke `main`. Workflow **Build web** (`.github/workflows/build-web.yml`)
-akan menjalankan typecheck, uji, build, migrasi database, dan menerbitkan hasilnya
-ke branch `deploy`.
-
-## Langkah 2: Hostinger
-
-Di hPanel → **Websites → Node.js Web Apps → Add**, pilih sumber **GitHub** dan
-beri izin repositori ini.
-
-```
-Repositori       : yudventure/bakoeria
-Branch           : deploy          <- bukan main
-Preset framework : Next.js
-Build command    : npm run build   <- di branch deploy ini tidak membangun apa-apa
-Direktori output : ./
-Entry file       : server.js
-Versi Node       : 22
-Root directory   : ./
-```
-
-Formulir Hostinger mewajibkan build command dan direktori output. Branch `deploy`
-membawa script `build` yang hanya mencetak satu kalimat, dan direktori outputnya
-memang akar branch itu (`server.js`, `.next`, `public`, `node_modules`).
-Jangan pilih `npm run start` sebagai build command: server akan menyala sebagai
-langkah build lalu menggantung.
-
-### Bila Hostinger hanya menawarkan branch kode sumber
-
-Alur Hostinger Agent kadang memakai branch default repo dan tidak menawarkan
-`deploy`. Akar repo juga bisa di-deploy langsung: `package.json` dan
-`server.js` di akar membangun `web/` lalu menjalankannya.
-
-```
-Branch           : main (atau branch default)
-Preset framework : Next.js
-Root directory   : ./
-Build command    : npm run build
-Direktori output : ./
-Entry file       : server.js
-Versi Node       : 22
-```
-
-Build-nya terjadi di Hostinger (sekitar 25 detik, puncak memori sekitar 800 MB
-saat diukur). Jalur branch `deploy` tetap lebih ringan karena tidak membangun
-apa pun di server.
-
-## Langkah 3: Variabel lingkungan di Hostinger
-
-Di panel aplikasi Node.js → **Environment variables**:
-
-| Variabel | Wajib | Tanpa ini |
-|---|---|---|
-| `DATABASE_URL` | ya | Situs publik tetap tayang, tetapi dashboard dan pemesanan online mati dengan pesan yang jelas |
-| `PENYIAPAN_KUNCI` | ya, sekali | Akun pertama tidak bisa dibuat |
-| `SITE_URL` | disarankan | Pratinjau tautan memakai localhost |
-| `SESSION_SECRET` | tidak | Dibuat sekali dan disimpan di folder data |
-| `BAKOERIA_DATA_DIR` | tidak | Memakai `~/.bakoeria-data` |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_DARI` | tidak | Pesanan website tidak dikirim lewat email (tetap masuk dashboard). Untuk email Hostinger: `smtp.hostinger.com`, port `465` |
-
-Daftar lengkap ada di `.env.example`. Jangan mengisi `PORT`: Hostinger yang
-menentukannya dan `server.js` membacanya sendiri.
-
-Pilih **Save and redeploy**.
-
-## Langkah 4: Pemeriksaan
-
-1. Buka `https://domainanda.com/version.json`. `commit` harus sama dengan commit
-   terakhir di `main`.
-2. Buka `https://domainanda.com/api/health`. Harus `{"ok":true,"database":"ok"}`.
-3. Buka `/kelola`. Halamannya menawarkan **Buat akun pertama**. Isi dengan
-   `PENYIAPAN_KUNCI`, nama, email, dan sandi. Akun ini menjadi developer.
-4. Di dashboard: tambahkan cottage di **Kamar & tarif**, lalu isi kontak di
-   **Website**, lalu coba satu pemesanan dari situs publik.
+MySQL tidak punya constraint EXCLUDE seperti PostgreSQL. Setiap penyimpanan yang
+bisa membuat kamar terisi berjalan di dalam transaksi READ COMMITTED yang lebih
+dulu mengunci baris kamarnya (`SELECT … FOR UPDATE`) lalu memeriksa tumpang
+tindih dengan bacaan terkunci. Diuji dengan 60 pemindahan serentak ke tanggal
+yang sama: tepat satu per kamar yang lolos.
 
 ## Data dan cadangan
 
 | Data | Tempat |
 |---|---|
-| Kamar, tarif musiman, pesanan, tamu, pembayaran, sinkron iCal, riwayat perubahan | PostgreSQL |
-| Akun, pengaturan, isi website, keuangan, SDM, gudang | Berkas JSON di `BAKOERIA_DATA_DIR` (bawaan `~/.bakoeria-data`) |
+| Kamar, tarif musiman, pesanan, tamu, pembayaran, sinkron iCal, riwayat | MySQL |
+| Akun, pengaturan, isi website, keuangan, SDM, gudang | Berkas JSON di `~/.bakoeria-data` (atau `BAKOERIA_DATA_DIR`) |
 
-Folder data ada **di luar folder aplikasi**, jadi deploy ulang tidak menghapusnya.
-Cadangkan keduanya: database lewat fitur backup penyedia Postgres, dan folder
-data lewat File Manager atau backup harian Hostinger.
+Cadangkan database lewat backup Hostinger atau phpMyAdmin (Export), dan folder
+data lewat File Manager.
 
-## Sinkronisasi OTA
+## Jalur cadangan
 
-Di **Sinkronisasi OTA**, tambahkan satu sambungan per cottage per OTA. Tempel
-alamat iCal dari extranet OTA, lalu tempel alamat ekspor dari dashboard ke OTA.
-Sambungan dibaca ulang otomatis tiap 15 menit selama dashboard dibuka, atau
-segera lewat tombol **Sinkronkan OTA**.
+- **Root directory `./`**: akar repo juga punya `package.json` dan `server.js`
+  yang membangun `web/` dalam mode standalone.
+- **Branch `deploy`**: hasil build siap jalan dari GitHub Actions
+  (`.github/workflows/build-web.yml`), tidak membangun apa pun di server.
+  Isian: branch `deploy`, root `./`, output `./`, entry `server.js`.
 
 ## Pengembangan lokal
 
 ```bash
 cd web
-cp .env.example .env          # isi DATABASE_URL dan PENYIAPAN_KUNCI
+cp .env.example .env      # isi DB_* dengan MySQL/MariaDB lokal
 npm install
-npx prisma migrate deploy
-npm run db:seed:demo          # opsional: kamar dan pesanan contoh
-npm run dev                   # http://localhost:3000 dan /kelola
+npm run db:seed:demo      # opsional: kamar dan pesanan contoh
+npm run dev               # http://localhost:3000 dan /kelola
 ```
 
 Uji: `npm run typecheck` dan `npm run uji`.

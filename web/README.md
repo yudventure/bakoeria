@@ -1,6 +1,6 @@
 # Bakoeria Dive Resort — Website dan dashboard
 
-Next.js 16 (React 19) + Tailwind CSS 4 + Prisma 7 + PostgreSQL. Satu resort.
+Next.js 16.2 (React 19) + Tailwind CSS 4 + MySQL (database Hostinger). Satu resort.
 Admin dimodelkan dari Unmehopa Management, tanpa logika multi-properti.
 
 - `/` situs publik dengan cek ketersediaan dan pemesanan langsung
@@ -16,5 +16,6 @@ Cara deploy ke Hostinger: [DEPLOY.md](DEPLOY.md).
 | `src/components/admin` | Dashboard |
 | `src/components/situs` | Situs publik |
 | `src/lib` | Logika murni (tanggal, tarif, iCal, peran) dan modul server |
-| `prisma` | Skema, migrasi, data contoh |
-| `scripts/package.mjs` | Mengemas hasil build untuk Hostinger |
+| `database/skema.sql` | Salinan skema MySQL untuk phpMyAdmin (tabel juga dibuat otomatis) |
+| `scripts/` | Pengemas build standalone, data contoh, pembuat skema SQL |
+| `server.js` | Titik masuk Hostinger (`node server.js`) |
