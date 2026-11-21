@@ -19,7 +19,7 @@ export async function badan(req: Request): Promise<Record<string, unknown>> {
 }
 
 export const tanpaDb = () =>
-  databaseReady() ? null : gagal("Database belum disambungkan. Isi DATABASE_URL di panel Node.js Hostinger.", 503, { kode: "tanpa-db" });
+  databaseReady() ? null : gagal("Database belum diatur. Isi DB_NAME, DB_USER, dan DB_PASSWORD di panel Node.js Hostinger.", 503, { kode: "tanpa-db" });
 
 /** Peran tanpa hak melihat rupiah mendapat pesanan tanpa angka uang. */
 export function sensor(p: Pesanan, peran: Peran): Pesanan {

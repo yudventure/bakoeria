@@ -69,7 +69,7 @@ export default function Pengaturan() {
       </Kartu>
       <Kartu judul="Kesiapan server" ket="Variabel di panel Node.js Hostinger. Nilainya tidak pernah ditampilkan.">
         <ul className="divide-y divide-panel-garis">
-          {baris(st.database, "DATABASE_URL", "PostgreSQL untuk kalender, pesanan, tamu, dan laporan.")}
+          {baris(st.database, "DB_NAME, DB_USER, DB_PASSWORD", "Database MySQL dari hPanel untuk kalender, pesanan, tamu, dan laporan.")}
           {baris(st.penyiapanKunci, "PENYIAPAN_KUNCI", "Hanya untuk membuat akun pertama.")}
           {baris(st.sessionSecret, "SESSION_SECRET", "Opsional. Tanpa ini rahasia sesi dibuat sekali dan disimpan di folder data.")}
           {baris(st.email, "SMTP_HOST, SMTP_USER, SMTP_PASS", "Opsional. Email pemberitahuan pesanan website, misalnya lewat email Hostinger.")}

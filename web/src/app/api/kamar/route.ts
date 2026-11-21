@@ -1,7 +1,6 @@
-import { db } from "@/lib/db";
 import { tanggalSah } from "@/lib/booking";
 import { wajib } from "@/lib/server/akses";
-import { ambilKamar, keTanggal } from "@/lib/server/buku";
+import { ambilKamar, buatKamar, hapusKamar, hapusMusim, jumlahPesananKamar, kamarDenganNama, MusimTumpangError, tambahMusim, ubahKamar } from "@/lib/server/buku";
 import { badan, gagal, ok, tanpaDb } from "@/lib/server/rute";
 
 const UBAH = ["developer", "pemilik", "manajer"];
@@ -49,17 +48,17 @@ export async function POST(req: Request) {
     const rate = Number(m.rate);
     if (!Number.isFinite(rate) || rate < 0) return gagal("Isi tarif.");
     try {
-      await db().seasonalRate.create({ data: { roomId: m.roomId, dateFrom: keTanggal(m.dateFrom), dateTo: keTanggal(m.dateTo), rate, label: typeof m.label === "string" ? m.label.slice(0, 60) : null } });
+      await tambahMusim({ roomId: m.roomId, dateFrom: m.dateFrom, dateTo: m.dateTo, rate, label: typeof m.label === "string" ? m.label.slice(0, 60) : null });
     } catch (e) {
-      if (String(JSON.stringify(e, Object.getOwnPropertyNames(e ?? {}))).includes("23P01")) return gagal("Rentang itu tumpang tindih dengan tarif musiman lain untuk kamar ini.", 409);
+      if (e instanceof MusimTumpangError) return gagal(e.message, 409);
       throw e;
     }
     return ok({ kamar: await ambilKamar() }, 201);
   }
   const r = bacaKamar(o);
   if ("galat" in r) return gagal(r.galat!);
-  if (await db().room.findUnique({ where: { name: r.data.name } })) return gagal("Nama kamar itu sudah dipakai.", 409);
-  await db().room.create({ data: r.data });
+  if (await kamarDenganNama(r.data.name)) return gagal("Nama kamar itu sudah dipakai.", 409);
+  await buatKamar(r.data);
   return ok({ kamar: await ambilKamar() }, 201);
 }
 
@@ -73,9 +72,9 @@ export async function PATCH(req: Request) {
   if (typeof o.id !== "string") return gagal("Kamar tidak disebut.");
   const r = bacaKamar(o);
   if ("galat" in r) return gagal(r.galat!);
-  const lain = await db().room.findUnique({ where: { name: r.data.name } });
+  const lain = await kamarDenganNama(r.data.name);
   if (lain && lain.id !== o.id) return gagal("Nama kamar itu sudah dipakai.", 409);
-  await db().room.update({ where: { id: o.id }, data: r.data });
+  await ubahKamar(o.id, r.data);
   return ok({ kamar: await ambilKamar() });
 }
 
@@ -89,13 +88,13 @@ export async function DELETE(req: Request) {
   const u = new URL(req.url).searchParams;
   const musim = u.get("musim");
   if (musim) {
-    await db().seasonalRate.delete({ where: { id: musim } });
+    await hapusMusim(musim);
     return ok({ kamar: await ambilKamar() });
   }
   const id = u.get("id");
   if (!id) return gagal("Kamar tidak disebut.");
-  const n = await db().booking.count({ where: { roomId: id } });
+  const n = await jumlahPesananKamar(id);
   if (n) return gagal(`Kamar ini punya ${n} pesanan. Nonaktifkan saja supaya riwayatnya tetap utuh.`, 409);
-  await db().room.delete({ where: { id } });
+  await hapusKamar(id);
   return ok({ kamar: await ambilKamar() });
 }

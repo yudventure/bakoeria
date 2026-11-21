@@ -1,7 +1,8 @@
 # Membangun aplikasi web Bakoeria di GitHub Actions dan menerbitkan hasilnya ke
 # branch `deploy`, yang ditarik Hostinger Node.js Web Apps. Hostinger tidak perlu
-# membangun apa pun: `next build` butuh sekitar 1,5 GB memori, terlalu besar
-# untuk hosting bersama. Pola ini sama dengan Unmehopa Management.
+# membangun apa pun. Ini jalur cadangan; jalur utama adalah Hostinger membangun
+# dari folder web/ seperti Mambetron (lihat web/DEPLOY.md). Database MySQL
+# membuat tabelnya sendiri, jadi tidak ada langkah migrasi di sini.
 
 name: Build web
 
@@ -22,9 +23,6 @@ jobs:
     env:
       # Untuk metadata situs (og:image dan tautan kanonik). Tidak rahasia.
       SITE_URL: ${{ vars.SITE_URL }}
-      # Untuk langkah migrasi. Alamat LANGSUNG ke database, bukan lewat pooler.
-      DIRECT_URL: ${{ secrets.DIRECT_URL }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -37,15 +35,9 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run uji
-      - run: npm run build
+      - run: npm run build:standalone
       - run: npm run package:archive
 
-      # Sesudah build berhasil dan sebelum kode baru tayang, supaya kolom yang
-      # dibutuhkan kode baru sudah ada. `migrate deploy` hanya menerapkan berkas
-      # migrasi yang ada, tidak pernah menghapus data. Tidur sampai secret diisi.
-      - name: Terapkan migrasi database
-        if: github.ref == 'refs/heads/main' && (env.DIRECT_URL != '' || env.DATABASE_URL != '')
-        run: npx prisma migrate deploy
 
       - uses: actions/upload-artifact@v4
         with:

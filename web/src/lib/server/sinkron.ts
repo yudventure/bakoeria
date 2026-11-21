@@ -3,10 +3,10 @@ import { randomBytes } from "node:crypto";
 import { lookup } from "node:dns/promises";
 import net from "node:net";
 
-import { db } from "@/lib/db";
-import { MENEMPATI, type Channel } from "@/lib/booking";
+import { idBaru, jalankan, kueri } from "@/lib/db";
+import { MENEMPATI, type Channel, type Status } from "@/lib/booking";
 import { bacaIcal, tulisIcal } from "@/lib/ical";
-import { dariTanggal, galatBentrok, keTanggal } from "./buku";
+import { buatBooking, ubahBooking } from "./buku";
 
 /**
  * Sinkronisasi kalender dengan OTA lewat iCal.
@@ -20,7 +20,8 @@ import { dariTanggal, galatBentrok, keTanggal } from "./buku";
  * memperbarui booking yang sama alih-alih menduplikasinya. Event yang hilang
  * dari feed dibatalkan. Event yang ditolak constraint anti-bentrok disimpan
  * sebagai CONFLICT, karena booking itu sudah terjadi di OTA dan membuangnya
- * berarti kehilangan data.
+ * berarti kehilangan data. Semua penulisan lewat buatBooking/ubahBooking,
+ * jadi impor tunduk pada kunci kamar yang sama dengan pesanan manual.
  */
 
 export const tokenBaru = () => randomBytes(16).toString("hex");
@@ -69,83 +70,77 @@ export async function ambilFeed(alamat: string): Promise<string> {
 
 /** Satu siklus tarik untuk satu sambungan. Gagal membaca tidak pernah melepas kamar yang terisi. */
 export async function tarik(feedId: string) {
-  const feed = await db().icalFeed.findUnique({ where: { id: feedId } });
+  const feed = (await kueri("SELECT * FROM ical_feeds WHERE id = ?", [feedId]))[0];
   if (!feed?.url) return null;
-  const run = await db().syncRun.create({ data: { feedId } });
+  const runId = idBaru();
+  await jalankan("INSERT INTO sync_runs (id, feed_id) VALUES (?, ?)", [runId, feedId]);
   const hitung = { eventsSeen: 0, createdCount: 0, updatedCount: 0, cancelledCount: 0 };
+  const label = (feed.ota_label as string) ?? "";
+  const roomId = String(feed.room_id);
   try {
     const hariIni = new Date().toISOString().slice(0, 10);
-    const events = bacaIcal(await ambilFeed(feed.url)).filter((e) => !e.batal && e.selesai >= hariIni);
+    const events = bacaIcal(await ambilFeed(String(feed.url))).filter((e) => !e.batal && e.selesai >= hariIni);
     hitung.eventsSeen = events.length;
-    const awalan = `${feed.id}:`;
-    const lama = await db().booking.findMany({ where: { externalUid: { startsWith: awalan } } });
-    const peta = new Map(lama.map((b) => [b.externalUid!, b]));
+    const awalan = `${feedId}:`;
+    const lama = await kueri<{ id: string; external_uid: string; check_in: string; check_out: string; status: string }>(
+      "SELECT id, external_uid, check_in, check_out, status FROM bookings WHERE external_uid LIKE ?",
+      [awalan + "%"],
+    );
+    const peta = new Map(lama.map((b) => [b.external_uid, b]));
     const terlihat = new Set<string>();
     for (const e of events) {
       const uid = awalan + e.uid;
       terlihat.add(uid);
       const ada = peta.get(uid);
-      const catatan = `Dari iCal ${feed.otaLabel ?? ""}: ${e.ringkasan}`.trim();
       if (ada) {
-        if (dariTanggal(ada.checkIn) === e.mulai && dariTanggal(ada.checkOut) === e.selesai && ada.status !== "CANCELLED") continue;
-        try {
-          await db().booking.update({ where: { id: ada.id }, data: { checkIn: keTanggal(e.mulai), checkOut: keTanggal(e.selesai), status: ada.status === "CONFLICT" || ada.status === "CANCELLED" ? "CONFIRMED" : ada.status, conflictGroup: null } });
-        } catch (err) {
-          if (!galatBentrok(err)) throw err;
-          await db().booking.update({ where: { id: ada.id }, data: { checkIn: keTanggal(e.mulai), checkOut: keTanggal(e.selesai), status: "CONFLICT", conflictGroup: `${feed.roomId}:${e.mulai}` } });
-        }
+        if (String(ada.check_in).slice(0, 10) === e.mulai && String(ada.check_out).slice(0, 10) === e.selesai && ada.status !== "CANCELLED") continue;
+        await ubahBooking(ada.id, { checkIn: e.mulai, checkOut: e.selesai, status: ada.status === "CONFLICT" || ada.status === "CANCELLED" ? "CONFIRMED" : (ada.status as Status) }, "Sinkron iCal", { bentrokJadiKonflik: true });
         hitung.updatedCount++;
       } else {
-        const dasar = { code: "IC-" + randomBytes(3).toString("hex").toUpperCase(), roomId: feed.roomId, checkIn: keTanggal(e.mulai), checkOut: keTanggal(e.selesai), channel: tebakChannel(feed.otaLabel), source: "ICAL" as const, externalUid: uid, notes: catatan, createdBy: "Sinkron iCal" };
-        try {
-          await db().booking.create({ data: { ...dasar, status: "CONFIRMED" } });
-        } catch (err) {
-          if (!galatBentrok(err)) throw err;
-          await db().booking.create({ data: { ...dasar, status: "CONFLICT", conflictGroup: `${feed.roomId}:${e.mulai}` } });
-        }
+        await buatBooking(
+          { roomId, checkIn: e.mulai, checkOut: e.selesai, channel: tebakChannel(label), status: "CONFIRMED", source: "ICAL", externalUid: uid, notes: `Dari iCal ${label}: ${e.ringkasan}`.trim() },
+          "Sinkron iCal",
+          { bentrokJadiKonflik: true },
+        );
         hitung.createdCount++;
       }
     }
     for (const b of lama) {
-      if (!terlihat.has(b.externalUid!) && dariTanggal(b.checkOut) >= hariIni && b.status !== "CANCELLED") {
-        await db().booking.update({ where: { id: b.id }, data: { status: "CANCELLED", conflictGroup: null } });
+      if (!terlihat.has(b.external_uid) && String(b.check_out).slice(0, 10) >= hariIni && b.status !== "CANCELLED") {
+        await jalankan("UPDATE bookings SET status = 'CANCELLED', conflict_group = NULL WHERE id = ?", [b.id]);
         hitung.cancelledCount++;
       }
     }
-    await db().syncRun.update({ where: { id: run.id }, data: { ...hitung, finishedAt: new Date() } });
-    await db().icalFeed.update({ where: { id: feed.id }, data: { lastSuccessAt: new Date(), failCount: 0, lastError: null } });
+    await jalankan("UPDATE sync_runs SET events_seen = ?, created_count = ?, updated_count = ?, cancelled_count = ?, finished_at = UTC_TIMESTAMP(3) WHERE id = ?", [hitung.eventsSeen, hitung.createdCount, hitung.updatedCount, hitung.cancelledCount, runId]);
+    await jalankan("UPDATE ical_feeds SET last_success_at = UTC_TIMESTAMP(3), fail_count = 0, last_error = NULL WHERE id = ?", [feedId]);
     return { ok: true as const, ...hitung };
   } catch (e) {
     const pesan = e instanceof Error ? e.message : String(e);
-    await db().syncRun.update({ where: { id: run.id }, data: { ...hitung, finishedAt: new Date(), error: pesan } });
-    await db().icalFeed.update({ where: { id: feed.id }, data: { lastErrorAt: new Date(), lastError: pesan, failCount: { increment: 1 } } });
+    await jalankan("UPDATE sync_runs SET events_seen = ?, created_count = ?, updated_count = ?, cancelled_count = ?, finished_at = UTC_TIMESTAMP(3), error = ? WHERE id = ?", [hitung.eventsSeen, hitung.createdCount, hitung.updatedCount, hitung.cancelledCount, pesan, runId]);
+    await jalankan("UPDATE ical_feeds SET last_error_at = UTC_TIMESTAMP(3), last_error = ?, fail_count = fail_count + 1 WHERE id = ?", [pesan, feedId]);
     return { ok: false as const, galat: pesan, ...hitung };
   }
 }
 
 /** Tarik semua sambungan aktif yang terakhir dibaca lebih dari `menit` lalu. */
 export async function tarikYangBasi(menit = 15) {
-  const batas = new Date(Date.now() - menit * 60000);
-  const feeds = await db().icalFeed.findMany({ where: { isActive: true, url: { not: null }, OR: [{ lastSuccessAt: null }, { lastSuccessAt: { lt: batas } }] } });
+  const feeds = await kueri<{ id: string }>(
+    "SELECT id FROM ical_feeds WHERE is_active = 1 AND url IS NOT NULL AND url <> '' AND (last_success_at IS NULL OR last_success_at < UTC_TIMESTAMP(3) - INTERVAL ? MINUTE)",
+    [menit],
+  );
   const hasil = [];
   for (const f of feeds) hasil.push({ id: f.id, ...(await tarik(f.id)) });
   return hasil;
 }
 
+/** Kalender keluar. Tidak memuat pesanan yang datang dari sambungan itu sendiri. */
 export async function kalenderKeluar(token: string): Promise<string | null> {
-  const feed = await db().icalFeed.findUnique({ where: { exportToken: token }, include: { room: true } });
-  if (!feed || !feed.isActive) return null;
-  const sejak = new Date(Date.now() - 2 * 86400000);
-  const rows = await db().booking.findMany({
-    where: {
-      roomId: feed.roomId,
-      status: { in: MENEMPATI },
-      checkOut: { gte: sejak },
-      // Kolom NULL harus disebut terang-terangan: NOT (NULL LIKE ...) bernilai NULL di SQL,
-      // dan tanpa cabang ini semua pesanan manual ikut tersaring sehingga feed kosong.
-      OR: [{ externalUid: null }, { NOT: { externalUid: { startsWith: `${feed.id}:` } } }],
-    },
-    select: { checkIn: true, checkOut: true },
-  });
-  return tulisIcal(`${feed.room.name} - Bakoeria`, rows.map((r) => ({ mulai: dariTanggal(r.checkIn), selesai: dariTanggal(r.checkOut) })));
+  const feed = (await kueri("SELECT f.id, f.room_id, f.is_active, r.name AS room_name FROM ical_feeds f JOIN rooms r ON r.id = f.room_id WHERE f.export_token = ?", [token]))[0];
+  if (!feed || !feed.is_active) return null;
+  const sejak = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);
+  const rows = await kueri<{ check_in: string; check_out: string }>(
+    "SELECT check_in, check_out FROM bookings WHERE room_id = ? AND status IN (?) AND check_out >= ? AND (external_uid IS NULL OR external_uid NOT LIKE ?)",
+    [String(feed.room_id), MENEMPATI, sejak, `${feed.id}:%`],
+  );
+  return tulisIcal(`${feed.room_name} - Bakoeria`, rows.map((r) => ({ mulai: String(r.check_in).slice(0, 10), selesai: String(r.check_out).slice(0, 10) })));
 }

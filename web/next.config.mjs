@@ -8,10 +8,11 @@ const akar = path.dirname(fileURLToPath(import.meta.url));
 
 /** @type {import("next").NextConfig} */
 const config = {
-  // Hostinger menjalankan satu proses Node. `standalone` menghasilkan
-  // server.js beserta node_modules yang benar-benar dipakai, sehingga server
-  // tidak perlu `npm install` maupun build. Lihat DEPLOY.md.
-  output: "standalone",
+  // Build biasa (.next) untuk Hostinger yang membangun dari web/, seperti
+  // Mambetron. `standalone` hanya untuk branch deploy dan build dari akar repo
+  // (npm run build:standalone), yang menghasilkan server siap jalan tanpa
+  // npm install. Lihat DEPLOY.md.
+  output: process.env.BAKOERIA_STANDALONE === "1" ? "standalone" : undefined,
   outputFileTracingRoot: akar,
   turbopack: { root: akar },
   poweredByHeader: false,

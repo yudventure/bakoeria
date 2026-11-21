@@ -4,39 +4,38 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "start:standalone": "node .next/standalone/server.js",
     "package": "node scripts/package.mjs",
     "package:archive": "node scripts/package.mjs --archive",
     "typecheck": "tsc --noEmit",
     "uji": "tsx --test src/lib/*.test.ts",
-    "postinstall": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:seed:demo": "tsx prisma/seed.ts --demo"
+    "db:seed:demo": "tsx scripts/contoh.ts",
+    "db:sql": "tsx scripts/skema-sql.ts > database/skema.sql",
+    "start:node": "node server.js",
+    "build:standalone": "BAKOERIA_STANDALONE=1 next build --webpack"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "7.10.0",
-    "@prisma/client": "7.10.0",
-    "next": "^16.3.0",
-    "nodemailer": "^6.10.1",
-    "pg": "8.23.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "server-only": "^0.0.1"
-  },
-  "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^24.0.0",
     "@types/nodemailer": "^6.4.24",
-    "@types/pg": "8.23.1",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "dotenv": "18.0.1",
-    "prisma": "7.10.0",
+    "mysql2": "3.24.5",
+    "next": "16.2.12",
+    "nodemailer": "^6.10.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "server-only": "^0.0.1",
     "tailwindcss": "^4.3.3",
-    "tsx": "4.23.15",
     "typescript": "^5.9.0"
-  }
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "main": "server.js"
 }

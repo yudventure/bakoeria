@@ -67,8 +67,8 @@ export default function Ringkasan() {
       ) : memuat ? (
         <Memuat />
       ) : tanpaDb ? (
-        <Kartu judul="Database belum tersambung">
-          <p className="text-sm text-panel-redup">Kalender, pesanan, dan laporan membutuhkan PostgreSQL. Isi <b>DATABASE_URL</b> di panel Node.js Hostinger lalu jalankan ulang aplikasinya. Panduannya ada di DEPLOY.md.</p>
+        <Kartu judul="Database belum diatur">
+          <p className="text-sm text-panel-redup">Kalender, pesanan, dan laporan membutuhkan database MySQL. Buat database di hPanel (Databases, MySQL Databases), lalu isi <b>DB_NAME</b>, <b>DB_USER</b>, dan <b>DB_PASSWORD</b> di panel Node.js Hostinger dan jalankan ulang aplikasinya. Tabelnya dibuat sendiri.</p>
         </Kartu>
       ) : galat ? (
         <Galat pesan={galat} ulang={muat} />

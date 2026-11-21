@@ -1,7 +1,6 @@
-import { db } from "@/lib/db";
 import { bolehCatat, lihatRupiah } from "@/lib/peran";
 import { wajib } from "@/lib/server/akses";
-import { semuaTamu } from "@/lib/server/buku";
+import { semuaTamu, ubahTamu } from "@/lib/server/buku";
 import { badan, gagal, ok, tanpaDb } from "@/lib/server/rute";
 
 export async function GET(req: Request) {
@@ -25,6 +24,6 @@ export async function PATCH(req: Request) {
   const s = (v: unknown, n = 200) => (typeof v === "string" ? v.trim().slice(0, n) || null : null);
   const name = s(o.name, 120);
   if (!name) return gagal("Isi nama tamu.");
-  await db().guest.update({ where: { id: o.id }, data: { name, phone: s(o.phone), email: s(o.email), origin: s(o.origin), diveCert: s(o.diveCert), notes: s(o.notes, 2000) } });
+  await ubahTamu(o.id, { name, phone: s(o.phone), email: s(o.email), origin: s(o.origin), diveCert: s(o.diveCert), notes: s(o.notes, 2000) });
   return ok({ diubah: true });
 }

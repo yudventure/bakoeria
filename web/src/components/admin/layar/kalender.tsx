@@ -86,7 +86,7 @@ export default function Kalender() {
   }
 
   if (memuat) return <Memuat />;
-  if (tanpaDb) return <Galat pesan="Database belum tersambung. Isi DATABASE_URL di panel Node.js Hostinger." />;
+  if (tanpaDb) return <Galat pesan="Database belum diatur. Isi DB_NAME, DB_USER, dan DB_PASSWORD di panel Node.js Hostinger." />;
   if (galat) return <Galat pesan={galat} ulang={muat} />;
 
   const judulBulan = `${BULAN_PANJANG[Number(bulan.slice(5)) - 1]} ${bulan.slice(0, 4)}`;
