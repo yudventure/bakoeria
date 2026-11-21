@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "node scripts/versi.mjs && next build --webpack",
     "start": "next start",
     "start:standalone": "node .next/standalone/server.js",
     "package": "node scripts/package.mjs",
@@ -14,7 +14,7 @@
     "db:seed:demo": "tsx scripts/contoh.ts",
     "db:sql": "tsx scripts/skema-sql.ts > database/skema.sql",
     "start:node": "node server.js",
-    "build:standalone": "BAKOERIA_STANDALONE=1 next build --webpack"
+    "build:standalone": "node scripts/versi.mjs && BAKOERIA_STANDALONE=1 next build --webpack"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.3",

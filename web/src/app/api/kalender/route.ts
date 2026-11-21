@@ -2,7 +2,7 @@ import { tambahHari, tanggalSah, hariIniWit } from "@/lib/booking";
 import { lihatRupiah } from "@/lib/peran";
 import { wajib } from "@/lib/server/akses";
 import { ambilKamar, bersihkanTahanan, bookingDalam } from "@/lib/server/buku";
-import { ok, sensor, tanpaDb } from "@/lib/server/rute";
+import { gagal, ok, sensor, tanpaDb } from "@/lib/server/rute";
 
 /** Kamar dan booking dalam rentang [dari, sampai). Bawaan: 3 bulan mulai bulan lalu. */
 export async function GET(req: Request) {
@@ -14,8 +14,14 @@ export async function GET(req: Request) {
   const awalBulan = hariIniWit().slice(0, 8) + "01";
   const dari = tanggalSah(u.get("dari")) ? u.get("dari")! : tambahHari(awalBulan, -40);
   const sampai = tanggalSah(u.get("sampai")) ? u.get("sampai")! : tambahHari(awalBulan, 400);
-  await bersihkanTahanan();
-  const [kamar, pesanan] = await Promise.all([ambilKamar(), bookingDalam(dari, sampai)]);
+  let kamar, pesanan;
+  try {
+    await bersihkanTahanan();
+    [kamar, pesanan] = await Promise.all([ambilKamar(), bookingDalam(dari, sampai)]);
+  } catch (e) {
+    console.error("[kalender]", e);
+    return gagal("Database tidak bisa dihubungi.", 503, { kode: "db-gagal" });
+  }
   const rp = lihatRupiah(a.peran);
   return ok({
     dari,

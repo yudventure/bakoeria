@@ -57,7 +57,7 @@ export function PenyediaData({ akun, children, layarAwal }: { akun: AkunSaya; ch
       setGalat("");
       setTanpaDb(false);
     } catch (e) {
-      if (e instanceof GalatApi && e.data.kode === "tanpa-db") setTanpaDb(true);
+      if (e instanceof GalatApi && (e.data.kode === "tanpa-db" || e.data.kode === "db-gagal")) setTanpaDb(true);
       setGalat(e instanceof Error ? e.message : "Data tidak bisa dimuat.");
     } finally {
       sedang.current = false;

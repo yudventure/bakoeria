@@ -6,6 +6,7 @@ import type { Pengaturan as TPengaturan } from "@/lib/pengaturan";
 import { api } from "../api";
 import { useData } from "../data";
 import { Bidang, Galat, Kartu, masukan, Memuat, Pil, Tombol, useToast } from "../ui";
+import DiagnosaDb from "../diagnosa-db";
 
 interface Status {
   database: boolean;
@@ -67,6 +68,7 @@ export default function Pengaturan() {
           ))}
         </div>
       </Kartu>
+      {boleh && <DiagnosaDb />}
       <Kartu judul="Kesiapan server" ket="Variabel di panel Node.js Hostinger. Nilainya tidak pernah ditampilkan.">
         <ul className="divide-y divide-panel-garis">
           {baris(st.database, "DB_NAME, DB_USER, DB_PASSWORD", "Database MySQL dari hPanel untuk kalender, pesanan, tamu, dan laporan.")}

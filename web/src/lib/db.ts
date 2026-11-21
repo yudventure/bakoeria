@@ -19,7 +19,7 @@ import { SKEMA } from "@/lib/server/skema";
  * DB_NAME dan DB_USER aplikasi tetap menyala: situs publik dan halaman masuk
  * jalan, dan dashboard mengatakan di layar bahwa database belum diatur.
  */
-type Simpan = { pool?: mysql.Pool; kunci?: string; siap?: Promise<void>; cari?: Promise<mysql.Pool>; cara?: string };
+type Simpan = { pool?: mysql.Pool; kunci?: string; siap?: Promise<void>; cari?: Promise<mysql.Pool>; cara?: string; galat?: string; galatPada?: string };
 const g = globalThis as unknown as { __bakoeriaDb?: Simpan };
 const S: Simpan = (g.__bakoeriaDb ??= {});
 
@@ -98,10 +98,20 @@ async function ambilPool(): Promise<mysql.Pool> {
       S.cara = c.label;
       return pool;
     })
+    .catch((x) => {
+      catatGalat(x);
+      throw x;
+    })
     .finally(() => {
       S.cari = undefined;
     });
   return S.cari;
+}
+
+/** Galat terakhir untuk diagnosis di dashboard. Pesan MySQL tidak pernah memuat sandi. */
+function catatGalat(x: unknown) {
+  S.galat = (x instanceof Error ? x.message : String(x)).slice(0, 2000);
+  S.galatPada = new Date().toISOString();
 }
 
 /** Pool yang tabelnya sudah dipastikan ada. */
@@ -109,12 +119,55 @@ async function pool(): Promise<mysql.Pool> {
   const p = await ambilPool();
   S.siap ??= (async () => {
     for (const sql of SKEMA) await p.query(sql);
-  })().catch((e) => {
-    S.siap = undefined;
-    throw e;
-  });
+  })()
+    .then(() => {
+      S.galat = undefined;
+    })
+    .catch((e) => {
+      S.siap = undefined;
+      catatGalat(new Error(`Terhubung lewat ${S.cara}, tetapi tabel tidak bisa dibuat: ${e instanceof Error ? e.message : e}`));
+      throw e;
+    });
   await S.siap;
   return p;
+}
+
+/**
+ * Diagnosis koneksi untuk dashboard: nilai yang terbaca (tanpa sandi), cara
+ * koneksi yang berhasil atau jawaban server untuk tiap alamat yang dicoba,
+ * dan arti jawaban itu dalam bahasa sehari-hari.
+ */
+export async function diagnosaDb() {
+  const e = envDb();
+  const terbaca = Object.keys(process.env).filter((k) => /^(DB_|MYSQL_|DATABASE_)/.test(k) && (process.env[k] ?? "").trim() !== "").sort();
+  const hasil = await cekDb();
+  const galat = hasil === "ok" ? "" : S.galat ?? "";
+  return {
+    status: hasil,
+    host: e.host,
+    port: e.port,
+    database: e.database,
+    user: e.user,
+    sandiPanjang: e.password.length,
+    socket: e.socket,
+    cara: S.cara ?? "",
+    variabelTerbaca: terbaca,
+    soketDitemukan: soketAda(),
+    galat,
+    arti: artiGalat(galat, e.user, e.database),
+  };
+}
+
+function artiGalat(g: string, user: string, database: string): string {
+  if (!g) return "";
+  if (/Access denied for user/i.test(g))
+    return `MySQL menolak pengguna "${user}" dengan sandi itu. Periksa DB_USER (lengkap dengan awalan u…_ dari hPanel) dan DB_PASSWORD. Bila sandi baru diganti di hPanel, isi ulang DB_PASSWORD lalu restart aplikasi.`;
+  if (/Unknown database/i.test(g)) return `Database "${database}" tidak ditemukan. Salin nama database lengkap (dengan awalan u…_) dari hPanel ke DB_NAME.`;
+  if (/ECONNREFUSED|ENOENT/i.test(g)) return "Tidak ada server MySQL yang menjawab di alamat itu. Di Hostinger biarkan DB_HOST=localhost; bila tetap gagal, isi DB_HOST dengan host MySQL yang tertera di hPanel.";
+  if (/ETIMEDOUT|timeout/i.test(g)) return "Server MySQL tidak menjawab dalam waktu yang wajar. Periksa DB_HOST, atau coba lagi beberapa saat.";
+  if (/ENOTFOUND|EAI_AGAIN/i.test(g)) return "Nama host database tidak dikenal. Periksa ejaan DB_HOST, atau pakai localhost.";
+  if (/tabel tidak bisa dibuat/i.test(g)) return "Koneksi berhasil, tetapi pengguna database tidak punya izin membuat tabel. Di hPanel, pastikan pengguna itu terhubung ke database dengan semua hak akses.";
+  return "Lihat pesan server di atas.";
 }
 
 export type Nilai = string | number | boolean | null | Date | Buffer | Nilai[];

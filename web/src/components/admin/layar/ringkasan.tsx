@@ -7,6 +7,7 @@ import { useData } from "../data";
 import { LABEL_LAYAR } from "../rangka";
 import { Angka, Galat, Kartu, Kosong, Label, Memuat, Pil, Tombol } from "../ui";
 import { WARNA_STATUS } from "../gaya";
+import DiagnosaDb from "../diagnosa-db";
 
 export default function Ringkasan() {
   const { akun, kamar, pesanan, memuat, galat, tanpaDb, muat, bukaPesanan, keLayar, bukaForm } = useData();
@@ -67,9 +68,12 @@ export default function Ringkasan() {
       ) : memuat ? (
         <Memuat />
       ) : tanpaDb ? (
-        <Kartu judul="Database belum diatur">
-          <p className="text-sm text-panel-redup">Kalender, pesanan, dan laporan membutuhkan database MySQL. Buat database di hPanel (Databases, MySQL Databases), lalu isi <b>DB_NAME</b>, <b>DB_USER</b>, dan <b>DB_PASSWORD</b> di panel Node.js Hostinger dan jalankan ulang aplikasinya. Tabelnya dibuat sendiri.</p>
-        </Kartu>
+        <div className="grid gap-6">
+          <Kartu judul="Database belum tersambung">
+            <p className="text-sm text-panel-redup">{galat} Kalender, pesanan, dan laporan membutuhkan database MySQL dari hPanel (Databases, MySQL Databases). Isi <b>DB_NAME</b>, <b>DB_USER</b>, dan <b>DB_PASSWORD</b> di panel Node.js Hostinger, lalu jalankan ulang aplikasinya. Tabelnya dibuat sendiri.</p>
+          </Kartu>
+          {["developer", "pemilik"].includes(akun.peran) && <DiagnosaDb />}
+        </div>
       ) : galat ? (
         <Galat pesan={galat} ulang={muat} />
       ) : (
