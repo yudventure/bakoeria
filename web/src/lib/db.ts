@@ -160,8 +160,10 @@ export async function diagnosaDb() {
 
 function artiGalat(g: string, user: string, database: string): string {
   if (!g) return "";
+  if (/Access denied for user .* to database/i.test(g))
+    return `Sandi diterima, tetapi pengguna "${user}" tidak punya izin ke database "${database}". Di hPanel (Databases, MySQL Databases), pastikan pengguna itu terhubung ke database tersebut dengan semua hak akses.`;
   if (/Access denied for user/i.test(g))
-    return `MySQL menolak pengguna "${user}" dengan sandi itu. Periksa DB_USER (lengkap dengan awalan u…_ dari hPanel) dan DB_PASSWORD. Bila sandi baru diganti di hPanel, isi ulang DB_PASSWORD lalu restart aplikasi.`;
+    return `MySQL menolak pengguna "${user}" dengan sandi itu: sandinya tidak cocok, atau pengguna dengan nama itu belum ada. Di hPanel (Databases, MySQL Databases), cocokkan nama pengguna lalu ganti sandinya. Pakai huruf dan angka saja (tanpa # $ ' " \\ atau spasi), salin persis ke DB_PASSWORD, lalu restart aplikasi.`;
   if (/Unknown database/i.test(g)) return `Database "${database}" tidak ditemukan. Salin nama database lengkap (dengan awalan u…_) dari hPanel ke DB_NAME.`;
   if (/ECONNREFUSED|ENOENT/i.test(g)) return "Tidak ada server MySQL yang menjawab di alamat itu. Di Hostinger biarkan DB_HOST=localhost; bila tetap gagal, isi DB_HOST dengan host MySQL yang tertera di hPanel.";
   if (/ETIMEDOUT|timeout/i.test(g)) return "Server MySQL tidak menjawab dalam waktu yang wajar. Periksa DB_HOST, atau coba lagi beberapa saat.";
