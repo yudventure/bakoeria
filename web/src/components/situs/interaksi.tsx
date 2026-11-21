@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 
 /**
- * Menu atas: logo di kiri, menu dan tombol pesan di kanan. Di atas foto hero
- * ia transparan dengan teks terang; setelah digulir ia menjadi putih.
+ * Menu atas: logo di kiri, menu dan tombol pesan di kanan, di atas foto hero
+ * dengan latar terang halaman. Menempel di atas saat digulir.
  * Juga memasang animasi muncul yang aman: elemen yang sudah terlihat saat
  * halaman dibuka tidak pernah disembunyikan, dan semuanya dipaksa tampil
  * setelah 2,5 detik.
@@ -13,7 +13,7 @@ export function Nav() {
   const [solid, setSolid] = useState(false);
   const [buka, setBuka] = useState(false);
   useEffect(() => {
-    const f = () => setSolid(window.scrollY > 120);
+    const f = () => setSolid(window.scrollY > 8);
     f();
     window.addEventListener("scroll", f, { passive: true });
     const semua = [...document.querySelectorAll<HTMLElement>(".muncul")];
@@ -36,27 +36,26 @@ export function Nav() {
     ["#sehari", "Sehari"],
     ["#tanya", "Tanya jawab"],
   ];
-  const terang = solid || buka;
   return (
-    <header className={`fixed inset-x-0 top-0 z-40 transition ${terang ? "bg-white/90 shadow-[0_6px_24px_rgba(4,28,62,.08)] backdrop-blur-xl" : "bg-transparent"}`}>
+    <header className={`sticky top-0 z-40 bg-[#F6F4EF]/95 backdrop-blur-xl transition ${solid || buka ? "shadow-[0_6px_24px_rgba(4,28,62,.08)]" : ""}`}>
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-4">
         <a href="#atas" aria-label="Bakoeria Dive Resort, ke atas" className="shrink-0">
-          <img src={terang ? "/brand/bakoeria-logo-horizontal-navy.svg" : "/brand/bakoeria-logo-horizontal-ivory.svg"} alt="Bakoeria Dive Resort" className="h-9 w-auto sm:h-10" />
+          <img src="/brand/bakoeria-logo-horizontal-navy.svg" alt="Bakoeria Dive Resort" className="h-9 w-auto sm:h-10" />
         </a>
         <nav aria-label="Utama" className="hidden items-center gap-8 lg:flex">
           {menu.map(([h, l]) => (
-            <a key={h} href={h} className={`text-[14px] tracking-wide transition hover:opacity-70 ${terang ? "text-malam" : "text-white"}`}>{l}</a>
+            <a key={h} href={h} className="text-[14px] tracking-wide text-malam transition hover:text-emas-tua">{l}</a>
           ))}
-          <a href="#pesan" className={`rounded-full px-5 py-2.5 text-[14px] font-bold transition ${terang ? "bg-emas-tua text-white hover:brightness-110" : "bg-gading text-malam hover:bg-white"}`}>Pesan sekarang</a>
+          <a href="#pesan" className="rounded-full bg-emas-tua px-5 py-2.5 text-[14px] font-bold text-white transition hover:brightness-110">Pesan sekarang</a>
         </nav>
-        <button className={`grid size-11 place-items-center rounded-full lg:hidden ${terang ? "text-malam" : "text-white"}`} aria-expanded={buka} aria-controls="menu-ponsel" aria-label={buka ? "Tutup menu" : "Buka menu"} onClick={() => setBuka(!buka)}>
+        <button className="grid size-11 place-items-center rounded-full text-malam lg:hidden" aria-expanded={buka} aria-controls="menu-ponsel" aria-label={buka ? "Tutup menu" : "Buka menu"} onClick={() => setBuka(!buka)}>
           <span className="block h-px w-5 bg-current shadow-[0_5px_0_currentColor,0_-5px_0_currentColor]" />
         </button>
       </div>
       {buka && (
-        <nav id="menu-ponsel" aria-label="Menu" className="grid gap-1 border-t border-malam/10 bg-white px-5 pb-5 pt-2 lg:hidden">
+        <nav id="menu-ponsel" aria-label="Menu" className="grid gap-1 border-t border-malam/10 bg-[#F6F4EF] px-5 pb-5 pt-2 lg:hidden">
           {menu.map(([h, l]) => (
-            <a key={h} href={h} onClick={() => setBuka(false)} className="rounded-2xl px-3 py-3 text-malam hover:bg-[#F6F4EF]">{l}</a>
+            <a key={h} href={h} onClick={() => setBuka(false)} className="rounded-2xl px-3 py-3 text-malam hover:bg-white">{l}</a>
           ))}
           <a href="#pesan" onClick={() => setBuka(false)} className="mt-2 rounded-full bg-emas-tua px-4 py-3 text-center font-bold text-white">Pesan sekarang</a>
         </nav>

@@ -70,12 +70,12 @@ export default async function Beranda() {
 
       <main id="isi">
         {/* HERO */}
-        <section id="atas" className="relative px-2 pt-2 sm:px-3 sm:pt-3">
-          <div className="relative min-h-[640px] overflow-hidden rounded-b-[2.5rem] rounded-t-[1.75rem] sm:min-h-[680px] lg:h-[min(86svh,760px)]">
+        <section id="atas" className="relative scroll-mt-24 px-2 sm:px-3">
+          <div className="relative min-h-[560px] overflow-hidden rounded-[2rem] rounded-b-[2.5rem] sm:min-h-[600px] lg:h-[min(78svh,700px)]">
             <img src="/img/resort-night.jpg" alt="Cottage kayu jati Bakoeria dengan lampu hangat di malam hari" className="absolute inset-0 h-full w-full object-cover object-[58%_70%]" />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,28,62,.6)_0%,rgba(4,28,62,.2)_40%,rgba(4,28,62,.05)_62%,rgba(4,28,62,.5)_100%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_32%,rgba(4,28,62,.6)_0%,rgba(4,28,62,0)_55%)]" />
-            <div className="relative mx-auto flex h-full max-w-6xl flex-col px-5 pb-24 pt-28 sm:pt-32">
+            <div className="relative mx-auto flex h-full max-w-6xl flex-col px-5 pb-24 pt-14 sm:pt-16">
               <div className="flex items-start gap-4">
                 <h1 className="font-display text-[clamp(64px,13.5vw,190px)] font-normal leading-[0.82] tracking-[-0.035em] text-white">
                   bakoeria
@@ -85,7 +85,7 @@ export default async function Beranda() {
               <p className="mt-6 max-w-[17rem] text-[15px] leading-snug text-white [text-shadow:0_1px_12px_rgba(4,28,62,.6)]">{k.tagline}</p>
               {k.pengumuman && <p className="mt-5 max-w-md rounded-2xl border border-white/30 bg-white/10 px-4 py-3 text-sm text-white backdrop-blur-md">{k.pengumuman}</p>}
               {sorotan.length > 0 && (
-                <ul className="mt-8 flex gap-2.5 lg:absolute lg:right-5 lg:top-32 lg:mt-0 lg:flex-col">
+                <ul className="mt-8 flex gap-2.5 lg:absolute lg:right-5 lg:top-14 lg:mt-0 lg:flex-col">
                   {sorotan.map((s) => (
                     <li key={s.label} className="w-[6.6rem] rounded-2xl border border-white/30 bg-white/12 px-4 py-3.5 text-white backdrop-blur-md">
                       <span className="block font-display text-[34px] leading-none">{s.nilai}</span>
