@@ -91,9 +91,9 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
   return (
     <div className="rounded-[2rem] border border-white/70 bg-white/85 p-5 shadow-[0_20px_60px_rgba(4,28,62,.12)] backdrop-blur-xl sm:p-8">
       <form onSubmit={cek} className="grid gap-4 sm:grid-cols-[1fr_1fr_6rem_auto] sm:items-end">
-        <label className="grid gap-1.5"><span className={kelasLabel}>{t.tiba}</span><input type="date" className={kelasMasukan} min={hari} value={tgl.masuk} onChange={(e) => setTgl({ ...tgl, masuk: e.target.value, keluar: tgl.keluar <= e.target.value ? tambahHari(e.target.value, 1) : tgl.keluar })} required /></label>
-        <label className="grid gap-1.5"><span className={kelasLabel}>{t.pulang}</span><input type="date" className={kelasMasukan} min={tambahHari(tgl.masuk, 1)} value={tgl.keluar} onChange={(e) => setTgl({ ...tgl, keluar: e.target.value })} required /></label>
-        <label className="grid gap-1.5"><span className={kelasLabel}>{t.tamu}</span><input type="number" min={1} max={20} className={kelasMasukan} value={tgl.tamu} onChange={(e) => setTgl({ ...tgl, tamu: e.target.value })} /></label>
+        <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.tiba}</span><input type="date" className={`${kelasMasukan} min-w-0 max-w-full appearance-none [&::-webkit-date-and-time-value]:text-left`} min={hari} value={tgl.masuk} onChange={(e) => setTgl({ ...tgl, masuk: e.target.value, keluar: tgl.keluar <= e.target.value ? tambahHari(e.target.value, 1) : tgl.keluar })} required /></label>
+        <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.pulang}</span><input type="date" className={`${kelasMasukan} min-w-0 max-w-full appearance-none [&::-webkit-date-and-time-value]:text-left`} min={tambahHari(tgl.masuk, 1)} value={tgl.keluar} onChange={(e) => setTgl({ ...tgl, keluar: e.target.value })} required /></label>
+        <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.tamu}</span><input type="number" min={1} max={20} className={kelasMasukan} value={tgl.tamu} onChange={(e) => setTgl({ ...tgl, tamu: e.target.value })} /></label>
         {aktif ? (
           <button type="submit" disabled={sibuk} className="rounded-full bg-emas-tua px-6 py-3.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60">{sibuk && !opsi ? t.mengecek : KAMUS[bahasa].cekKetersediaan}</button>
         ) : (
@@ -124,10 +124,10 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
           )}
           {k && (
             <form onSubmit={kirim} className="mt-8 grid gap-4 sm:grid-cols-2">
-              <label className="grid gap-1.5"><span className={kelasLabel}>{t.nama}</span><input className={kelasMasukan} required autoComplete="name" value={f.nama} onChange={(e) => setF({ ...f, nama: e.target.value })} /></label>
-              <label className="grid gap-1.5"><span className={kelasLabel}>{t.whatsapp}</span><input className={kelasMasukan} inputMode="tel" autoComplete="tel" value={f.telepon} onChange={(e) => setF({ ...f, telepon: e.target.value })} /></label>
-              <label className="grid gap-1.5"><span className={kelasLabel}>{t.email}</span><input className={kelasMasukan} type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></label>
-              <label className="grid gap-1.5"><span className={kelasLabel}>{t.minat}</span>
+              <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.nama}</span><input className={kelasMasukan} required autoComplete="name" value={f.nama} onChange={(e) => setF({ ...f, nama: e.target.value })} /></label>
+              <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.whatsapp}</span><input className={kelasMasukan} inputMode="tel" autoComplete="tel" value={f.telepon} onChange={(e) => setF({ ...f, telepon: e.target.value })} /></label>
+              <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.email}</span><input className={kelasMasukan} type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></label>
+              <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.minat}</span>
                 <select className={kelasMasukan} value={f.minat} onChange={(e) => setF({ ...f, minat: e.target.value })}>
                   {t.minatPilihan.map((m) => <option key={m}>{m}</option>)}
                 </select>

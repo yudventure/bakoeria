@@ -77,13 +77,16 @@ export function Gerak() {
       }
       for (const el of parallax) {
         const r = el.parentElement!.getBoundingClientRect();
+        if (r.bottom < -tinggi || r.top > tinggi * 2) continue;
         const pusat = (r.top + r.height / 2 - tinggi / 2) / tinggi;
         el.style.transform = `translate3d(0, ${pusat * Number(el.dataset.parallax) * 100}px, 0) scale(1.15)`;
       }
       for (const el of geser) {
+        // Hanya dihitung saat dekat layar, dan dibatasi agar tidak pernah melebar ke luar halaman.
         const r = el.getBoundingClientRect();
-        const pusat = (r.top + r.height / 2 - tinggi / 2) / tinggi;
-        el.style.transform = `translate3d(${pusat * Number(el.dataset.geser) * 100}px, 0, 0)`;
+        if (r.bottom < -tinggi || r.top > tinggi * 2) continue;
+        const pusat = Math.max(-1, Math.min(1, (r.top + r.height / 2 - tinggi / 2) / tinggi));
+        el.style.transform = `translate3d(${pusat * Number(el.dataset.geser) * 60}px, 0, 0)`;
       }
       const total = document.documentElement.scrollHeight - tinggi;
       for (const el of kemajuan) el.style.transform = `scaleX(${total > 0 ? y / total : 0})`;

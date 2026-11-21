@@ -48,6 +48,8 @@
   --shadow-angkat: 0 12px 40px rgba(4, 28, 62, 0.18);
 }
 
+/* Pengaman: tak ada elemen bergerak yang boleh membuat halaman lebih lebar dari layar (Safari iOS akan memperkecil seluruh halaman). */
+html, body { overflow-x: clip; max-width: 100%; }
 html { -webkit-text-size-adjust: 100%; }
 body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 .angka { font-variant-numeric: tabular-nums lining-nums; }

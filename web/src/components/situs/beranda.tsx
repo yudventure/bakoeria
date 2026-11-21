@@ -97,7 +97,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         <section id="tentang" className="scroll-mt-24 px-5 pb-20 pt-16 sm:pt-20">
           <div className="mx-auto max-w-6xl">
             <div className="muncul grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-              <h2 data-geser="-0.9" className="font-display text-[clamp(56px,8vw,104px)] font-normal leading-[0.9] tracking-[-0.03em] text-malam/80 will-change-transform">{t.tentangKami}</h2>
+              <div className="-my-[0.1em] overflow-hidden py-[0.1em]"><h2 data-geser="-0.9" className="font-display text-[clamp(56px,8vw,104px)] font-normal leading-[0.9] tracking-[-0.03em] text-malam/80 will-change-transform">{t.tentangKami}</h2></div>
               <div className="relative">
                 <Bintang className="absolute -top-2 right-0 text-2xl" />
                 <p className="pr-8 text-[clamp(18px,2.1vw,25px)] font-normal uppercase leading-[1.35] tracking-[0.02em] text-malam">
@@ -266,7 +266,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               <h2 className="font-display text-[clamp(40px,5vw,58px)] font-normal leading-[0.98] tracking-[-0.02em]">{t.rencanakan}</h2>
               <p className="mt-4 max-w-sm text-[14px] text-malam/65">{k.pesanIsi}</p>
               <dl className="mt-6 grid max-w-sm gap-2 text-[14px]">
-                {[["wa", "WhatsApp", k.kontak.whatsapp], ["surat", "Email", k.kontak.email], ["ig", "Instagram", k.kontak.instagram]].map(([ikon, dt, dd]) => (
+                {[["wa", "WhatsApp", k.kontak.whatsapp], ["surat", "Email", k.kontak.email], ["ig", "Instagram", k.kontak.instagram]].filter(([, , dd]) => dd.trim()).map(([ikon, dt, dd]) => (
                   <div key={dt} className="flex items-center gap-3 rounded-full bg-white/85 px-4 py-2.5 ring-1 ring-malam/8 backdrop-blur">
                     <Ikon nama={ikon} className="size-5 text-emas-tua" />
                     <dt className="sr-only">{dt}</dt>
