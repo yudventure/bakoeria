@@ -63,16 +63,16 @@ export default async function Beranda() {
       <main id="isi">
         {/* HERO */}
         <section id="atas" className="relative scroll-mt-24 px-2 sm:px-3">
-          <div className="relative min-h-[560px] overflow-hidden rounded-[2rem] rounded-b-[2.5rem] sm:min-h-[600px] lg:h-[min(78svh,700px)]">
+          <div className="relative flex min-h-[560px] flex-col overflow-hidden rounded-[2rem] rounded-b-[2.5rem] sm:min-h-[600px] lg:h-[min(78svh,700px)]">
             <img src="/img/resort-night.jpg" alt="Cottage kayu jati Bakoeria dengan lampu hangat di malam hari" className="absolute inset-0 h-full w-full object-cover object-[58%_70%]" />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,28,62,.6)_0%,rgba(4,28,62,.2)_40%,rgba(4,28,62,.05)_62%,rgba(4,28,62,.5)_100%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_18%_32%,rgba(4,28,62,.6)_0%,rgba(4,28,62,0)_55%)]" />
-            <div className="relative mx-auto flex h-full max-w-6xl flex-col px-5 pb-24 pt-14 sm:pt-16">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_22%_52%,rgba(4,28,62,.62)_0%,rgba(4,28,62,0)_58%)]" />
+            <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-5 pb-16 pt-12">
               <div className="flex items-start gap-4">
                 <h1 className="font-display text-[clamp(64px,13.5vw,190px)] font-normal leading-[0.82] tracking-[-0.035em] text-white">
                   bakoeria
                 </h1>
-                <span className="mt-[2vw] hidden text-[13px] tracking-[0.18em] text-white/85 sm:block">dive resort</span>
+                <span className="mt-[2vw] hidden text-[13px] tracking-[0.18em] text-white [text-shadow:0_1px_10px_rgba(4,28,62,.7)] sm:block">dive resort</span>
               </div>
               <p className="mt-6 max-w-[17rem] text-[15px] leading-snug text-white [text-shadow:0_1px_12px_rgba(4,28,62,.6)]">{k.tagline}</p>
               {k.pengumuman && <p className="mt-5 max-w-md rounded-2xl border border-white/30 bg-white/10 px-4 py-3 text-sm text-white backdrop-blur-md">{k.pengumuman}</p>}
