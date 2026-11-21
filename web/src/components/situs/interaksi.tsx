@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 
 /**
- * Menu kaca berbentuk pil dengan logo di tengah. Di atas foto hero ia
- * transparan dengan teks terang; setelah digulir ia menjadi putih buram.
+ * Menu atas: logo di kiri, menu dan tombol pesan di kanan. Di atas foto hero
+ * ia transparan dengan teks terang; setelah digulir ia menjadi putih.
  * Juga memasang animasi muncul yang aman: elemen yang sudah terlihat saat
  * halaman dibuka tidak pernah disembunyikan, dan semuanya dipaksa tampil
  * setelah 2,5 detik.
@@ -29,41 +29,36 @@ export function Nav() {
       clearTimeout(aman);
     };
   }, []);
-  const kiri = [
+  const menu = [
     ["#tentang", "Tentang"],
     ["#menginap", "Menginap"],
     ["#menyelam", "Menyelam"],
-  ];
-  const kanan = [
     ["#sehari", "Sehari"],
     ["#tanya", "Tanya jawab"],
   ];
   const terang = solid || buka;
-  const tautan = `text-[13px] tracking-wide transition hover:opacity-70 ${terang ? "text-malam" : "text-white"}`;
   return (
-    <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-6 sm:pt-5">
-      <div className={`mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full border px-3 py-2 backdrop-blur-xl transition sm:px-5 ${terang ? "border-malam/10 bg-white/85 shadow-[0_8px_30px_rgba(4,28,62,.08)]" : "border-white/30 bg-white/10"}`}>
-        <nav aria-label="Utama kiri" className="hidden flex-1 items-center gap-7 lg:flex">
-          {kiri.map(([h, l]) => <a key={h} href={h} className={tautan}>{l}</a>)}
-        </nav>
-        <a href="#atas" aria-label="Bakoeria Dive Resort, ke atas" className={`grid size-11 shrink-0 place-items-center rounded-full border ${terang ? "border-malam/15" : "border-white/50"}`}>
-          <img src={terang ? "/brand/bakoeria-mark-navy.svg" : "/brand/bakoeria-mark-ivory.svg"} alt="" className="h-6 w-auto" />
+    <header className={`fixed inset-x-0 top-0 z-40 transition ${terang ? "bg-white/90 shadow-[0_6px_24px_rgba(4,28,62,.08)] backdrop-blur-xl" : "bg-transparent"}`}>
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-4">
+        <a href="#atas" aria-label="Bakoeria Dive Resort, ke atas" className="shrink-0">
+          <img src={terang ? "/brand/bakoeria-logo-horizontal-navy.svg" : "/brand/bakoeria-logo-horizontal-ivory.svg"} alt="Bakoeria Dive Resort" className="h-9 w-auto sm:h-10" />
         </a>
-        <span className={`mr-auto font-display text-lg tracking-[0.08em] lg:hidden ${terang ? "text-malam" : "text-white"}`}>BAKOERIA</span>
-        <nav aria-label="Utama kanan" className="hidden flex-1 items-center justify-end gap-7 lg:flex">
-          {kanan.map(([h, l]) => <a key={h} href={h} className={tautan}>{l}</a>)}
-          <a href="#pesan" className="rounded-full bg-gading px-5 py-2.5 text-[13px] font-bold text-malam shadow-sm transition hover:bg-white">Pesan sekarang</a>
+        <nav aria-label="Utama" className="hidden items-center gap-8 lg:flex">
+          {menu.map(([h, l]) => (
+            <a key={h} href={h} className={`text-[14px] tracking-wide transition hover:opacity-70 ${terang ? "text-malam" : "text-white"}`}>{l}</a>
+          ))}
+          <a href="#pesan" className={`rounded-full px-5 py-2.5 text-[14px] font-bold transition ${terang ? "bg-emas-tua text-white hover:brightness-110" : "bg-gading text-malam hover:bg-white"}`}>Pesan sekarang</a>
         </nav>
         <button className={`grid size-11 place-items-center rounded-full lg:hidden ${terang ? "text-malam" : "text-white"}`} aria-expanded={buka} aria-controls="menu-ponsel" aria-label={buka ? "Tutup menu" : "Buka menu"} onClick={() => setBuka(!buka)}>
           <span className="block h-px w-5 bg-current shadow-[0_5px_0_currentColor,0_-5px_0_currentColor]" />
         </button>
       </div>
       {buka && (
-        <nav id="menu-ponsel" aria-label="Menu" className="mx-auto mt-2 grid max-w-6xl gap-1 rounded-3xl border border-malam/10 bg-white/95 p-3 shadow-[0_8px_30px_rgba(4,28,62,.12)] backdrop-blur-xl lg:hidden">
-          {[...kiri, ...kanan].map(([h, l]) => (
-            <a key={h} href={h} onClick={() => setBuka(false)} className="rounded-2xl px-4 py-3 text-malam hover:bg-gading">{l}</a>
+        <nav id="menu-ponsel" aria-label="Menu" className="grid gap-1 border-t border-malam/10 bg-white px-5 pb-5 pt-2 lg:hidden">
+          {menu.map(([h, l]) => (
+            <a key={h} href={h} onClick={() => setBuka(false)} className="rounded-2xl px-3 py-3 text-malam hover:bg-[#F6F4EF]">{l}</a>
           ))}
-          <a href="#pesan" onClick={() => setBuka(false)} className="mt-1 rounded-full bg-emas-tua px-4 py-3 text-center font-bold text-white">Pesan sekarang</a>
+          <a href="#pesan" onClick={() => setBuka(false)} className="mt-2 rounded-full bg-emas-tua px-4 py-3 text-center font-bold text-white">Pesan sekarang</a>
         </nav>
       )}
     </header>
