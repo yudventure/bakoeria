@@ -51,6 +51,10 @@
 /* Pengaman: tak ada elemen bergerak yang boleh membuat halaman lebih lebar dari layar (Safari iOS akan memperkecil seluruh halaman). */
 html, body { overflow-x: clip; max-width: 100%; }
 html { -webkit-text-size-adjust: 100%; }
+/* Kursor tangan di semua yang bisa diklik (Tailwind 4 mengembalikan tombol ke kursor biasa). */
+button:not(:disabled), [role="button"]:not([aria-disabled="true"]), a[href], summary, label[for], select:not(:disabled),
+input[type="checkbox"]:not(:disabled), input[type="radio"]:not(:disabled), input[type="date"]:not(:disabled), input[type="file"]:not(:disabled) { cursor: pointer; }
+button:disabled, [aria-disabled="true"], select:disabled, input:disabled { cursor: not-allowed; }
 body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 .angka { font-variant-numeric: tabular-nums lining-nums; }
 .emas-gradasi { background: linear-gradient(160deg, #f8e7b0 0%, #eecb7c 50%, #d6a851 100%); }

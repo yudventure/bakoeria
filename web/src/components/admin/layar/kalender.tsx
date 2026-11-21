@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { BULAN_PANJANG, CHANNEL, hariIniWit, jumlahMalam, LABEL_CHANNEL, LABEL_STATUS, malam, MENEMPATI, rupiah, tambahHari, tglPendek, type Channel } from "@/lib/booking";
 import { bolehCatat, bolehLayar, lihatRupiah } from "@/lib/peran";
 import { api } from "../api";
 import { useData } from "../data";
 import { WARNA_CHANNEL, WARNA_STATUS } from "../gaya";
 import type { Pesanan } from "../tipe";
-import { Angka, cx, Galat, Kartu, Kosong, Label, Memuat, Pil, Tombol, useToast } from "../ui";
+import { cx, Galat, Kartu, Kosong, Label, Memuat, Pil, Tombol, useToast } from "../ui";
 
 const HARI = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
-const LEBAR = 46;
+const PER_HARI = 4;
 const TAMPIL = (p: Pesanan) => !["CANCELLED", "NO_SHOW"].includes(p.status);
 
 export default function Kalender() {
@@ -23,8 +23,6 @@ export default function Kalender() {
   const [sinkron, setSinkron] = useState(false);
   const rp = lihatRupiah(akun.peran);
   const catat = bolehCatat(akun.peran);
-  const papan = useRef<HTMLDivElement>(null);
-  const strip = useRef<HTMLDivElement>(null);
 
   const awal = bulan + "-01";
   const akhir = tambahHari(awal.slice(0, 8) + "28", 4).slice(0, 8) + "01";
@@ -35,16 +33,7 @@ export default function Kalender() {
     setBulan(d.toISOString().slice(0, 7));
   };
 
-  /* Papan digulir supaya hari ini terlihat, dengan dua hari ke belakang sebagai konteks. */
-  useEffect(() => {
-    const el = papan.current;
-    if (!el) return;
-    el.scrollLeft = bulan === hari.slice(0, 7) ? Math.max(0, (Number(hari.slice(8)) - 3) * LEBAR) : 0;
-    if (strip.current) strip.current.scrollLeft = bulan === hari.slice(0, 7) ? Math.max(0, (Number(hari.slice(8)) - 2) * 52) : 0;
-  }, [bulan, hari, memuat]);
-
   const terlihat = useMemo(() => pesanan.filter((p) => TAMPIL(p) && (saring.length === 0 || saring.includes(p.channel))), [pesanan, saring]);
-  const dalamBulan = terlihat.filter((p) => p.checkIn < akhir && p.checkOut > awal);
 
   const stat = useMemo(() => {
     const aktif = kamar.filter((k) => k.isActive).length;
@@ -57,8 +46,42 @@ export default function Kalender() {
       malamTerjual += di;
       if (p.totalAmount) pendapatan += (p.totalAmount * di) / m.length;
     }
-    return { okupansi: aktif ? malamTerjual / (aktif * hariBulan.length) : 0, malamTerjual, pendapatan };
-  }, [kamar, pesanan, awal, akhir, hariBulan.length]);
+    const tujuh = tambahHari(hari, 7);
+    const sah = pesanan.filter((p) => !["CANCELLED", "NO_SHOW", "BLOCKED"].includes(p.status));
+    const piutang = sah
+      .filter((p) => ["CONFIRMED", "CHECKED_IN", "CHECKED_OUT"].includes(p.status) && p.totalAmount && p.checkIn <= hari)
+      .reduce((n, p) => n + Math.max(0, (p.totalAmount ?? 0) - p.payments.reduce((m, x) => m + (x.kind === "REFUND" ? -x.amount : x.amount), 0)), 0);
+    return {
+      okupansi: aktif ? malamTerjual / (aktif * hariBulan.length) : 0,
+      malamTerjual,
+      pendapatan,
+      baru: sah.filter((p) => p.createdAt.slice(0, 10) > tambahHari(hari, -7)).length,
+      tiba: sah.filter((p) => p.checkIn >= hari && p.checkIn < tujuh).length,
+      piutang,
+    };
+  }, [kamar, pesanan, awal, akhir, hariBulan.length, hari]);
+
+  /* Selalu 6 baris x 7 hari, mulai Minggu, supaya tinggi kisi tidak berubah antarbulan. */
+  const sel = useMemo(() => {
+    const mulaiDow = new Date(awal + "T00:00:00Z").getUTCDay();
+    const pertama = tambahHari(awal, -mulaiDow);
+    const urutKamar = new Map(kamar.map((k, i) => [k.id, i]));
+    const aktif = kamar.filter((k) => k.isActive).length;
+    return Array.from({ length: 42 }, (_, i) => {
+      const t = tambahHari(pertama, i);
+      const di = terlihat
+        .filter((p) => p.checkIn <= t && t < p.checkOut)
+        .sort((a, b) => (urutKamar.get(a.roomId) ?? 0) - (urutKamar.get(b.roomId) ?? 0) || a.id.localeCompare(b.id));
+      const isi = new Set(di.filter((p) => MENEMPATI.includes(p.status) && p.status !== "BLOCKED").map((p) => p.roomId)).size;
+      return { t, diBulan: t.startsWith(bulan), di, isi, kapasitas: aktif, bentrok: di.some((p) => p.status === "CONFLICT") };
+    });
+  }, [awal, bulan, kamar, terlihat]);
+
+  const bentrok = useMemo(() => pesanan.filter((p) => p.status === "CONFLICT" && p.checkOut > hari).sort((a, b) => a.checkIn.localeCompare(b.checkIn)), [pesanan, hari]);
+  const tibaDekat = useMemo(
+    () => pesanan.filter((p) => !["CANCELLED", "NO_SHOW", "BLOCKED"].includes(p.status) && p.checkIn >= hari && p.checkIn < tambahHari(hari, 8)).sort((a, b) => a.checkIn.localeCompare(b.checkIn) || a.roomName.localeCompare(b.roomName)),
+    [pesanan, hari],
+  );
 
   const aktivitas = useMemo(() => {
     const aktif = pesanan.filter((p) => MENEMPATI.includes(p.status) || p.status === "TENTATIVE" || p.status === "CONFLICT").filter((p) => p.status !== "BLOCKED");
@@ -90,124 +113,142 @@ export default function Kalender() {
   if (galat) return <Galat pesan={galat} ulang={muat} />;
 
   const judulBulan = `${BULAN_PANJANG[Number(bulan.slice(5)) - 1]} ${bulan.slice(0, 4)}`;
+  const kapanTiba = (t: string) => (t === hari ? "Hari ini" : t === tambahHari(hari, 1) ? "Besok" : tglPendek(t));
+  const Stat = ({ label, nilai }: { label: string; nilai: string }) => (
+    <div>
+      <p className="text-[11px] text-panel-redup">{label}</p>
+      <p className="angka text-[19px] font-bold leading-tight">{nilai}</p>
+    </div>
+  );
 
   return (
-    <div className="grid gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <button onClick={() => geser(-1)} className="grid size-10 place-items-center rounded-full bg-white ring-1 ring-panel-garis hover:bg-panel-lembut" aria-label="Bulan sebelumnya">‹</button>
-          <h1 className="min-w-44 text-center text-2xl font-bold">{judulBulan}</h1>
-          <button onClick={() => geser(1)} className="grid size-10 place-items-center rounded-full bg-white ring-1 ring-panel-garis hover:bg-panel-lembut" aria-label="Bulan berikutnya">›</button>
-          {bulan !== hari.slice(0, 7) && <Tombol kecil varian="hantu" onClick={() => { setBulan(hari.slice(0, 7)); setPilih(hari); }}>Hari ini</Tombol>}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {bolehLayar(akun.peran, "sinkron") && <Tombol varian="garis" disabled={sinkron} onClick={sinkronkan}>{sinkron ? "Menyinkronkan…" : "Sinkronkan OTA"}</Tombol>}
-          {catat && <Tombol varian="garis" onClick={() => bukaForm({ channel: "BLOCK", status: "BLOCKED", checkIn: pilih })}>Tutup kamar</Tombol>}
-          {catat && <Tombol onClick={() => bukaForm({ checkIn: pilih >= hari ? pilih : hari })}>+ Pesanan</Tombol>}
-        </div>
+    <div className="grid gap-5">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {bulan !== hari.slice(0, 7) && <Tombol kecil varian="hantu" onClick={() => { setBulan(hari.slice(0, 7)); setPilih(hari); }}>Kembali ke hari ini</Tombol>}
+        {bolehLayar(akun.peran, "sinkron") && <Tombol varian="garis" disabled={sinkron} onClick={sinkronkan}>{sinkron ? "Menyinkronkan…" : "Sinkronkan OTA"}</Tombol>}
+        {catat && <Tombol varian="garis" onClick={() => bukaForm({ channel: "BLOCK", status: "BLOCKED", checkIn: pilih })}>Tutup kamar</Tombol>}
+        {catat && <Tombol onClick={() => bukaForm({ checkIn: pilih >= hari ? pilih : hari })}>+ Pesanan</Tombol>}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <Angka label="Okupansi bulan ini" nilai={`${Math.round(stat.okupansi * 100)}%`} />
-        <Angka label="Malam terjual" nilai={stat.malamTerjual} />
-        {rp && <Angka label="Pendapatan bulan ini" nilai={rupiah(stat.pendapatan)} ket="dibagi rata per malam" />}
+      {bentrok.length > 0 && (
+        <div role="alert" className="flex flex-col gap-3 rounded-2xl border-2 border-panel-merah bg-panel-merah px-4 py-3.5 text-white shadow-[0_6px_18px_-6px_rgba(176,56,38,.55)] sm:flex-row sm:items-center">
+          <span aria-hidden className="grid size-6 shrink-0 place-items-center rounded-full bg-white text-sm font-bold text-panel-merah">!</span>
+          <p className="flex-1 text-[14.5px] font-bold leading-snug">
+            {bentrok.length} pesanan bentrok. Terdekat: {bentrok[0].roomName} terjual dua kali pada {tglPendek(bentrok[0].checkIn)} sampai {tglPendek(bentrok[0].checkOut)}.
+          </p>
+          <button type="button" onClick={() => bukaPesanan(bentrok[0].id)} className="shrink-0 rounded-xl bg-white px-4 py-2 text-[13px] font-bold text-panel-merah hover:bg-red-50">Tinjau</button>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex gap-1.5">
+            <button type="button" onClick={() => geser(-1)} className="grid size-9 place-items-center rounded-xl bg-white ring-1 ring-panel-garis hover:bg-panel-lembut" aria-label="Bulan sebelumnya">‹</button>
+            <button type="button" onClick={() => geser(1)} className="grid size-9 place-items-center rounded-xl bg-white ring-1 ring-panel-garis hover:bg-panel-lembut" aria-label="Bulan berikutnya">›</button>
+          </div>
+          <h1 className="text-[22px] font-bold">{judulBulan}</h1>
+        </div>
+        <div className="grid w-full grid-cols-2 gap-x-6 gap-y-3 rounded-2xl bg-white px-4 py-3 ring-1 ring-panel-garis sm:ml-auto sm:flex sm:w-auto sm:flex-wrap sm:gap-6 sm:bg-transparent sm:p-0 sm:ring-0">
+          <Stat label="Okupansi bulan ini" nilai={`${Math.round(stat.okupansi * 100)}%`} />
+          <Stat label="Malam terjual" nilai={`${stat.malamTerjual} malam`} />
+          {rp && <Stat label="Pendapatan" nilai={rupiah(stat.pendapatan)} />}
+          <Stat label="Pesanan baru 7 hari" nilai={String(stat.baru)} />
+          <Stat label="Tiba 7 hari" nilai={String(stat.tiba)} />
+          {rp && <Stat label="Piutang berjalan" nilai={rupiah(stat.piutang)} />}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2" aria-label="Saring sumber">
         {CHANNEL.filter((c) => pesanan.some((p) => p.channel === c)).map((c) => {
           const on = saring.includes(c);
           return (
-            <button key={c} onClick={() => setSaring(on ? saring.filter((x) => x !== c) : [...saring, c])} className={cx("flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold ring-1 transition", on ? "bg-panel-utama text-white ring-panel-utama" : "bg-white text-panel-tinta ring-panel-garis")}>
+            <button key={c} type="button" onClick={() => setSaring(on ? saring.filter((x) => x !== c) : [...saring, c])} aria-pressed={on} className={cx("flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold ring-1 transition", on ? "bg-panel-utama text-white ring-panel-utama" : "bg-white text-panel-tinta ring-panel-garis hover:bg-panel-lembut")}>
               <i className="size-2.5 rounded-full" style={{ background: WARNA_CHANNEL[c] }} />
               {LABEL_CHANNEL[c]}
             </button>
           );
         })}
-        {saring.length > 0 && <button onClick={() => setSaring([])} className="px-2 text-sm font-bold text-panel-redup underline">Semua sumber</button>}
+        {saring.length > 0 && <button type="button" onClick={() => setSaring([])} className="px-2 text-sm font-bold text-panel-redup underline">Semua sumber</button>}
       </div>
 
-      <div className="grid gap-6 2xl:grid-cols-[minmax(0,1fr)_22rem]">
-        {/* Papan kamar × tanggal (layar lebar) */}
-        <Kartu className="hidden p-0 sm:block sm:p-0">
-          {kamar.length === 0 ? (
-            <div className="p-6"><Kosong judul="Belum ada kamar" isi="Tambahkan cottage di menu Kamar & tarif dulu." /></div>
-          ) : (
-            <div className="overflow-x-auto" ref={papan}>
-              <div className="relative" style={{ width: 168 + hariBulan.length * LEBAR }}>
-                <div className="sticky top-0 z-10 flex border-b border-panel-garis bg-white">
-                  <div className="sticky left-0 z-10 w-[168px] shrink-0 bg-white px-4 py-3"><Label>Kamar</Label></div>
-                  {hariBulan.map((t) => {
-                    const dow = new Date(t + "T00:00:00Z").getUTCDay();
-                    return (
-                      <button key={t} onClick={() => setPilih(t)} style={{ width: LEBAR }} className={cx("shrink-0 py-2 text-center", t === pilih && "bg-panel-emas-lembut", dow === 0 || dow === 6 ? "text-panel-tinta" : "text-panel-redup")}>
-                        <span className="block text-[10px] font-bold uppercase">{HARI[dow]}</span>
-                        <span className={cx("angka mx-auto mt-0.5 grid size-7 place-items-center rounded-full text-sm font-bold", t === hari && "bg-panel-utama text-white")}>{Number(t.slice(8))}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                {kamar.map((k) => (
-                  <div key={k.id} className="relative flex h-14 border-b border-panel-garis last:border-0">
-                    <div className="sticky left-0 z-[5] flex w-[168px] shrink-0 flex-col justify-center bg-white px-4">
-                      <span className="truncate text-sm font-bold">{k.name}</span>
-                      <span className="truncate text-xs text-panel-redup">{k.isActive ? k.roomType ?? `${k.capAdult + k.capChild} tamu` : "Nonaktif"}</span>
-                    </div>
-                    {hariBulan.map((t) => (
-                      <button
-                        key={t}
-                        aria-label={`${k.name} ${t}`}
-                        onClick={() => {
-                          setPilih(t);
-                          if (catat && k.isActive) bukaForm({ roomId: k.id, checkIn: t, checkOut: tambahHari(t, 2) });
-                        }}
-                        style={{ width: LEBAR }}
-                        className={cx("shrink-0 border-l border-panel-garis/60 hover:bg-panel-lembut", t === pilih && "bg-panel-emas-lembut/60", !k.isActive && "bg-panel-latar", t < hari && "bg-panel-latar/50")}
-                      />
-                    ))}
-                    {dalamBulan
-                      .filter((p) => p.roomId === k.id)
-                      .map((p) => {
-                        const mulai = Math.max(0, jumlahMalam(awal, p.checkIn));
-                        const selesai = Math.min(hariBulan.length, jumlahMalam(awal, p.checkOut));
-                        const potongKiri = p.checkIn < awal;
-                        const potongKanan = p.checkOut > akhir;
-                        return (
-                          <button
-                            key={p.id}
-                            onClick={() => bukaPesanan(p.id)}
-                            title={`${p.guest?.name ?? p.code} · ${LABEL_STATUS[p.status]} · ${p.checkIn} → ${p.checkOut}`}
-                            className={cx("absolute top-2 z-[6] flex h-10 items-center gap-1.5 overflow-hidden px-2 text-left text-xs font-bold shadow-sm transition hover:brightness-110", WARNA_STATUS[p.status].chip, potongKiri ? "rounded-l-none" : "rounded-l-xl", potongKanan ? "rounded-r-none" : "rounded-r-xl")}
-                            style={{ left: 168 + mulai * LEBAR + (potongKiri ? 0 : LEBAR / 2), width: (selesai - mulai) * LEBAR - (potongKiri ? 0 : LEBAR / 2) + (potongKanan ? 0 : LEBAR / 2) - 3 }}
-                          >
-                            <i className="size-2 shrink-0 rounded-full ring-1 ring-white/70" style={{ background: WARNA_CHANNEL[p.channel] }} />
-                            <span className="truncate">{p.status === "BLOCKED" ? p.notes || "Ditutup" : p.guest?.name ?? p.code}</span>
-                          </button>
-                        );
-                      })}
-                  </div>
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_21rem]">
+        {kamar.length === 0 ? (
+          <Kartu><Kosong judul="Belum ada kamar" isi="Tambahkan cottage di menu Kamar & tarif dulu." /></Kartu>
+        ) : (
+          <div className="min-w-0">
+            <div className="overflow-hidden rounded-[20px] bg-white ring-1 ring-panel-garis">
+              <div className="grid grid-cols-7 bg-panel-latar">
+                {HARI.map((h) => <div key={h} className="px-1 py-2 text-center text-[10px] font-bold uppercase tracking-[.08em] text-panel-redup sm:px-3 sm:py-2.5 sm:text-left sm:text-[11px]">{h}</div>)}
+              </div>
+
+              {/* Ponsel: peta kepadatan, ketuk tanggal untuk melihat namanya. */}
+              <div className="grid grid-cols-7 sm:hidden">
+                {sel.map((c) => (
+                  <button
+                    key={c.t}
+                    type="button"
+                    onClick={() => setPilih(c.t)}
+                    aria-pressed={pilih === c.t}
+                    aria-label={`${c.t}, ${c.isi} dari ${c.kapasitas} kamar terisi`}
+                    className={cx("flex flex-col items-center gap-1 border-b border-r border-panel-garis/70 px-1 py-2", !c.diBulan && "bg-panel-latar/70", c.bentrok && "bg-panel-merah-lembut", pilih === c.t && "outline outline-2 -outline-offset-2 outline-emas-tua")}
+                  >
+                    <span className={cx("grid h-6 min-w-6 place-items-center rounded-full text-[13px] font-bold", c.t === hari ? "bg-panel-utama text-white" : c.diBulan ? "text-panel-tinta" : "text-panel-redup")}>{Number(c.t.slice(8))}</span>
+                    <Meter c={c} />
+                    <span className={cx("angka text-[10px]", c.bentrok ? "text-panel-merah" : "text-panel-redup")}>{c.diBulan && c.kapasitas ? `${c.isi}/${c.kapasitas}` : " "}</span>
+                  </button>
                 ))}
               </div>
-            </div>
-          )}
-        </Kartu>
 
-        {/* Daftar per hari (ponsel) */}
-        <div className="grid gap-3 sm:hidden">
-          <div ref={strip} className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
-            {hariBulan.map((t) => {
-              const isi = new Set(terlihat.filter((p) => MENEMPATI.includes(p.status) && p.checkIn <= t && t < p.checkOut).map((p) => p.roomId)).size;
-              return (
-                <button key={t} onClick={() => setPilih(t)} className={cx("w-12 shrink-0 rounded-2xl py-2 text-center", t === pilih ? "bg-panel-utama text-white" : "bg-white ring-1 ring-panel-garis")}>
-                  <span className="block text-[10px] font-bold uppercase opacity-70">{HARI[new Date(t + "T00:00:00Z").getUTCDay()]}</span>
-                  <span className="angka block font-bold">{Number(t.slice(8))}</span>
-                  <span className="mx-auto mt-1 block h-1 w-6 overflow-hidden rounded-full bg-current/15">
-                    <i className="block h-full bg-emas" style={{ width: `${kamar.length ? (isi / kamar.length) * 100 : 0}%` }} />
-                  </span>
-                </button>
-              );
-            })}
+              {/* Layar lebar: tiap tanggal memuat kartu tamu yang menginap malam itu. */}
+              <div className="hidden overflow-x-auto sm:block">
+                <div className="grid min-w-[700px] grid-cols-7">
+                  {sel.map((c) => (
+                    <div key={c.t} className={cx("relative min-h-[126px] border-b border-r border-panel-garis/70 px-2 py-2", !c.diBulan && "bg-panel-latar/70 opacity-60", c.bentrok && "bg-panel-merah-lembut", c.t === hari && "bg-panel-emas-lembut/50", pilih === c.t && "outline outline-2 -outline-offset-2 outline-emas-tua")}>
+                      <button type="button" onClick={() => setPilih(c.t)} aria-pressed={pilih === c.t} title="Lihat semua pesanan pada tanggal ini" className="flex w-full items-center justify-between rounded-lg px-1 py-0.5 text-left hover:bg-panel-lembut">
+                        <span className={cx("grid h-[26px] min-w-[26px] place-items-center rounded-full text-[13px]", c.t === hari ? "bg-panel-utama font-bold text-white" : "font-medium")}>{Number(c.t.slice(8))}</span>
+                        {c.diBulan && c.kapasitas > 0 && <span className={cx("angka text-[10.5px]", c.isi >= c.kapasitas ? "font-bold text-panel-merah" : "text-panel-redup")}>{c.isi}/{c.kapasitas}</span>}
+                      </button>
+                      <div className="mt-1.5 flex flex-col gap-1">
+                        {c.di.slice(0, PER_HARI).map((p) => {
+                          const n = jumlahMalam(p.checkIn, p.checkOut);
+                          const ke = jumlahMalam(p.checkIn, c.t) + 1;
+                          const w = warnaChip(p);
+                          return (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => bukaPesanan(p.id)}
+                              title={`${p.status === "BLOCKED" ? p.notes || "Ditutup" : p.guest?.name ?? p.code} · ${p.roomName} · ${LABEL_STATUS[p.status]} · ${p.checkIn} → ${p.checkOut}`}
+                              className={cx("flex w-full min-w-0 flex-col overflow-hidden rounded-[7px] px-1.5 py-1 text-left transition hover:brightness-95", w.kelas)}
+                              style={w.gaya}
+                            >
+                              <span className="flex w-full min-w-0 items-center gap-1.5">
+                                <i className="h-3 w-[3px] shrink-0 rounded-sm" style={{ background: w.titik }} />
+                                <span className="min-w-0 flex-1 truncate text-[11.5px] font-semibold">{p.status === "BLOCKED" ? "Ditutup" : (p.guest?.name ?? p.code).replace(/\s*\(demo\)$/, "").split(" ")[0]}</span>
+                                {n > 1 && <span className="angka shrink-0 text-[9.5px] opacity-70" title={`Malam ke-${ke} dari ${n}`}>{ke}/{n}</span>}
+                              </span>
+                              <span className="truncate pl-2 text-[9.5px] opacity-75">{p.roomName}</span>
+                            </button>
+                          );
+                        })}
+                        {c.di.length > PER_HARI && (
+                          <button type="button" onClick={() => setPilih(c.t)} className="self-start rounded px-1 text-[11px] text-panel-redup underline decoration-dotted underline-offset-2 hover:text-panel-utama">+{c.di.length - PER_HARI} lagi</button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 px-1 text-xs text-panel-redup">
+              <span className="sm:hidden">Ketuk tanggal untuk melihat siapa yang menginap dan kamar mana yang kosong.</span>
+              {(["CONFIRMED", "TENTATIVE", "CHECKED_IN", "CHECKED_OUT", "CONFLICT", "BLOCKED"] as const).map((st) => {
+                const w = warnaChip({ status: st, channel: "WEBSITE" } as Pesanan);
+                return <span key={st} className="hidden items-center gap-1.5 sm:flex"><i className={cx("block h-3 w-5 rounded", w.kelas)} style={w.gaya} />{LABEL_STATUS[st]}</span>;
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         <aside className="grid content-start gap-4">
           <Kartu judul={pilih === hari ? "Hari ini" : tglPendek(pilih)} ket={`${aktivitas.kosong.length} kamar kosong malam itu`}>
@@ -221,12 +262,12 @@ export default function Kalender() {
                 {(d as Pesanan[]).length === 0 ? (
                   <p className="mt-1 text-sm text-panel-redup">Tidak ada.</p>
                 ) : (
-                  <ul className="mt-1 grid gap-1">
+                  <ul className="mt-1 grid grid-cols-[minmax(0,1fr)] gap-1">
                     {(d as Pesanan[]).map((p) => (
                       <li key={p.id}>
-                        <button onClick={() => bukaPesanan(p.id)} className="flex w-full items-center justify-between gap-2 rounded-xl px-2 py-1.5 text-left text-sm hover:bg-panel-latar">
-                          <span className="min-w-0 truncate"><b>{p.guest?.name ?? p.code}</b> <span className="text-panel-redup">· {p.roomName}</span></span>
-                          {p.status !== "CONFIRMED" && <Pil nada={WARNA_STATUS[p.status].pil}>{LABEL_STATUS[p.status]}</Pil>}
+                        <button type="button" onClick={() => bukaPesanan(p.id)} className="flex w-full items-center justify-between gap-2 rounded-xl px-2 py-1.5 text-left text-sm hover:bg-panel-latar">
+                          <span className="block min-w-0 flex-1 truncate"><b>{p.guest?.name ?? p.code}</b> <span className="text-panel-redup">· {p.roomName}</span></span>
+                          {p.status !== "CONFIRMED" && <Pil nada={WARNA_STATUS[p.status].pil} className="shrink-0">{LABEL_STATUS[p.status]}</Pil>}
                         </button>
                       </li>
                     ))}
@@ -239,7 +280,7 @@ export default function Kalender() {
                 <Label>Kosong</Label>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {aktivitas.kosong.map((k) => (
-                    <button key={k.id} disabled={!catat} onClick={() => bukaForm({ roomId: k.id, checkIn: pilih, checkOut: tambahHari(pilih, 2) })} className="rounded-full bg-panel-hijau-lembut px-3 py-1 text-xs font-bold text-panel-hijau hover:brightness-95">
+                    <button key={k.id} type="button" disabled={!catat} onClick={() => bukaForm({ roomId: k.id, checkIn: pilih, checkOut: tambahHari(pilih, 2) })} className="rounded-full bg-panel-hijau-lembut px-3 py-1 text-xs font-bold text-panel-hijau hover:brightness-95">
                       {k.name}
                     </button>
                   ))}
@@ -247,13 +288,61 @@ export default function Kalender() {
               </div>
             )}
           </Kartu>
-          <div className="flex flex-wrap gap-x-4 gap-y-2 px-1 text-xs text-panel-redup">
-            {(["CONFIRMED", "TENTATIVE", "CHECKED_IN", "CONFLICT", "BLOCKED"] as const).map((s) => (
-              <span key={s} className="flex items-center gap-1.5"><i className={cx("block h-3 w-5 rounded", WARNA_STATUS[s].chip)} />{LABEL_STATUS[s]}</span>
-            ))}
-          </div>
+
+          <Kartu judul={<span className="flex items-center gap-2">Tiba terdekat <span className="rounded-full bg-panel-lembut px-2 text-xs">{tibaDekat.length}</span></span>} ket="7 hari ke depan">
+            {tibaDekat.length === 0 ? (
+              <p className="text-sm text-panel-redup">Tidak ada tamu tiba dalam 7 hari ke depan.</p>
+            ) : (
+              <ul className="grid max-h-[26rem] gap-2 overflow-y-auto pr-1">
+                {tibaDekat.map((p) => (
+                  <li key={p.id}>
+                    <button type="button" onClick={() => bukaPesanan(p.id)} className="w-full rounded-2xl bg-panel-latar px-3.5 py-2.5 text-left hover:bg-panel-lembut">
+                      <span className="flex items-center gap-2">
+                        <i className="size-2 shrink-0 rounded-full" style={{ background: WARNA_CHANNEL[p.channel] }} />
+                        <b className="min-w-0 flex-1 truncate text-sm">{p.guest?.name ?? p.code}</b>
+                        <span className="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold" style={{ background: `${WARNA_CHANNEL[p.channel]}1F`, color: WARNA_CHANNEL[p.channel] }}>{LABEL_CHANNEL[p.channel]}</span>
+                      </span>
+                      <span className="mt-0.5 block pl-4 text-xs text-panel-redup">
+                        <b className={p.checkIn <= tambahHari(hari, 1) ? "text-panel-hijau" : "font-normal"}>{kapanTiba(p.checkIn)}</b> · {p.roomName} · {tglPendek(p.checkIn)} – {tglPendek(p.checkOut)}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Kartu>
         </aside>
       </div>
     </div>
   );
+}
+
+/** Kepadatan satu hari sebagai batang, untuk ponsel. */
+function Meter({ c }: { c: { diBulan: boolean; isi: number; kapasitas: number; bentrok: boolean } }) {
+  if (!c.diBulan || !c.kapasitas) return <div className="h-[5px]" />;
+  const r = Math.min(1, c.isi / c.kapasitas);
+  return (
+    <div className="h-[5px] w-full overflow-hidden rounded-full bg-panel-garis" role="img" aria-label={`${c.isi} dari ${c.kapasitas} kamar terisi`}>
+      <div className="h-full rounded-full" style={{ width: `${r > 0 ? Math.max(r * 100, 14) : 0}%`, background: c.bentrok ? "#B03826" : c.isi >= c.kapasitas ? "#B5893B" : "#2F7A4F" }} />
+    </div>
+  );
+}
+
+/** Warna kartu tamu: warna sumber (Booking.com, WhatsApp, …), ditimpa status yang perlu menonjol. */
+function warnaChip(p: Pesanan): { kelas: string; gaya?: React.CSSProperties; titik: string } {
+  const w = WARNA_CHANNEL[p.channel];
+  switch (p.status) {
+    case "CONFLICT":
+      return { kelas: "text-[#B04A3A]", gaya: { background: "#FBE3DA" }, titik: "#DC2626" };
+    case "BLOCKED":
+      return { kelas: "bg-[repeating-linear-gradient(135deg,#e5e2da_0_6px,#f4f3ef_6px_12px)] text-panel-redup", titik: "#9CA3AF" };
+    case "TENTATIVE":
+      return { kelas: "border border-dashed border-panel-kuning/60 bg-panel-kuning-lembut text-panel-kuning", titik: w };
+    case "CHECKED_OUT":
+      return { kelas: "text-panel-redup", gaya: { background: "#EEECE6" }, titik: w };
+    case "CHECKED_IN":
+      return { kelas: "text-panel-tinta ring-1 ring-inset ring-panel-hijau/40", gaya: { background: `${w}24` }, titik: w };
+    default:
+      return { kelas: "text-panel-tinta", gaya: { background: `${w}1F` }, titik: w };
+  }
 }

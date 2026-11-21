@@ -29,7 +29,7 @@ const GRUP: { judul: string; layar: Layar[] }[] = [
   { judul: "Resort", layar: ["website", "pengguna", "pengaturan"] },
 ];
 
-const IKON: Record<Layar, string> = {
+export const IKON: Record<Layar, string> = {
   ringkasan: "M4 13h6V4H4zm10 7h6v-9h-6zM4 20h6v-4H4zm10-11h6V4h-6z",
   kalender: "M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z",
   pesanan: "M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01",
