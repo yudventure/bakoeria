@@ -1,6 +1,6 @@
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
-import { nomorWa, type Konten } from "@/lib/konten";
+import { nomorWa } from "@/lib/konten";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
 import { Ikon, ikonProgram } from "@/components/situs/ikon";
@@ -40,17 +40,9 @@ async function kamarPublik(): Promise<Kamar[]> {
   }
 }
 
-function nilaiSorotan(s: Konten["sorotan"][number], i: number, kamar: number, program: number) {
-  if (s.nilai.trim()) return s.nilai;
-  if (i === 0 && kamar) return String(kamar);
-  if (i === 1) return String(program);
-  return "";
-}
-
 export default async function Beranda() {
   const [k, set, kamar] = await Promise.all([bacaKonten(), bacaPengaturan(), kamarPublik()]);
   const wa = nomorWa(k.kontak.whatsapp);
-  const sorotan = k.sorotan.map((s, i) => ({ ...s, nilai: nilaiSorotan(s, i, kamar.length, k.program.length) })).filter((s) => s.nilai);
 
   if (k.tutup) {
     return (
@@ -84,16 +76,6 @@ export default async function Beranda() {
               </div>
               <p className="mt-6 max-w-[17rem] text-[15px] leading-snug text-white [text-shadow:0_1px_12px_rgba(4,28,62,.6)]">{k.tagline}</p>
               {k.pengumuman && <p className="mt-5 max-w-md rounded-2xl border border-white/30 bg-white/10 px-4 py-3 text-sm text-white backdrop-blur-md">{k.pengumuman}</p>}
-              {sorotan.length > 0 && (
-                <ul className="mt-8 flex gap-2.5 lg:absolute lg:right-5 lg:top-14 lg:mt-0 lg:flex-col">
-                  {sorotan.map((s) => (
-                    <li key={s.label} className="w-[6.6rem] rounded-2xl border border-white/30 bg-white/12 px-4 py-3.5 text-white backdrop-blur-md">
-                      <span className="block font-display text-[34px] leading-none">{s.nilai}</span>
-                      <span className="mt-1.5 block text-[12px] leading-tight text-white/85">{s.label}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
           </div>
           <div className="relative z-10 -mt-9 flex justify-center px-4">

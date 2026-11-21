@@ -76,16 +76,6 @@ export default function Website() {
           <Bidang label="Isi sambutan"><textarea rows={4} className={masukan} value={k.introIsi} onChange={(e) => set("introIsi", e.target.value)} /></Bidang>
         </div>
       </Kartu>
-      <Kartu judul="Angka di hero" ket="Tiga kartu di kanan foto pembuka. Kosongkan angka untuk menghitung otomatis: kartu pertama memakai jumlah cottage aktif, kartu kedua jumlah program selam. Jangan mengisi angka yang tidak bisa dibuktikan.">
-        <div className="grid gap-4 sm:grid-cols-3">
-          {k.sorotan.map((x, i) => (
-            <div key={i} className="grid gap-3 rounded-2xl bg-panel-latar p-4">
-              <Bidang label="Angka"><input className={masukan} value={x.nilai} placeholder={i < 2 ? "otomatis" : ""} onChange={(e) => set("sorotan", k.sorotan.map((y, j) => (j === i ? { ...y, nilai: e.target.value } : y)))} /></Bidang>
-              <Bidang label="Keterangan"><input className={masukan} value={x.label} onChange={(e) => set("sorotan", k.sorotan.map((y, j) => (j === i ? { ...y, label: e.target.value } : y)))} /></Bidang>
-            </div>
-          ))}
-        </div>
-      </Kartu>
       <Kartu judul="Bagian Tentang">
         <Bidang label="Kalimat besar" ket="Ditulis kapital di situs. Kata di antara tanda bintang diberi warna emas, contoh: *laut*."><textarea rows={3} className={masukan} value={k.pernyataan} onChange={(e) => set("pernyataan", e.target.value)} /></Bidang>
       </Kartu>
