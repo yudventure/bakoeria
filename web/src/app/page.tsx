@@ -6,6 +6,7 @@ import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
 import { Ikon, ikonProgram } from "@/components/situs/ikon";
 import { Nav } from "@/components/situs/interaksi";
 import Pemesanan from "@/components/situs/pemesanan";
+import Footer from "@/components/situs/footer";
 
 export const dynamic = "force-dynamic";
 
@@ -275,22 +276,7 @@ export default async function Beranda() {
         </section>
       </main>
 
-      <footer className="bg-malam px-5 py-5 text-[13px] text-white/75">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
-          <span>{set.namaResort} © {new Date().getFullYear()}</span>
-          <nav aria-label="Footer" className="flex flex-wrap gap-6">
-            <a href="#menginap" className="hover:text-white">Menginap</a>
-            <a href="#menyelam" className="hover:text-white">Menyelam</a>
-            <a href="#pesan" className="hover:text-white">Pesan</a>
-          </nav>
-          <div className="flex items-center gap-4">
-            {k.kontak.instagram && (
-              <a href={`https://instagram.com/${k.kontak.instagram.replace(/^@/, "")}`} target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-white"><Ikon nama="ig" className="size-5" /></a>
-            )}
-            {wa && <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" aria-label="WhatsApp" className="hover:text-white"><Ikon nama="wa" className="size-5" /></a>}
-          </div>
-        </div>
-      </footer>
+      <Footer k={k} namaResort={set.namaResort} />
     </div>
   );
 }

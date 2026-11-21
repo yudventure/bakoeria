@@ -40,7 +40,9 @@ export interface Konten {
   galeriJudul: string;
   tanya: Tanya[];
   pesanIsi: string;
-  kontak: { whatsapp: string; email: string; instagram: string; alamat: string };
+  kontak: { whatsapp: string; email: string; instagram: string; alamat: string; peta: string; facebook: string; tiktok: string; youtube: string };
+  /** Paragraf pendek di kolom pertama footer. */
+  footerTentang: string;
   pengumuman: string;
   tutup: boolean;
   /** Tiga angka di kanan hero. */
@@ -83,7 +85,8 @@ export const KONTEN_BAWAAN: Konten = {
     { t: "Bagaimana cara memesan?", j: "Pilih tanggal di formulir pemesanan. Permintaan Anda langsung masuk ke tim kami, dan kami membalas lewat WhatsApp atau email dengan konfirmasi dan cara pembayaran." },
   ],
   pesanIsi: "Pilih tanggal dan cottage. Kami membalas dengan konfirmasi dan cara pembayaran.",
-  kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "@bakoeria", alamat: "" },
+  kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "@bakoeria", alamat: "", peta: "", facebook: "", tiktok: "", youtube: "" },
+  footerTentang: "Resor selam butik dengan cottage kayu jati di tepi pantai. Menyelam siang bersama pemandu yang mengenal lautnya, bermalam di bawah langit penuh bintang.",
   pengumuman: "",
   tutup: false,
   sorotan: [
@@ -100,6 +103,9 @@ export const KONTEN_BAWAAN: Konten = {
     { ikon: "orang", judul: "Untuk semua tingkat", isi: "Dari selam pertama sampai penyelam berpengalaman." },
   ],
 };
+
+/** Hanya tautan http(s) yang diterima untuk peta dan media sosial. */
+const tautan = (v: unknown) => (typeof v === "string" && /^https?:\/\/\S+$/i.test(v.trim()) ? v.trim().slice(0, 300) : "");
 
 /** Gabungkan isi tersimpan dengan bawaan, supaya kolom baru tidak pernah kosong. */
 export function rapikanKonten(o: Partial<Konten> | null | undefined): Konten {
@@ -121,7 +127,17 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined): Konten {
     galeriJudul: s(k.galeriJudul, b.galeriJudul),
     tanya: arr(k.tanya, b.tanya, (x) => ({ t: s(x.t, ""), j: s(x.j, "") })),
     pesanIsi: s(k.pesanIsi, b.pesanIsi),
-    kontak: { whatsapp: s(kontak.whatsapp, b.kontak.whatsapp), email: s(kontak.email, b.kontak.email), instagram: s(kontak.instagram, b.kontak.instagram), alamat: s(kontak.alamat, b.kontak.alamat) },
+    kontak: {
+      whatsapp: s(kontak.whatsapp, b.kontak.whatsapp),
+      email: s(kontak.email, b.kontak.email),
+      instagram: s(kontak.instagram, b.kontak.instagram),
+      alamat: s(kontak.alamat, b.kontak.alamat),
+      peta: tautan(kontak.peta),
+      facebook: tautan(kontak.facebook),
+      tiktok: tautan(kontak.tiktok),
+      youtube: tautan(kontak.youtube),
+    },
+    footerTentang: s(k.footerTentang, b.footerTentang),
     pengumuman: s(k.pengumuman, b.pengumuman),
     tutup: typeof k.tutup === "boolean" ? k.tutup : b.tutup,
     sorotan: arr(k.sorotan, b.sorotan, (x) => ({ nilai: s(x.nilai, "").slice(0, 12), label: s(x.label, "").slice(0, 40) })).slice(0, 3),
@@ -135,4 +151,12 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined): Konten {
 export const nomorWa = (s: string) => {
   const d = s.replace(/\D/g, "");
   return d.startsWith("0") ? "62" + d.slice(1) : d;
+};
+
+/** Tautan profil Instagram dari "@nama", "nama", atau alamat lengkap. */
+export const tautanInstagram = (v: string) => {
+  const t = v.trim();
+  if (!t) return "";
+  if (/^https?:\/\//i.test(t)) return t;
+  return `https://instagram.com/${t.replace(/^@/, "")}`;
 };

@@ -67,6 +67,11 @@ export default function Website() {
           <Bidang label="Email"><input className={masukan} value={k.kontak.email} onChange={(e) => set("kontak", { ...k.kontak, email: e.target.value })} /></Bidang>
           <Bidang label="Instagram"><input className={masukan} value={k.kontak.instagram} onChange={(e) => set("kontak", { ...k.kontak, instagram: e.target.value })} /></Bidang>
           <Bidang label="Alamat atau lokasi"><input className={masukan} value={k.kontak.alamat} onChange={(e) => set("kontak", { ...k.kontak, alamat: e.target.value })} /></Bidang>
+          <Bidang label="Tautan peta" ket="Contoh tautan Google Maps. Alamat di footer menjadi tautan ke sini."><input className={masukan} value={k.kontak.peta} placeholder="https://maps.app.goo.gl/…" onChange={(e) => set("kontak", { ...k.kontak, peta: e.target.value })} /></Bidang>
+          <Bidang label="Facebook" ket="Alamat lengkap, diawali https://. Kosongkan bila tidak ada."><input className={masukan} value={k.kontak.facebook} onChange={(e) => set("kontak", { ...k.kontak, facebook: e.target.value })} /></Bidang>
+          <Bidang label="TikTok"><input className={masukan} value={k.kontak.tiktok} placeholder="https://www.tiktok.com/@…" onChange={(e) => set("kontak", { ...k.kontak, tiktok: e.target.value })} /></Bidang>
+          <Bidang label="YouTube"><input className={masukan} value={k.kontak.youtube} placeholder="https://www.youtube.com/@…" onChange={(e) => set("kontak", { ...k.kontak, youtube: e.target.value })} /></Bidang>
+          <Bidang label="Paragraf di footer" className="sm:col-span-2"><textarea rows={3} className={masukan} value={k.footerTentang} onChange={(e) => set("footerTentang", e.target.value)} /></Bidang>
         </div>
       </Kartu>
       <Kartu judul="Pembuka">
