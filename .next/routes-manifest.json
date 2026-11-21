@@ -1,0 +1,216 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "onMatchHeaders": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/api/ical/[berkas]",
+      "regex": "^/api/ical/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPberkas": "nxtPberkas"
+      },
+      "namedRegex": "^/api/ical/(?<nxtPberkas>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/modul/[modul]",
+      "regex": "^/api/modul/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPmodul": "nxtPmodul"
+      },
+      "namedRegex": "^/api/modul/(?<nxtPmodul>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/pesanan/[id]",
+      "regex": "^/api/pesanan/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/pesanan/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/pesanan/[id]/bayar",
+      "regex": "^/api/pesanan/([^/]+?)/bayar(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/pesanan/(?<nxtPid>[^/]+?)/bayar(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/api/akun",
+      "regex": "^/api/akun(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/akun(?:/)?$"
+    },
+    {
+      "page": "/api/demo",
+      "regex": "^/api/demo(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/demo(?:/)?$"
+    },
+    {
+      "page": "/api/diagnosa-db",
+      "regex": "^/api/diagnosa\\-db(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/diagnosa\\-db(?:/)?$"
+    },
+    {
+      "page": "/api/health",
+      "regex": "^/api/health(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/health(?:/)?$"
+    },
+    {
+      "page": "/api/kalender",
+      "regex": "^/api/kalender(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/kalender(?:/)?$"
+    },
+    {
+      "page": "/api/kamar",
+      "regex": "^/api/kamar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/kamar(?:/)?$"
+    },
+    {
+      "page": "/api/keluar",
+      "regex": "^/api/keluar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/keluar(?:/)?$"
+    },
+    {
+      "page": "/api/konten",
+      "regex": "^/api/konten(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/konten(?:/)?$"
+    },
+    {
+      "page": "/api/masuk",
+      "regex": "^/api/masuk(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/masuk(?:/)?$"
+    },
+    {
+      "page": "/api/pengaturan",
+      "regex": "^/api/pengaturan(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pengaturan(?:/)?$"
+    },
+    {
+      "page": "/api/penyiapan",
+      "regex": "^/api/penyiapan(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/penyiapan(?:/)?$"
+    },
+    {
+      "page": "/api/pesanan",
+      "regex": "^/api/pesanan(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pesanan(?:/)?$"
+    },
+    {
+      "page": "/api/publik/ketersediaan",
+      "regex": "^/api/publik/ketersediaan(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/publik/ketersediaan(?:/)?$"
+    },
+    {
+      "page": "/api/publik/pesan",
+      "regex": "^/api/publik/pesan(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/publik/pesan(?:/)?$"
+    },
+    {
+      "page": "/api/saya",
+      "regex": "^/api/saya(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/saya(?:/)?$"
+    },
+    {
+      "page": "/api/sinkron",
+      "regex": "^/api/sinkron(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/sinkron(?:/)?$"
+    },
+    {
+      "page": "/api/sinkron/jalankan",
+      "regex": "^/api/sinkron/jalankan(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/sinkron/jalankan(?:/)?$"
+    },
+    {
+      "page": "/api/tamu",
+      "regex": "^/api/tamu(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/tamu(?:/)?$"
+    },
+    {
+      "page": "/id",
+      "regex": "^/id(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/id(?:/)?$"
+    },
+    {
+      "page": "/kelola",
+      "regex": "^/kelola(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/kelola(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

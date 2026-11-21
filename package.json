@@ -1,0 +1,24 @@
+{
+  "name": "bakoeria-dive-resort",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo Sudah dibangun di GitHub Actions - tidak ada yang perlu dibangun di sini",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "4.3.5",
+    "@types/node": "24.19.2",
+    "@types/nodemailer": "6.4.24",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "mysql2": "3.24.5",
+    "next": "16.2.12",
+    "nodemailer": "6.10.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1",
+    "tailwindcss": "4.3.5",
+    "typescript": "5.9.3"
+  }
+}
