@@ -23,6 +23,7 @@ const KET_LAYAR: Partial<Record<Layar, string>> = {
   sdm: "Pegawai, absensi, dan gaji",
   gudang: "Stok dan daftar belanja",
   website: "Isi website dua bahasa",
+  statistik: "Pengunjung website dan negaranya",
   pengguna: "Akun dan hak akses staf",
   pengaturan: "Data resort dan server",
 };

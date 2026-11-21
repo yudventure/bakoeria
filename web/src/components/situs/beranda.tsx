@@ -1,3 +1,4 @@
+import { PencatatKunjungan } from "./pencatat";
 import { pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
@@ -71,6 +72,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
       <a href="#isi" className="absolute -left-[999px] top-0 z-50 rounded-full bg-malam px-4 py-2 text-white focus:left-3 focus:top-3">{t.lewati}</a>
       <Nav bahasa={bahasa} />
       <Gerak />
+      <PencatatKunjungan />
 
       <main id="isi">
         {/* HERO */}

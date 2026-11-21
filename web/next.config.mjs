@@ -16,6 +16,10 @@ const config = {
   outputFileTracingRoot: akar,
   turbopack: { root: akar },
   poweredByHeader: false,
+  /* Basis data IP ke negara untuk statistik pengunjung: dimuat apa adanya dari
+     node_modules (berkas datanya dibaca saat jalan), dan ikut dikemas di build standalone. */
+  serverExternalPackages: ["geoip-country"],
+  outputFileTracingIncludes: { "/api/kunjungan": ["./node_modules/geoip-country/**"] },
   images: { unoptimized: true },
 };
 

@@ -19,6 +19,7 @@ export type Layar =
   | "gudang"
   | "sinkron"
   | "website"
+  | "statistik"
   | "pengguna"
   | "pengaturan";
 
@@ -38,24 +39,24 @@ export const LABEL_PERAN: Record<Peran, string> = {
 export const KET_PERAN: Record<Peran, string> = {
   developer: "Memegang sistem. Akses penuh, termasuk akun dan pengaturan.",
   pemilik: "Akses penuh seperti developer.",
-  manajer: "Mengelola operasional: kalender, pesanan, tamu, kamar, keuangan, SDM, gudang, sinkronisasi, laporan, dan website. Tidak mengatur akun.",
+  manajer: "Mengelola operasional: kalender, pesanan, tamu, kamar, keuangan, SDM, gudang, sinkronisasi, laporan, website, dan statistik pengunjung. Tidak mengatur akun.",
   keuangan: "Laporan, catatan keuangan, aset, dan angka rupiah. Melihat kalender, pesanan, SDM, dan gudang.",
   resepsionis: "Mencatat dan mengubah pesanan, check-in, check-out, dan pembayaran. Tanpa laporan keuangan.",
   dive: "Melihat kalender, pesanan, dan tamu untuk menyiapkan jadwal selam. Tanpa angka rupiah.",
-  pr: "Mengelola isi website.",
+  pr: "Mengelola isi website dan melihat statistik pengunjung.",
   staf: "Melihat kalender dan kamar, serta mencatat barang keluar masuk gudang. Tanpa angka rupiah.",
 };
 
-const SEMUA: Layar[] = ["ringkasan", "kalender", "pesanan", "tamu", "kamar", "laporan", "keuangan", "sdm", "gudang", "sinkron", "website", "pengguna", "pengaturan"];
+const SEMUA: Layar[] = ["ringkasan", "kalender", "pesanan", "tamu", "kamar", "laporan", "keuangan", "sdm", "gudang", "sinkron", "website", "statistik", "pengguna", "pengaturan"];
 
 const AKSES: Record<Peran, Layar[]> = {
   developer: SEMUA,
   pemilik: SEMUA,
-  manajer: ["ringkasan", "kalender", "pesanan", "tamu", "kamar", "laporan", "keuangan", "sdm", "gudang", "sinkron", "website"],
+  manajer: ["ringkasan", "kalender", "pesanan", "tamu", "kamar", "laporan", "keuangan", "sdm", "gudang", "sinkron", "website", "statistik"],
   keuangan: ["ringkasan", "kalender", "pesanan", "laporan", "keuangan", "sdm", "gudang"],
   resepsionis: ["ringkasan", "kalender", "pesanan", "tamu", "kamar"],
   dive: ["ringkasan", "kalender", "pesanan", "tamu"],
-  pr: ["ringkasan", "website"],
+  pr: ["ringkasan", "website", "statistik"],
   staf: ["ringkasan", "kalender", "kamar", "gudang"],
 };
 

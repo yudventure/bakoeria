@@ -13,6 +13,7 @@ import Gudang from "./layar/gudang";
 import DaftarPesanan from "./layar/pesanan";
 import Kalender from "./layar/kalender";
 import LayarKamar from "./layar/kamar";
+import LayarStatistik from "./layar/statistik";
 import Keuangan from "./layar/keuangan";
 import Laporan from "./layar/laporan";
 import Pengaturan from "./layar/pengaturan";
@@ -100,6 +101,7 @@ function Isi() {
     gudang: <Gudang />,
     sinkron: <Sinkron />,
     website: <Website />,
+    statistik: <LayarStatistik />,
     pengguna: <Pengguna />,
     pengaturan: <Pengaturan />,
   };
