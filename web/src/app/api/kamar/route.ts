@@ -13,6 +13,10 @@ export async function GET() {
   return ok({ kamar: await ambilKamar() });
 }
 
+const teks = (v: unknown, n: number) => (typeof v === "string" ? v.trim().slice(0, n) : "");
+/** Fasilitas: daftar atau teks satu per baris; paling banyak 12, masing-masing 80 huruf. */
+const baris = (v: unknown) => (Array.isArray(v) ? v.map(String) : typeof v === "string" ? v.split("\n") : []).map((x) => x.trim().slice(0, 80)).filter(Boolean).slice(0, 12);
+
 function bacaKamar(o: Record<string, unknown>) {
   const name = typeof o.name === "string" ? o.name.trim().slice(0, 60) : "";
   if (!name) return { galat: "Isi nama kamar." };
@@ -29,6 +33,11 @@ function bacaKamar(o: Record<string, unknown>) {
       isActive: o.isActive !== false,
       inactiveReason: o.isActive === false && typeof o.inactiveReason === "string" ? o.inactiveReason.slice(0, 200) : null,
       sortOrder: int(o.sortOrder, 0),
+      sizeM2: o.sizeM2 === "" || o.sizeM2 == null || !Number(o.sizeM2) ? null : Math.min(9999, int(o.sizeM2, 0)),
+      descEn: teks(o.descEn, 1200),
+      descId: teks(o.descId, 1200),
+      featuresEn: baris(o.featuresEn),
+      featuresId: baris(o.featuresId),
     },
   };
 }

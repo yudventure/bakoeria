@@ -15,7 +15,7 @@ const ALT = {
   id: { hero: "Cottage kayu jati Bakoeria dengan lampu hangat di malam hari", foto: ["Cottage kayu jati dengan jendela menyala", "Teras cottage di malam hari", "Jalan berpasir dengan lampu gantung"], cottage: "Cottage kayu jati" },
 };
 
-const FOTO = ["/img/cottage-left.jpg", "/img/cottage-right.jpg", "/img/lights-path.jpg", "/img/palms.jpg"];
+const FOTO = ["/img/cottage-left.jpg", "/img/cottage-right.jpg", "/img/lights-path.jpg", "/img/resort-night.jpg"];
 
 /** Kalimat dengan *kata* beraksen emas. */
 function Aksen({ teks }: { teks: string }) {
@@ -156,14 +156,23 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               <p className="mt-4 text-[14px] text-malam/60">{k.cottageIsi}</p>
             </div>
             {kamar.length > 0 ? (
-              <div className={`grid gap-4 sm:grid-cols-2 ${kamar.length === 4 ? "xl:grid-cols-4" : kamar.length % 3 === 1 && kamar.length > 4 ? "xl:grid-cols-2" : "xl:grid-cols-3"}`}>
+              <div className={`grid gap-4 sm:grid-cols-2 ${kamar.length % 2 === 0 ? "" : kamar.length % 3 === 1 && kamar.length > 4 ? "xl:grid-cols-2" : "xl:grid-cols-3"}`}>
                 {kamar.map((r, i) => (
-                  <article key={r.id} style={{ "--tunda": i % 4 } as React.CSSProperties} className="muncul group overflow-hidden rounded-[1.4rem] bg-white transition-shadow duration-500 hover:shadow-[0_18px_44px_rgba(4,28,62,.14)] shadow-[0_10px_30px_rgba(4,28,62,.07)] ring-1 ring-malam/5">
-                    <div className="overflow-hidden"><img src={FOTO[i % 3]} alt={r.name} loading="lazy" className="aspect-[16/10] w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.06]" /></div>
-                    <div className="p-5">
+                  <article key={r.id} style={{ "--tunda": i % 4 } as React.CSSProperties} className="muncul group flex flex-col overflow-hidden rounded-[1.4rem] bg-white transition-shadow duration-500 hover:shadow-[0_18px_44px_rgba(4,28,62,.14)] shadow-[0_10px_30px_rgba(4,28,62,.07)] ring-1 ring-malam/5">
+                    <div className="overflow-hidden"><img src={FOTO[i % FOTO.length]} alt={r.name} loading="lazy" className="aspect-[16/10] w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.06]" /></div>
+                    <div className="flex flex-1 flex-col p-5">
                       <h3 className="text-[16px] font-bold">{r.name}</h3>
-                      <p className="mt-1 text-[13px] text-malam/55">{r.roomType ? `${r.roomType} · ` : ""}{t.hingga(r.capAdult + r.capChild)}</p>
-                      <div className="mt-5 flex items-center justify-between">
+                      <p className="mt-1 text-[13px] text-malam/55">{[r.roomType, r.sizeM2 ? `${r.sizeM2} m²` : null, t.hingga(r.capAdult + r.capChild)].filter(Boolean).join(" · ")}</p>
+                      {(bahasa === "id" ? r.descId || r.descEn : r.descEn || r.descId) && <p className="mt-3 text-[13.5px] leading-relaxed text-malam/70">{bahasa === "id" ? r.descId || r.descEn : r.descEn || r.descId}</p>}
+                      {(() => {
+                        const f = bahasa === "id" ? (r.featuresId.length ? r.featuresId : r.featuresEn) : r.featuresEn.length ? r.featuresEn : r.featuresId;
+                        return f.length > 0 && (
+                          <ul className="mt-4 flex flex-wrap gap-1.5">
+                            {f.slice(0, 6).map((x) => <li key={x} className="rounded-full bg-[#F6F4EF] px-2.5 py-1 text-[11.5px] text-malam/75 ring-1 ring-malam/8">{x}</li>)}
+                          </ul>
+                        );
+                      })()}
+                      <div className="mt-auto flex items-center justify-between pt-5">
                         <p className="text-[15px]">
                           <span className="text-malam/55">{t.mulai} </span>
                           <b className="font-bold">{rupiah(Math.min(r.baseRate, ...r.musim.map((m) => m.rate)))}</b>

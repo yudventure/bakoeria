@@ -29,8 +29,15 @@ export interface Kamar {
   isActive: boolean;
   inactiveReason: string | null;
   sortOrder: number;
+  sizeM2: number | null;
+  descEn: string;
+  descId: string;
+  featuresEn: string[];
+  featuresId: string[];
   musim: { id: string; dateFrom: string; dateTo: string; rate: number; label: string | null }[];
 }
+
+const daftarBaris = (v: unknown) => String(v ?? "").split("\n").map((x) => x.trim()).filter(Boolean);
 
 export async function ambilKamar(semua = true): Promise<Kamar[]> {
   const rows = await kueri(`SELECT * FROM rooms ${semua ? "" : "WHERE is_active = 1"} ORDER BY sort_order, name`);
@@ -45,6 +52,11 @@ export async function ambilKamar(semua = true): Promise<Kamar[]> {
     isActive: Boolean(r.is_active),
     inactiveReason: (r.inactive_reason as string) ?? null,
     sortOrder: Number(r.sort_order),
+    sizeM2: r.size_m2 == null ? null : Number(r.size_m2),
+    descEn: String(r.desc_en ?? ""),
+    descId: String(r.desc_id ?? ""),
+    featuresEn: daftarBaris(r.features_en),
+    featuresId: daftarBaris(r.features_id),
     musim: musim.filter((m) => m.room_id === r.id).map((m) => ({ id: String(m.id), dateFrom: tglSaja(m.date_from), dateTo: tglSaja(m.date_to), rate: Number(m.rate), label: (m.label as string) ?? null })),
   }));
 }
@@ -393,18 +405,32 @@ export interface DataKamar {
   isActive: boolean;
   inactiveReason: string | null;
   sortOrder: number;
+  sizeM2: number | null;
+  descEn: string;
+  descId: string;
+  featuresEn: string[];
+  featuresId: string[];
 }
 
 export async function kamarDenganNama(name: string) {
   return (await kueri<{ id: string }>("SELECT id FROM rooms WHERE name = ?", [name]))[0] ?? null;
 }
 
-export async function buatKamar(d: DataKamar) {
-  await jalankan("INSERT INTO rooms (id, name, room_type, cap_adult, cap_child, base_rate, is_active, inactive_reason, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [idBaru(), d.name, d.roomType, d.capAdult, d.capChild, d.baseRate, d.isActive, d.inactiveReason, d.sortOrder]);
+const spek = (d: DataKamar) => [d.sizeM2, d.descEn || null, d.descId || null, d.featuresEn.join("\n") || null, d.featuresId.join("\n") || null];
+
+export async function buatKamar(d: DataKamar, id = idBaru()) {
+  await jalankan(
+    "INSERT INTO rooms (id, name, room_type, cap_adult, cap_child, base_rate, is_active, inactive_reason, sort_order, size_m2, desc_en, desc_id, features_en, features_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    [id, d.name, d.roomType, d.capAdult, d.capChild, d.baseRate, d.isActive, d.inactiveReason, d.sortOrder, ...spek(d)],
+  );
+  return id;
 }
 
 export async function ubahKamar(id: string, d: DataKamar) {
-  await jalankan("UPDATE rooms SET name = ?, room_type = ?, cap_adult = ?, cap_child = ?, base_rate = ?, is_active = ?, inactive_reason = ?, sort_order = ? WHERE id = ?", [d.name, d.roomType, d.capAdult, d.capChild, d.baseRate, d.isActive, d.inactiveReason, d.sortOrder, id]);
+  await jalankan(
+    "UPDATE rooms SET name = ?, room_type = ?, cap_adult = ?, cap_child = ?, base_rate = ?, is_active = ?, inactive_reason = ?, sort_order = ?, size_m2 = ?, desc_en = ?, desc_id = ?, features_en = ?, features_id = ? WHERE id = ?",
+    [d.name, d.roomType, d.capAdult, d.capChild, d.baseRate, d.isActive, d.inactiveReason, d.sortOrder, ...spek(d), id],
+  );
 }
 
 export async function jumlahPesananKamar(id: string) {

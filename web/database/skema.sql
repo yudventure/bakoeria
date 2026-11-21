@@ -12,6 +12,11 @@ CREATE TABLE IF NOT EXISTS rooms (
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   inactive_reason VARCHAR(200) NULL,
   sort_order INT NOT NULL DEFAULT 0,
+  size_m2 SMALLINT UNSIGNED NULL,
+  desc_en TEXT NULL,
+  desc_id TEXT NULL,
+  features_en TEXT NULL,
+  features_id TEXT NULL,
   UNIQUE KEY rooms_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

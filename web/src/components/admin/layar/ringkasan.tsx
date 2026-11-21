@@ -7,6 +7,7 @@ import { useData } from "../data";
 import { LABEL_LAYAR } from "../rangka";
 import { Angka, Galat, Kartu, Kosong, Label, Memuat, Pil, Tombol } from "../ui";
 import { WARNA_STATUS } from "../gaya";
+import DataDemo from "../data-demo";
 import DiagnosaDb from "../diagnosa-db";
 
 export default function Ringkasan() {
@@ -78,6 +79,7 @@ export default function Ringkasan() {
         <Galat pesan={galat} ulang={muat} />
       ) : (
         <>
+          {["developer", "pemilik"].includes(akun.peran) && <DataDemo ringkas selesai={muat} />}
           <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
             <Angka label="Terisi malam ini" nilai={`${s.malamIni}/${s.jumlahKamar}`} ket="kamar aktif" />
             <Angka label="Tiba hari ini" nilai={s.tibaHariIni} ket={s.tibaHariIni ? "lihat daftar di bawah" : "tidak ada"} />

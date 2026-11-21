@@ -16,6 +16,11 @@ export interface Kamar {
   isActive: boolean;
   inactiveReason: string | null;
   sortOrder: number;
+  sizeM2: number | null;
+  descEn: string;
+  descId: string;
+  featuresEn: string[];
+  featuresId: string[];
   musim: { id: string; dateFrom: string; dateTo: string; rate: number; label: string | null }[];
 }
 export interface Pesanan {

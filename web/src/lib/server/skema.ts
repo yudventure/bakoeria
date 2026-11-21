@@ -24,6 +24,11 @@ export const SKEMA: string[] = [
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     inactive_reason VARCHAR(200) NULL,
     sort_order INT NOT NULL DEFAULT 0,
+    size_m2 SMALLINT UNSIGNED NULL,
+    desc_en TEXT NULL,
+    desc_id TEXT NULL,
+    features_en TEXT NULL,
+    features_id TEXT NULL,
     UNIQUE KEY rooms_name (name)
   ) ${T}`,
   `CREATE TABLE IF NOT EXISTS seasonal_rates (
@@ -130,4 +135,17 @@ export const SKEMA: string[] = [
     KEY audit_entity (entity, entity_id),
     KEY audit_at (at)
   ) ${T}`,
+];
+
+/**
+ * Kolom yang ditambahkan setelah rilis pertama. `CREATE TABLE IF NOT EXISTS`
+ * tidak menambah kolom ke tabel yang sudah ada, jadi kolom yang belum ada
+ * ditambahkan satu per satu (cara ini jalan di MySQL maupun MariaDB).
+ */
+export const KOLOM_TAMBAHAN: [tabel: string, kolom: string, definisi: string][] = [
+  ["rooms", "size_m2", "SMALLINT UNSIGNED NULL"],
+  ["rooms", "desc_en", "TEXT NULL"],
+  ["rooms", "desc_id", "TEXT NULL"],
+  ["rooms", "features_en", "TEXT NULL"],
+  ["rooms", "features_id", "TEXT NULL"],
 ];

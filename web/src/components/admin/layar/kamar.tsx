@@ -8,7 +8,8 @@ import { useData } from "../data";
 import type { Kamar } from "../tipe";
 import { Bidang, Kartu, Kosong, masukan, Modal, Pil, Tombol, useToast } from "../ui";
 
-const KOSONG = { id: "", name: "", roomType: "", capAdult: 2, capChild: 0, baseRate: 0, isActive: true, inactiveReason: "", sortOrder: 0 };
+const KOSONG = { id: "", name: "", roomType: "", capAdult: 2, capChild: 0, baseRate: 0, isActive: true, inactiveReason: "", sortOrder: 0, sizeM2: "" as number | "", descEn: "", descId: "", featuresEn: "", featuresId: "" };
+const keForm = (k: Kamar): typeof KOSONG => ({ ...k, roomType: k.roomType ?? "", inactiveReason: k.inactiveReason ?? "", sizeM2: k.sizeM2 ?? "", featuresEn: k.featuresEn.join("\n"), featuresId: k.featuresId.join("\n") });
 
 export default function LayarKamar() {
   const { akun, kamar, muat } = useData();
@@ -72,15 +73,19 @@ export default function LayarKamar() {
             <Kartu
               key={k.id}
               judul={<span className="flex items-center gap-2">{k.name} {!k.isActive && <Pil nada="kuning">Nonaktif</Pil>}</span>}
-              ket={[k.roomType, `${k.capAdult} dewasa${k.capChild ? ` + ${k.capChild} anak` : ""}`].filter(Boolean).join(" · ")}
+              ket={[k.roomType, k.sizeM2 ? `${k.sizeM2} m²` : null, `${k.capAdult} dewasa${k.capChild ? ` + ${k.capChild} anak` : ""}`].filter(Boolean).join(" · ")}
               aksi={ubahBoleh && (
                 <>
-                  <Tombol kecil varian="garis" onClick={() => setF({ ...k, roomType: k.roomType ?? "", inactiveReason: k.inactiveReason ?? "" })}>Ubah</Tombol>
+                  <Tombol kecil varian="garis" onClick={() => setF(keForm(k))}>Ubah</Tombol>
                   <Tombol kecil varian="hantu" onClick={() => hapus(k)}>Hapus</Tombol>
                 </>
               )}
             >
               {!k.isActive && k.inactiveReason && <p className="mb-3 text-sm text-panel-kuning">{k.inactiveReason}</p>}
+              {(k.descId || k.descEn) && <p className="mb-3 text-sm text-panel-redup">{k.descId || k.descEn}</p>}
+              {(k.featuresId.length > 0 || k.featuresEn.length > 0) && (
+                <ul className="mb-4 flex flex-wrap gap-1.5">{(k.featuresId.length ? k.featuresId : k.featuresEn).map((x) => <li key={x} className="rounded-full bg-panel-latar px-2.5 py-1 text-xs">{x}</li>)}</ul>
+              )}
               {rp && (
                 <>
                   <p className="text-sm text-panel-redup">Tarif dasar</p>
@@ -119,6 +124,13 @@ export default function LayarKamar() {
             <Bidang label="Anak"><input className={masukan} type="number" min={0} value={f.capChild} onChange={(e) => setF({ ...f, capChild: Number(e.target.value) })} /></Bidang>
             <Bidang label="Tarif dasar per malam (Rp)"><input className={masukan} type="number" min={0} value={f.baseRate} onChange={(e) => setF({ ...f, baseRate: Number(e.target.value) })} /></Bidang>
             <Bidang label="Urutan"><input className={masukan} type="number" value={f.sortOrder} onChange={(e) => setF({ ...f, sortOrder: Number(e.target.value) })} /></Bidang>
+            <Bidang label="Luas (m²)" ket="Kosongkan bila belum tahu."><input className={masukan} type="number" min={0} value={f.sizeM2} onChange={(e) => setF({ ...f, sizeM2: e.target.value === "" ? "" : Number(e.target.value) })} /></Bidang>
+            <div className="hidden sm:block" />
+            <p className="text-sm font-bold sm:col-span-2">Untuk website <span className="font-normal text-panel-redup">— ditampilkan di kartu kamar sesuai bahasa pengunjung</span></p>
+            <Bidang label="Deskripsi (Inggris)"><textarea className={masukan} rows={3} value={f.descEn} onChange={(e) => setF({ ...f, descEn: e.target.value })} placeholder="A teak cottage on stilts, steps from the sand." /></Bidang>
+            <Bidang label="Deskripsi (Indonesia)"><textarea className={masukan} rows={3} value={f.descId} onChange={(e) => setF({ ...f, descId: e.target.value })} placeholder="Cottage jati panggung, beberapa langkah dari pasir." /></Bidang>
+            <Bidang label="Fasilitas (Inggris)" ket="Satu per baris."><textarea className={masukan} rows={4} value={f.featuresEn} onChange={(e) => setF({ ...f, featuresEn: e.target.value })} placeholder={"Queen bed\nPrivate terrace"} /></Bidang>
+            <Bidang label="Fasilitas (Indonesia)" ket="Satu per baris."><textarea className={masukan} rows={4} value={f.featuresId} onChange={(e) => setF({ ...f, featuresId: e.target.value })} placeholder={"Kasur queen\nTeras pribadi"} /></Bidang>
             <label className="flex items-center gap-2 text-sm font-bold sm:col-span-2"><input type="checkbox" checked={f.isActive} onChange={(e) => setF({ ...f, isActive: e.target.checked })} className="size-4" /> Aktif dan bisa dipesan</label>
             {!f.isActive && <Bidang label="Alasan nonaktif" className="sm:col-span-2"><input className={masukan} value={f.inactiveReason ?? ""} onChange={(e) => setF({ ...f, inactiveReason: e.target.value })} placeholder="Renovasi sampai Januari" /></Bidang>}
           </div>

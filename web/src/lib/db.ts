@@ -4,7 +4,7 @@ import fs from "node:fs";
 import mysql from "mysql2/promise";
 
 import { dbDiatur, envDb } from "@/lib/server/env-db";
-import { SKEMA } from "@/lib/server/skema";
+import { KOLOM_TAMBAHAN, SKEMA } from "@/lib/server/skema";
 
 /**
  * Satu-satunya tempat koneksi database dibuat. MySQL bawaan Hostinger
@@ -119,6 +119,9 @@ async function pool(): Promise<mysql.Pool> {
   const p = await ambilPool();
   S.siap ??= (async () => {
     for (const sql of SKEMA) await p.query(sql);
+    const [ada] = (await p.query("SELECT TABLE_NAME AS t, COLUMN_NAME AS c FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE()")) as unknown as [{ t: string; c: string }[]];
+    const punya = new Set(ada.map((r) => `${r.t}.${r.c}`.toLowerCase()));
+    for (const [t, c, def] of KOLOM_TAMBAHAN) if (!punya.has(`${t}.${c}`)) await p.query(`ALTER TABLE ${t} ADD COLUMN ${c} ${def}`);
   })()
     .then(() => {
       S.galat = undefined;
