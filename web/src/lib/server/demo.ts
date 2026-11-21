@@ -18,6 +18,8 @@ const BERKAS = "demo.json";
 const OLEH = "Data demo";
 
 interface Catatan {
+  /** Diisi saat data demo dihapus, supaya tidak terpasang otomatis lagi. */
+  dihapus?: string;
   dibuat: string;
   kamar: string[];
   tamu: string[];
@@ -26,7 +28,7 @@ interface Catatan {
 
 export async function statusDemo(): Promise<{ aktif: boolean; dibuat?: string; kamar: number }> {
   const c = await bacaJson<Catatan | null>(BERKAS, null);
-  return c ? { aktif: true, dibuat: c.dibuat, kamar: c.kamar.length } : { aktif: false, kamar: 0 };
+  return c && !c.dihapus ? { aktif: true, dibuat: c.dibuat, kamar: c.kamar.length } : { aktif: false, kamar: 0 };
 }
 
 /** Tanggal di zona Papua (WIT), digeser n hari dari hari ini. */
@@ -86,7 +88,7 @@ const KOMISI: Record<string, number> = { BOOKING_COM: 0.15, AGODA: 0.15, AIRBNB:
 export class DemoError extends Error {}
 
 export async function isiDemo(): Promise<{ kamar: number; pesanan: number; catatan: number }> {
-  if (await bacaJson<Catatan | null>(BERKAS, null)) throw new DemoError("Data demo sudah terpasang. Hapus dulu bila ingin memasang ulang.");
+  if ((await statusDemo()).aktif) throw new DemoError("Data demo sudah terpasang. Hapus dulu bila ingin memasang ulang.");
   const ada = Number((await kueri<{ n: number }>("SELECT COUNT(*) AS n FROM rooms"))[0]?.n ?? 0);
   if (ada > 0) throw new DemoError("Sudah ada kamar asli. Data demo hanya dipasang di database yang masih kosong, supaya tidak tercampur.");
 
@@ -181,7 +183,7 @@ export async function isiDemo(): Promise<{ kamar: number; pesanan: number; catat
 
 export async function hapusDemo(): Promise<{ dihapus: number; tertinggal: string[] }> {
   const c = await bacaJson<Catatan | null>(BERKAS, null);
-  if (!c) throw new DemoError("Tidak ada data demo yang terpasang.");
+  if (!c || c.dihapus) throw new DemoError("Tidak ada data demo yang terpasang.");
   const tertinggal: string[] = [];
   await transaksi(async (k) => {
     await k.query("DELETE FROM bookings WHERE created_by = ?", [OLEH]);
@@ -198,6 +200,29 @@ export async function hapusDemo(): Promise<{ dihapus: number; tertinggal: string
     const r = await hapusRekaman(x.m, x.koleksi, x.id);
     if (r.ok) dihapus++;
   }
-  await ubahJson<Catatan | null>(BERKAS, null, () => null);
+  await ubahJson<Catatan | null>(BERKAS, null, () => ({ dibuat: c.dibuat, dihapus: new Date().toISOString(), kamar: [], tamu: [], modul: [] }));
   return { dihapus, tertinggal };
+}
+
+/**
+ * Memasang data demo sendiri saat database masih kosong (belum ada kamar) dan
+ * data demo belum pernah dihapus. Dipanggil dari halaman depan, jadi situs
+ * baru langsung tampil berisi. Matikan dengan BAKOERIA_DEMO=0.
+ */
+let otomatis: Promise<void> | undefined;
+export function pastikanDemo(): Promise<void> {
+  if (process.env.BAKOERIA_DEMO?.trim() === "0") return Promise.resolve();
+  otomatis ??= (async () => {
+    const c = await bacaJson<Catatan | null>(BERKAS, null);
+    if (c) return; // pernah dipasang (masih ada atau sudah dihapus)
+    const n = Number((await kueri<{ n: number }>("SELECT COUNT(*) AS n FROM rooms"))[0]?.n ?? 0);
+    if (n > 0) return;
+    await isiDemo();
+    console.log("[demo] data demo dipasang otomatis karena database masih kosong");
+  })()
+    .catch((e) => console.error("[demo] gagal memasang otomatis", e))
+    .finally(() => {
+      otomatis = undefined;
+    });
+  return otomatis;
 }

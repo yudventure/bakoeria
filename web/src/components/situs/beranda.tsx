@@ -1,3 +1,4 @@
+import { pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
 import { nomorWa } from "@/lib/konten";
@@ -39,6 +40,7 @@ function Bintang({ className = "" }: { className?: string }) {
 async function kamarPublik(): Promise<Kamar[]> {
   if (!databaseReady()) return [];
   try {
+    await pastikanDemo();
     return await ambilKamar(false);
   } catch (e) {
     console.error("[beranda] kamar tidak terbaca", e instanceof Error ? e.message : e);

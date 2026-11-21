@@ -2,6 +2,7 @@ import { tambahHari, tanggalSah, hariIniWit } from "@/lib/booking";
 import { lihatRupiah } from "@/lib/peran";
 import { wajib } from "@/lib/server/akses";
 import { ambilKamar, bersihkanTahanan, bookingDalam } from "@/lib/server/buku";
+import { pastikanDemo } from "@/lib/server/demo";
 import { gagal, ok, sensor, tanpaDb } from "@/lib/server/rute";
 
 /** Kamar dan booking dalam rentang [dari, sampai). Bawaan: 3 bulan mulai bulan lalu. */
@@ -16,6 +17,7 @@ export async function GET(req: Request) {
   const sampai = tanggalSah(u.get("sampai")) ? u.get("sampai")! : tambahHari(awalBulan, 400);
   let kamar, pesanan;
   try {
+    await pastikanDemo();
     await bersihkanTahanan();
     [kamar, pesanan] = await Promise.all([ambilKamar(), bookingDalam(dari, sampai)]);
   } catch (e) {
