@@ -5,7 +5,8 @@ dipasang dengan cara yang sama seperti Mambetron Homestay.
 
 | Alamat | Isi |
 |---|---|
-| `/` | Situs publik, termasuk cek ketersediaan dan pemesanan langsung |
+| `/` | Situs publik bahasa Inggris (bawaan), termasuk cek ketersediaan dan pemesanan langsung |
+| `/id` | Situs publik bahasa Indonesia |
 | `/kelola` | Dashboard resort |
 | `/api/health` | Status server dan database |
 

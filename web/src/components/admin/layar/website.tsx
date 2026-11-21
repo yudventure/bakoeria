@@ -3,26 +3,35 @@
 import { useEffect, useState } from "react";
 import { IKON_KEUNGGULAN, type Konten } from "@/lib/konten";
 import { api } from "../api";
-import { Bidang, Galat, Kartu, masukan, Memuat, Tombol, useToast } from "../ui";
+import { Bidang, Galat, Kartu, masukan, Memuat, Tab, Tombol, useToast } from "../ui";
+import type { Bahasa } from "@/lib/kamus";
 
 export default function Website() {
   const toast = useToast();
+  const [bahasa, setBahasa] = useState<Bahasa>("en");
   const [k, setK] = useState<Konten | null>(null);
   const [galat, setGalat] = useState("");
   const [sibuk, setSibuk] = useState(false);
   useEffect(() => {
-    api<{ konten: Konten }>("/api/konten").then((r) => setK(r.konten)).catch((e) => setGalat(e.message));
-  }, []);
+    setK(null);
+    api<{ konten: Konten }>(`/api/konten?bahasa=${bahasa}`).then((r) => setK(r.konten)).catch((e) => setGalat(e.message));
+  }, [bahasa]);
+  const tab = (
+    <div className="grid gap-2">
+      <Tab<Bahasa> pilihan={[{ id: "en", label: "English (bawaan, alamat /)" }, { id: "id", label: "Indonesia (alamat /id)" }]} nilai={bahasa} ubah={setBahasa} />
+      <p className="text-xs text-panel-redup">Teks diisi terpisah untuk tiap bahasa. Kontak, media sosial, dan status tutup berlaku untuk kedua bahasa. Simpan dulu sebelum pindah tab.</p>
+    </div>
+  );
   if (galat) return <Galat pesan={galat} />;
-  if (!k) return <Memuat />;
+  if (!k) return <div className="grid gap-6">{tab}<Memuat /></div>;
 
   const set = <K extends keyof Konten>(kunci: K, v: Konten[K]) => setK({ ...k, [kunci]: v });
   async function simpan() {
     setSibuk(true);
     try {
-      const r = await api<{ konten: Konten }>("/api/konten", { method: "PUT", body: { konten: k } });
+      const r = await api<{ konten: Konten }>("/api/konten", { method: "PUT", body: { konten: k, bahasa } });
       setK(r.konten);
-      toast("Tersimpan dan langsung tayang");
+      toast(bahasa === "en" ? "Versi English tersimpan dan langsung tayang" : "Versi Indonesia tersimpan dan langsung tayang");
     } catch (e) {
       toast(e instanceof Error ? e.message : "Gagal", "galat");
     } finally {
@@ -53,10 +62,11 @@ export default function Website() {
           <p className="mt-1 text-sm text-panel-redup">Isi situs publik. Perubahan langsung tayang setelah disimpan, tanpa menunggu build.</p>
         </div>
         <div className="flex gap-2">
-          <Tombol varian="garis" onClick={() => window.open("/", "_blank")}>Lihat situs</Tombol>
+          <Tombol varian="garis" onClick={() => window.open(bahasa === "en" ? "/" : "/id", "_blank")}>Lihat situs</Tombol>
           <Tombol disabled={sibuk} onClick={simpan}>{sibuk ? "Menyimpan…" : "Simpan"}</Tombol>
         </div>
       </div>
+      {tab}
       <Kartu judul="Status situs">
         <label className="flex items-center gap-3 text-sm font-bold"><input type="checkbox" className="size-4" checked={k.tutup} onChange={(e) => set("tutup", e.target.checked)} /> Tutup sementara (situs menampilkan halaman perbaikan, dashboard tetap jalan)</label>
         <Bidang label="Pengumuman di atas halaman" ket="Kosongkan bila tidak ada." className="mt-4"><input className={masukan} value={k.pengumuman} onChange={(e) => set("pengumuman", e.target.value)} placeholder="Resort tutup 1–15 Februari untuk perawatan" /></Bidang>

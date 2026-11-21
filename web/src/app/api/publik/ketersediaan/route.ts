@@ -6,13 +6,15 @@ import { rincianHarga } from "@/lib/booking";
 
 /** Kamar yang kosong untuk [masuk, keluar), dengan total harga. Tanpa data tamu. */
 export async function GET(req: Request) {
-  if (!databaseReady()) return gagal("Pemesanan online belum aktif. Hubungi kami lewat WhatsApp.", 503);
   const u = new URL(req.url).searchParams;
+  const en = u.get("bahasa") !== "id";
+  const m = (id: string, ing: string) => (en ? ing : id);
+  if (!databaseReady()) return gagal(m("Pemesanan online belum aktif. Hubungi kami lewat WhatsApp.", "Online booking is not open yet. Please contact us on WhatsApp."), 503);
   const masuk = u.get("masuk");
   const keluar = u.get("keluar");
-  if (!tanggalSah(masuk) || !tanggalSah(keluar) || keluar <= masuk) return gagal("Pilih tanggal tiba dan tanggal pulang.");
-  if (masuk < hariIniWit()) return gagal("Tanggal tiba sudah lewat.");
-  if (jumlahMalam(masuk, keluar) > 30) return gagal("Untuk menginap lebih dari 30 malam, hubungi kami langsung.");
+  if (!tanggalSah(masuk) || !tanggalSah(keluar) || keluar <= masuk) return gagal(m("Pilih tanggal tiba dan tanggal pulang.", "Choose your arrival and departure dates."));
+  if (masuk < hariIniWit()) return gagal(m("Tanggal tiba sudah lewat.", "That arrival date has already passed."));
+  if (jumlahMalam(masuk, keluar) > 30) return gagal(m("Untuk menginap lebih dari 30 malam, hubungi kami langsung.", "For stays longer than 30 nights, please contact us directly."));
   const [kamar, pesanan] = await Promise.all([ambilKamar(false), bookingDalam(masuk, keluar)]);
   const terisi = new Set(pesanan.filter((p) => MENEMPATI.includes(p.status) || p.status === "TENTATIVE").filter((p) => tumpang(p.checkIn, p.checkOut, masuk, keluar)).map((p) => p.roomId));
   return ok({

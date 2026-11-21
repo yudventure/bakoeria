@@ -85,7 +85,7 @@ export const KONTEN_BAWAAN: Konten = {
     { t: "Bagaimana cara memesan?", j: "Pilih tanggal di formulir pemesanan. Permintaan Anda langsung masuk ke tim kami, dan kami membalas lewat WhatsApp atau email dengan konfirmasi dan cara pembayaran." },
   ],
   pesanIsi: "Pilih tanggal dan cottage. Kami membalas dengan konfirmasi dan cara pembayaran.",
-  kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "@bakoeria", alamat: "", peta: "", facebook: "", tiktok: "", youtube: "" },
+  kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "", alamat: "", peta: "", facebook: "", tiktok: "", youtube: "" },
   footerTentang: "Resor selam butik dengan cottage kayu jati di tepi pantai. Menyelam siang bersama pemandu yang mengenal lautnya, bermalam di bawah langit penuh bintang.",
   pengumuman: "",
   tutup: false,
@@ -104,12 +104,62 @@ export const KONTEN_BAWAAN: Konten = {
   ],
 };
 
+/** Isi bawaan bahasa Inggris (bahasa bawaan situs). Kontak sama dengan versi Indonesia. */
+export const KONTEN_BAWAAN_EN: Konten = {
+  ...KONTEN_BAWAAN,
+  tagline: "Dive by day, sleep under the stars.",
+  introJudul: "Where the sea feels like home",
+  introIsi:
+    "Bakoeria Dive Resort is a small, quiet dive resort. By day you are underwater with guides who know these sites well. By night you come home to a teak cottage, with warm hanging lights and sand under your feet.",
+  programCatatan: "Schedules and prices follow sea conditions and each guest's experience.",
+  program: [
+    { judul: "Fun Dive", isi: "For certified divers. A short briefing and two dives a day, led by a dive master who knows the local sites.", meta: "Certified · 2 dives a day", harga: "" },
+    { judul: "Open Water Course", isi: "Learn to dive from the start in a small group, at a calm pace, with full attention on safety.", meta: "Beginners · small groups", harga: "" },
+    { judul: "Discover Scuba", isi: "Try your first dive in shallow water, no certificate needed, one to one with an instructor.", meta: "No certificate · half day", harga: "" },
+    { judul: "Snorkelling", isi: "For families and anyone staying on the surface. Gear provided and a guide in the water with you.", meta: "All ages · gear provided", harga: "" },
+  ],
+  cottageJudul: "Teak cottages",
+  cottageIsi: "Stilt houses with teak walls and a terrace facing the coconut garden. Built from local materials and designed to let the sea breeze through.",
+  cottageFitur: ["Private terrace with chairs and warm lights", "Bed with mosquito net and en-suite bathroom", "Rinse area and storage for dive gear", "A few steps to the beach and jetty"],
+  jadwal: [
+    { jam: "06.30", judul: "Breakfast", isi: "Coffee, fruit, and a warm breakfast on the dining terrace." },
+    { jam: "07.30", judul: "Dive briefing", isi: "Dive plan and gear check at the jetty." },
+    { jam: "08.30", judul: "Morning dive", isi: "Out by boat, back for a surface interval." },
+    { jam: "13.00", judul: "Lunch", isi: "Hammocks, a rinse, and time for your logbook." },
+    { jam: "15.00", judul: "Afternoon dive or snorkel", isi: "Low light that brings out the reef's colours." },
+    { jam: "19.00", judul: "Dinner", isi: "Under the hanging lights, with a sky full of stars." },
+  ],
+  galeriJudul: "Warm light in the dark",
+  tanya: [
+    { t: "Do I need a dive certificate?", j: "Not for Discover Scuba or snorkelling. Fun dives need a basic certificate such as Open Water. If you don't have one yet, you can take the course here." },
+    { t: "What should I bring?", j: "Light clothing, reef-safe sunscreen, a towel, and your logbook if you have one. Dive gear can be rented at the resort." },
+    { t: "How do I book?", j: "Choose your dates in the booking form. Your request goes straight to our team, and we reply on WhatsApp or by email with a confirmation and payment details." },
+  ],
+  pesanIsi: "Choose your dates and cottage. We'll reply with a confirmation and payment details.",
+  pernyataan: "We built a place to dive and to rest, where *the sea*, *teak wood*, and *a warm team* are in balance",
+  keunggulanJudul: "Why Bakoeria",
+  keunggulan: [
+    { ikon: "selam", judul: "Guides who know the sea", isi: "Dive masters who know every site, current, and season." },
+    { ikon: "rumah", judul: "Teak cottages", isi: "Stilt houses of local materials, built for the sea breeze." },
+    { ikon: "tenang", judul: "Quiet and private", isi: "Few cottages, small dive groups, and silent nights." },
+    { ikon: "orang", judul: "For every level", isi: "From a first dive to seasoned divers." },
+  ],
+  footerTentang: "A small dive resort with teak cottages by the beach. Dive by day with guides who know the sea, and sleep under a sky full of stars.",
+  sorotan: [
+    { nilai: "", label: "teak cottages" },
+    { nilai: "", label: "dive programmes" },
+    { nilai: "2", label: "dives a day" },
+  ],
+};
+
+export const bawaanKonten = (b: "en" | "id") => (b === "en" ? KONTEN_BAWAAN_EN : KONTEN_BAWAAN);
+
 /** Hanya tautan http(s) yang diterima untuk peta dan media sosial. */
 const tautan = (v: unknown) => (typeof v === "string" && /^https?:\/\/\S+$/i.test(v.trim()) ? v.trim().slice(0, 300) : "");
 
 /** Gabungkan isi tersimpan dengan bawaan, supaya kolom baru tidak pernah kosong. */
-export function rapikanKonten(o: Partial<Konten> | null | undefined): Konten {
-  const b = KONTEN_BAWAAN;
+export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en" | "id" = "id"): Konten {
+  const b = bawaanKonten(bahasa);
   const s = (v: unknown, d: string) => (typeof v === "string" ? v.slice(0, 4000) : d);
   const arr = <T,>(v: unknown, d: T[], f: (x: Record<string, unknown>) => T) => (Array.isArray(v) ? v.slice(0, 30).map((x) => f((x ?? {}) as Record<string, unknown>)) : d);
   const k = (o ?? {}) as Record<string, unknown>;
@@ -153,10 +203,10 @@ export const nomorWa = (s: string) => {
   return d.startsWith("0") ? "62" + d.slice(1) : d;
 };
 
-/** Tautan profil Instagram dari "@nama", "nama", atau alamat lengkap. */
+/** Tautan profil Instagram dari "@nama", "nama", atau alamat lengkap. Kosong berarti halaman awal Instagram. */
 export const tautanInstagram = (v: string) => {
   const t = v.trim();
-  if (!t) return "";
+  if (!t) return "https://www.instagram.com/";
   if (/^https?:\/\//i.test(t)) return t;
   return `https://instagram.com/${t.replace(/^@/, "")}`;
 };

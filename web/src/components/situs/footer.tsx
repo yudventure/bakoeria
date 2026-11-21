@@ -1,4 +1,5 @@
 import { nomorWa, tautanInstagram, type Konten } from "@/lib/konten";
+import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { Ikon } from "./ikon";
 
 /**
@@ -7,29 +8,31 @@ import { Ikon } from "./ikon";
  * peta bila ada), "Ikuti kami" untuk media sosial yang diisi, lalu baris hak
  * cipta dan tautan masuk dashboard.
  */
-const MENU = [
-  ["#tentang", "Tentang"],
-  ["#menginap", "Menginap"],
-  ["#menyelam", "Program selam"],
-  ["#sehari", "Sehari di Bakoeria"],
-  ["#tanya", "Tanya jawab"],
-  ["#pesan", "Pesan"],
-];
 
 const Judul = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
   <p className={`text-[12px] font-bold uppercase tracking-[0.22em] text-emas ${className}`}>{children}</p>
 );
 
-export default function Footer({ k, namaResort }: { k: Konten; namaResort: string }) {
+export default function Footer({ k, namaResort, bahasa }: { k: Konten; namaResort: string; bahasa: Bahasa }) {
+  const t = KAMUS[bahasa];
   const { kontak } = k;
+  const MENU = [
+    ["#tentang", t.menu.tentang],
+    ["#menginap", t.menu.menginap],
+    ["#menyelam", t.footer.program],
+    ["#sehari", t.sehari],
+    ["#tanya", t.tanyaJawab],
+    ["#pesan", t.menu.pesan],
+  ];
   const wa = nomorWa(kontak.whatsapp);
-  const pesanWa = encodeURIComponent(`Halo ${namaResort}, saya ingin bertanya.`);
+  const pesanWa = encodeURIComponent(t.pesanWaUmum);
+  /* Akun yang belum diisi mengarah ke halaman awal platformnya, supaya ikonnya tetap tampil. */
   const sosial = [
     { href: tautanInstagram(kontak.instagram), ikon: "ig", nama: "Instagram" },
-    { href: kontak.facebook, ikon: "facebook", nama: "Facebook" },
-    { href: kontak.tiktok, ikon: "tiktok", nama: "TikTok" },
-    { href: kontak.youtube, ikon: "youtube", nama: "YouTube" },
-  ].filter((x) => x.href);
+    { href: kontak.tiktok || "https://www.tiktok.com/", ikon: "tiktok", nama: "TikTok" },
+    { href: kontak.facebook || "https://www.facebook.com/", ikon: "facebook", nama: "Facebook" },
+    { href: kontak.youtube || "https://www.youtube.com/", ikon: "youtube", nama: "YouTube" },
+  ];
 
   return (
     <footer className="bg-malam text-white/70">
@@ -41,7 +44,7 @@ export default function Footer({ k, namaResort }: { k: Konten; namaResort: strin
         </div>
 
         <div>
-          <Judul>Jelajahi</Judul>
+          <Judul>{t.footer.jelajahi}</Judul>
           <ul className="mt-4 grid gap-2.5">
             {MENU.map(([h, l]) => (
               <li key={h}>
@@ -52,7 +55,7 @@ export default function Footer({ k, namaResort }: { k: Konten; namaResort: strin
         </div>
 
         <div className="min-w-0">
-          <Judul>Kontak</Judul>
+          <Judul>{t.footer.kontak}</Judul>
           <ul className="mt-4 grid gap-3 text-[15px]">
             {wa && (
               <li>
@@ -81,9 +84,8 @@ export default function Footer({ k, namaResort }: { k: Konten; namaResort: strin
               </li>
             )}
           </ul>
-          {sosial.length > 0 && (
-            <>
-              <Judul className="mt-7">Ikuti kami</Judul>
+          <>
+              <Judul className="mt-7">{t.footer.ikuti}</Judul>
               <div className="mt-3 flex gap-2">
                 {sosial.map((x) => (
                   <a key={x.nama} href={x.href} target="_blank" rel="noopener noreferrer" aria-label={x.nama} className="grid size-10 place-items-center rounded-full bg-white/10 text-white transition hover:bg-white/20">
@@ -91,15 +93,14 @@ export default function Footer({ k, namaResort }: { k: Konten; namaResort: strin
                   </a>
                 ))}
               </div>
-            </>
-          )}
+          </>
         </div>
       </div>
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-6 text-[13.5px] text-white/55">
-          <span>© {new Date().getFullYear()} {namaResort}. Hak cipta dilindungi.</span>
+          <span>© {new Date().getFullYear()} {namaResort}. {t.footer.hak}</span>
           <a href="/kelola" rel="nofollow" className="inline-flex items-center gap-1.5 font-bold hover:text-white">
-            <Ikon nama="kunci" className="size-4" /> Masuk
+            <Ikon nama="kunci" className="size-4" /> {t.footer.masuk}
           </a>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
 import { nomorWa } from "@/lib/konten";
+import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
 import { Ikon, ikonProgram } from "@/components/situs/ikon";
@@ -8,7 +9,10 @@ import { Nav } from "@/components/situs/interaksi";
 import Pemesanan from "@/components/situs/pemesanan";
 import Footer from "@/components/situs/footer";
 
-export const dynamic = "force-dynamic";
+const ALT = {
+  en: { hero: "Bakoeria teak cottages with warm lights at night", foto: ["Teak cottage with glowing windows", "Cottage terrace at night", "Sandy path with hanging lights"], cottage: "Teak cottage" },
+  id: { hero: "Cottage kayu jati Bakoeria dengan lampu hangat di malam hari", foto: ["Cottage kayu jati dengan jendela menyala", "Teras cottage di malam hari", "Jalan berpasir dengan lampu gantung"], cottage: "Cottage kayu jati" },
+};
 
 const FOTO = ["/img/cottage-left.jpg", "/img/cottage-right.jpg", "/img/lights-path.jpg", "/img/palms.jpg"];
 
@@ -41,15 +45,18 @@ async function kamarPublik(): Promise<Kamar[]> {
   }
 }
 
-export default async function Beranda() {
-  const [k, set, kamar] = await Promise.all([bacaKonten(), bacaPengaturan(), kamarPublik()]);
+/** Beranda publik dalam satu bahasa. Dipakai app/(en)/page.tsx (/) dan app/(id)/id/page.tsx (/id). */
+export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
+  const t = KAMUS[bahasa];
+  const alt = ALT[bahasa];
+  const [k, set, kamar] = await Promise.all([bacaKonten(bahasa), bacaPengaturan(), kamarPublik()]);
   const wa = nomorWa(k.kontak.whatsapp);
 
   if (k.tutup) {
     return (
       <main className="flex min-h-svh flex-col items-center justify-center bg-[#F6F4EF] px-6 text-center text-malam">
         <img src="/brand/bakoeria-logo-stacked-navy.svg" alt="Bakoeria Dive Resort" className="w-[min(340px,78vw)]" />
-        <p className="mt-10 font-display text-3xl">Kami sedang berbenah sebentar.</p>
+        <p className="mt-10 font-display text-3xl">{t.sedangBerbenah}</p>
         {k.pengumuman && <p className="mt-3 max-w-md text-malam/65">{k.pengumuman}</p>}
         <p className="mt-8 text-sm text-malam/65">WhatsApp <span className="select-all font-bold text-malam">{k.kontak.whatsapp}</span> · {k.kontak.email}</p>
       </main>
@@ -58,14 +65,14 @@ export default async function Beranda() {
 
   return (
     <div className="bg-[#F6F4EF] text-[16px] leading-relaxed text-malam">
-      <a href="#isi" className="absolute -left-[999px] top-0 z-50 rounded-full bg-malam px-4 py-2 text-white focus:left-3 focus:top-3">Lewati ke konten</a>
-      <Nav />
+      <a href="#isi" className="absolute -left-[999px] top-0 z-50 rounded-full bg-malam px-4 py-2 text-white focus:left-3 focus:top-3">{t.lewati}</a>
+      <Nav bahasa={bahasa} />
 
       <main id="isi">
         {/* HERO */}
         <section id="atas" className="relative scroll-mt-24 px-2 sm:px-3">
           <div className="relative flex min-h-[560px] flex-col overflow-hidden rounded-[2rem] rounded-b-[2.5rem] sm:min-h-[600px] lg:h-[min(78svh,700px)]">
-            <img src="/img/resort-night.jpg" alt="Cottage kayu jati Bakoeria dengan lampu hangat di malam hari" className="absolute inset-0 h-full w-full object-cover object-[58%_70%]" />
+            <img src="/img/resort-night.jpg" alt={alt.hero} className="absolute inset-0 h-full w-full object-cover object-[58%_70%]" />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,28,62,.6)_0%,rgba(4,28,62,.2)_40%,rgba(4,28,62,.05)_62%,rgba(4,28,62,.5)_100%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_22%_52%,rgba(4,28,62,.62)_0%,rgba(4,28,62,0)_58%)]" />
             <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-5 pb-16 pt-12">
@@ -81,7 +88,7 @@ export default async function Beranda() {
           </div>
           <div className="relative z-10 -mt-9 flex justify-center px-4">
             <a href="#pesan" className="group flex items-center gap-10 rounded-full border border-white bg-[#F6F4EF]/95 py-2.5 pl-7 pr-2.5 shadow-[0_14px_40px_rgba(4,28,62,.16)] backdrop-blur">
-              <span className="text-[14px] text-malam">Cek ketersediaan</span>
+              <span className="text-[14px] text-malam">{t.cekKetersediaan}</span>
               <span className="grid size-10 place-items-center rounded-full bg-emas-tua text-white transition group-hover:translate-x-0.5"><Ikon nama="panah" className="size-4" /></span>
             </a>
           </div>
@@ -91,7 +98,7 @@ export default async function Beranda() {
         <section id="tentang" className="scroll-mt-24 px-5 pb-20 pt-16 sm:pt-20">
           <div className="mx-auto max-w-6xl">
             <div className="muncul grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-              <h2 className="font-display text-[clamp(56px,8vw,104px)] font-normal leading-[0.9] tracking-[-0.03em] text-malam/80">tentang kami</h2>
+              <h2 className="font-display text-[clamp(56px,8vw,104px)] font-normal leading-[0.9] tracking-[-0.03em] text-malam/80">{t.tentangKami}</h2>
               <div className="relative">
                 <Bintang className="absolute -top-2 right-0 text-2xl" />
                 <p className="pr-8 text-[clamp(18px,2.1vw,25px)] font-normal uppercase leading-[1.35] tracking-[0.02em] text-malam">
@@ -106,7 +113,7 @@ export default async function Beranda() {
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_0.85fr] lg:items-center">
               {FOTO.slice(0, 3).map((f, i) => (
                 <figure key={f} className="muncul m-0 aspect-[4/3] overflow-hidden rounded-[1.4rem]">
-                  <img src={f} alt={["Cottage kayu jati dengan jendela menyala", "Teras cottage di malam hari", "Jalan berpasir dengan lampu gantung"][i]} loading="lazy" className="h-full w-full object-cover transition duration-700 hover:scale-[1.04]" />
+                  <img src={f} alt={alt.foto[i]} loading="lazy" className="h-full w-full object-cover transition duration-700 hover:scale-[1.04]" />
                 </figure>
               ))}
               <div className="muncul text-[14px] leading-relaxed text-malam/65 sm:col-span-2 lg:col-span-1 lg:pl-4">
@@ -145,7 +152,7 @@ export default async function Beranda() {
         <section id="menginap" className="scroll-mt-24 px-5 py-20">
           <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
             <div className="muncul">
-              <h2 className="font-display text-[34px] font-normal leading-tight">Pilihan menginap</h2>
+              <h2 className="font-display text-[34px] font-normal leading-tight">{t.pilihanMenginap}</h2>
               <Bintang className="mt-2" />
               <p className="mt-4 text-[14px] text-malam/60">{k.cottageIsi}</p>
             </div>
@@ -156,14 +163,14 @@ export default async function Beranda() {
                     <img src={FOTO[i % 3]} alt={r.name} loading="lazy" className="aspect-[16/10] w-full object-cover" />
                     <div className="p-5">
                       <h3 className="text-[16px] font-bold">{r.name}</h3>
-                      <p className="mt-1 text-[13px] text-malam/55">{r.roomType ? `${r.roomType} · ` : ""}hingga {r.capAdult + r.capChild} tamu</p>
+                      <p className="mt-1 text-[13px] text-malam/55">{r.roomType ? `${r.roomType} · ` : ""}{t.hingga(r.capAdult + r.capChild)}</p>
                       <div className="mt-5 flex items-center justify-between">
                         <p className="text-[15px]">
-                          <span className="text-malam/55">mulai </span>
+                          <span className="text-malam/55">{t.mulai} </span>
                           <b className="font-bold">{rupiah(Math.min(r.baseRate, ...r.musim.map((m) => m.rate)))}</b>
-                          <span className="text-[12px] text-malam/55"> / malam</span>
+                          <span className="text-[12px] text-malam/55"> {t.perMalam}</span>
                         </p>
-                        <a href="#pesan" aria-label={`Pesan ${r.name}`} className="grid size-9 place-items-center rounded-full bg-emas-tua text-white transition hover:brightness-110"><Ikon nama="panah" className="size-4" /></a>
+                        <a href="#pesan" aria-label={t.pesanKamar(r.name)} className="grid size-9 place-items-center rounded-full bg-emas-tua text-white transition hover:brightness-110"><Ikon nama="panah" className="size-4" /></a>
                       </div>
                     </div>
                   </article>
@@ -171,7 +178,7 @@ export default async function Beranda() {
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
-                <img src="/img/cottage-left.jpg" alt="Cottage kayu jati" className="muncul aspect-[16/10] w-full rounded-[1.4rem] object-cover" />
+                <img src="/img/cottage-left.jpg" alt={alt.cottage} className="muncul aspect-[16/10] w-full rounded-[1.4rem] object-cover" />
                 <div className="muncul rounded-[1.4rem] bg-white p-6 shadow-[0_10px_30px_rgba(4,28,62,.07)] ring-1 ring-malam/5">
                   <h3 className="font-display text-2xl">{k.cottageJudul}</h3>
                   <ul className="mt-4 grid gap-2 text-[14px] text-malam/70">
@@ -192,7 +199,7 @@ export default async function Beranda() {
         <section id="menyelam" className="scroll-mt-24 px-5 pb-20">
           <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr] lg:items-center">
             <div className="muncul">
-              <h2 className="font-display text-[34px] font-normal leading-tight">Program selam</h2>
+              <h2 className="font-display text-[34px] font-normal leading-tight">{t.programSelam}</h2>
               <Bintang className="mt-2" />
               {k.programCatatan && <p className="mt-4 text-[14px] text-malam/60">{k.programCatatan}</p>}
             </div>
@@ -214,8 +221,8 @@ export default async function Beranda() {
         <section id="sehari" className="scroll-mt-24 px-5 pb-20">
           <div className="muncul mx-auto max-w-6xl rounded-[1.6rem] bg-white/80 p-6 shadow-[0_10px_30px_rgba(4,28,62,.06)] ring-1 ring-malam/8 sm:p-8">
             <div className="flex flex-wrap items-end justify-between gap-3">
-              <h2 className="font-display text-[34px] font-normal leading-tight">Sehari di Bakoeria</h2>
-              <p className="text-[13px] text-malam/55">Waktu Indonesia Timur</p>
+              <h2 className="font-display text-[34px] font-normal leading-tight">{t.sehari}</h2>
+              <p className="text-[13px] text-malam/55">{t.zonaWaktu}</p>
             </div>
             <ol className="mt-6 grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
               {k.jadwal.map((j, i) => (
@@ -235,7 +242,7 @@ export default async function Beranda() {
         <section id="tanya" className="scroll-mt-24 px-5 pb-20">
           <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
             <div className="muncul">
-              <h2 className="font-display text-[34px] font-normal leading-tight">Tanya jawab</h2>
+              <h2 className="font-display text-[34px] font-normal leading-tight">{t.tanyaJawab}</h2>
               <Bintang className="mt-2" />
             </div>
             <div className="muncul grid gap-2">
@@ -257,7 +264,7 @@ export default async function Beranda() {
           <img src="/img/resort-night.jpg" alt="" loading="lazy" className="absolute inset-x-0 bottom-0 h-[46%] w-full object-cover object-[50%_80%] [mask-image:linear-gradient(180deg,transparent,#000_40%)]" />
           <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
             <div className="muncul">
-              <h2 className="font-display text-[clamp(40px,5vw,58px)] font-normal leading-[0.98] tracking-[-0.02em]">Rencanakan perjalanan Anda</h2>
+              <h2 className="font-display text-[clamp(40px,5vw,58px)] font-normal leading-[0.98] tracking-[-0.02em]">{t.rencanakan}</h2>
               <p className="mt-4 max-w-sm text-[14px] text-malam/65">{k.pesanIsi}</p>
               <dl className="mt-6 grid max-w-sm gap-2 text-[14px]">
                 {[["wa", "WhatsApp", k.kontak.whatsapp], ["surat", "Email", k.kontak.email], ["ig", "Instagram", k.kontak.instagram]].map(([ikon, dt, dd]) => (
@@ -270,13 +277,13 @@ export default async function Beranda() {
               </dl>
             </div>
             <div className="muncul">
-              <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} />
+              <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} />
             </div>
           </div>
         </section>
       </main>
 
-      <Footer k={k} namaResort={set.namaResort} />
+      <Footer k={k} namaResort={set.namaResort} bahasa={bahasa} />
     </div>
   );
 }
