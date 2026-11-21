@@ -17,6 +17,16 @@ export interface Tanya {
   t: string;
   j: string;
 }
+export interface Sorotan {
+  /** Kosong berarti dihitung otomatis (jumlah cottage atau jumlah program). */
+  nilai: string;
+  label: string;
+}
+export interface Keunggulan {
+  ikon: string;
+  judul: string;
+  isi: string;
+}
 export interface Konten {
   tagline: string;
   introJudul: string;
@@ -33,7 +43,15 @@ export interface Konten {
   kontak: { whatsapp: string; email: string; instagram: string; alamat: string };
   pengumuman: string;
   tutup: boolean;
+  /** Tiga angka di kanan hero. */
+  sorotan: Sorotan[];
+  /** Kalimat besar di bagian Tentang. Kata di antara *bintang* diberi warna emas. */
+  pernyataan: string;
+  keunggulanJudul: string;
+  keunggulan: Keunggulan[];
 }
+
+export const IKON_KEUNGGULAN = ["selam", "rumah", "tenang", "orang", "perahu", "lampu", "daun", "bintang"] as const;
 
 export const KONTEN_BAWAAN: Konten = {
   tagline: "Menyelam siang, bermalam di bawah bintang.",
@@ -68,6 +86,19 @@ export const KONTEN_BAWAAN: Konten = {
   kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "@bakoeria", alamat: "" },
   pengumuman: "",
   tutup: false,
+  sorotan: [
+    { nilai: "", label: "cottage kayu jati" },
+    { nilai: "", label: "program selam" },
+    { nilai: "2", label: "selam per hari" },
+  ],
+  pernyataan: "Kami merancang tempat menyelam dan beristirahat, di mana *laut*, *kayu jati*, dan *kehangatan tim* berjalan dalam keseimbangan",
+  keunggulanJudul: "Kenapa memilih Bakoeria",
+  keunggulan: [
+    { ikon: "selam", judul: "Pemandu yang mengenal laut", isi: "Dive master yang hafal titik selam, arus, dan musimnya." },
+    { ikon: "rumah", judul: "Cottage kayu jati", isi: "Rumah panggung dari bahan lokal, dirancang untuk angin laut." },
+    { ikon: "tenang", judul: "Tenang dan pribadi", isi: "Sedikit cottage, kelompok selam kecil, malam yang sunyi." },
+    { ikon: "orang", judul: "Untuk semua tingkat", isi: "Dari selam pertama sampai penyelam berpengalaman." },
+  ],
 };
 
 /** Gabungkan isi tersimpan dengan bawaan, supaya kolom baru tidak pernah kosong. */
@@ -93,6 +124,10 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined): Konten {
     kontak: { whatsapp: s(kontak.whatsapp, b.kontak.whatsapp), email: s(kontak.email, b.kontak.email), instagram: s(kontak.instagram, b.kontak.instagram), alamat: s(kontak.alamat, b.kontak.alamat) },
     pengumuman: s(k.pengumuman, b.pengumuman),
     tutup: typeof k.tutup === "boolean" ? k.tutup : b.tutup,
+    sorotan: arr(k.sorotan, b.sorotan, (x) => ({ nilai: s(x.nilai, "").slice(0, 12), label: s(x.label, "").slice(0, 40) })).slice(0, 3),
+    pernyataan: s(k.pernyataan, b.pernyataan),
+    keunggulanJudul: s(k.keunggulanJudul, b.keunggulanJudul),
+    keunggulan: arr(k.keunggulan, b.keunggulan, (x) => ({ ikon: (IKON_KEUNGGULAN as readonly string[]).includes(String(x.ikon)) ? String(x.ikon) : "bintang", judul: s(x.judul, ""), isi: s(x.isi, "") })).slice(0, 6),
   };
 }
 

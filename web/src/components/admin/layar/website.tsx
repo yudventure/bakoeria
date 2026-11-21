@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Konten } from "@/lib/konten";
+import { IKON_KEUNGGULAN, type Konten } from "@/lib/konten";
 import { api } from "../api";
 import { Bidang, Galat, Kartu, masukan, Memuat, Tombol, useToast } from "../ui";
 
@@ -76,6 +76,31 @@ export default function Website() {
           <Bidang label="Isi sambutan"><textarea rows={4} className={masukan} value={k.introIsi} onChange={(e) => set("introIsi", e.target.value)} /></Bidang>
         </div>
       </Kartu>
+      <Kartu judul="Angka di hero" ket="Tiga kartu di kanan foto pembuka. Kosongkan angka untuk menghitung otomatis: kartu pertama memakai jumlah cottage aktif, kartu kedua jumlah program selam. Jangan mengisi angka yang tidak bisa dibuktikan.">
+        <div className="grid gap-4 sm:grid-cols-3">
+          {k.sorotan.map((x, i) => (
+            <div key={i} className="grid gap-3 rounded-2xl bg-panel-latar p-4">
+              <Bidang label="Angka"><input className={masukan} value={x.nilai} placeholder={i < 2 ? "otomatis" : ""} onChange={(e) => set("sorotan", k.sorotan.map((y, j) => (j === i ? { ...y, nilai: e.target.value } : y)))} /></Bidang>
+              <Bidang label="Keterangan"><input className={masukan} value={x.label} onChange={(e) => set("sorotan", k.sorotan.map((y, j) => (j === i ? { ...y, label: e.target.value } : y)))} /></Bidang>
+            </div>
+          ))}
+        </div>
+      </Kartu>
+      <Kartu judul="Bagian Tentang">
+        <Bidang label="Kalimat besar" ket="Ditulis kapital di situs. Kata di antara tanda bintang diberi warna emas, contoh: *laut*."><textarea rows={3} className={masukan} value={k.pernyataan} onChange={(e) => set("pernyataan", e.target.value)} /></Bidang>
+      </Kartu>
+      <Bidang label="Judul bagian keunggulan"><input className={masukan} value={k.keunggulanJudul} onChange={(e) => set("keunggulanJudul", e.target.value)} /></Bidang>
+      <Daftar judul="Keunggulan" isi={k.keunggulan} kosong={{ ikon: "bintang", judul: "", isi: "" }} ubah={(v) => set("keunggulan", v)} render={(x, s) => (
+        <div className="grid gap-3 sm:grid-cols-[10rem_1fr]">
+          <Bidang label="Ikon">
+            <select className={masukan} value={x.ikon} onChange={(e) => s({ ...x, ikon: e.target.value })}>
+              {IKON_KEUNGGULAN.map((i) => <option key={i} value={i}>{i}</option>)}
+            </select>
+          </Bidang>
+          <Bidang label="Judul"><input className={masukan} value={x.judul} onChange={(e) => s({ ...x, judul: e.target.value })} /></Bidang>
+          <Bidang label="Keterangan" className="sm:col-span-2"><input className={masukan} value={x.isi} onChange={(e) => s({ ...x, isi: e.target.value })} /></Bidang>
+        </div>
+      )} />
       <Daftar judul="Program selam" isi={k.program} kosong={{ judul: "", isi: "", meta: "", harga: "" }} ubah={(v) => set("program", v)} render={(x, s) => (
         <div className="grid gap-3 sm:grid-cols-2">
           <Bidang label="Nama"><input className={masukan} value={x.judul} onChange={(e) => s({ ...x, judul: e.target.value })} /></Bidang>
