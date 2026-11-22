@@ -4,18 +4,26 @@ root=pathlib.Path(__file__).resolve().parent.parent; top='Bakoeria-Brand-Identit
 MAP=[('brand/Bakoeria-Brand-Guidelines.pdf','01-Presentasi/Bakoeria-Brand-Guidelines.pdf'),
      ('brand/logo','02-Logo'),('brand/favicon','02-Logo/Favicon-dan-Avatar'),
      ('brand/tokens','03-Warna-dan-Font/Token'),('assets/fonts','03-Warna-dan-Font/Font'),('assets/fonts.css','03-Warna-dan-Font/fonts.css'),
-     ('website','04-Website'),('social/export','05-Sosial-Media'),('mockups/export','06-Mockup'),('assets/img','07-Foto')]
-BACA='''BAKOERIA DIVE RESORT - PAKET IDENTITAS MEREK v1.0
+     ('website','04-Website'),('social/export','05-Sosial-Media'),('mockups/export','06-Mockup'),('assets/img','07-Foto'),
+     ('assets/source/bakoeria-logo-v2.png','02-Logo/Sumber/bakoeria-logo-asli.png'),
+     ('research/logo-accuracy.png','08-Riset/logo-asli-vs-vektor.png'),('research/logo-accuracy.json','08-Riset/logo-akurasi.json'),('research/logo-measurements.md','08-Riset/ukuran-logo.md'),
+     ('research/font-match.json','08-Riset/pencocokan-font.json'),('research/contrast-table.md','08-Riset/tabel-kontras.md')]
+BACA='''BAKOERIA DIVE RESORT - PAKET IDENTITAS MEREK v2.0
+(logo ombak, penyelam, rumah panggung, dan ukiran)
 
 01-Presentasi     Panduan identitas merek (PDF, 23 halaman)
-02-Logo           Logo SVG dan PNG transparan: bertumpuk, horizontal, lambang, nama.
-                  Warna: gold (gradasi, layar), gold-flat (cetak, bordir), navy, ivory, black.
-                  Favicon-dan-Avatar: ikon situs dan foto profil.
-03-Warna-dan-Font Kode warna (CSS, JSON, Tailwind) dan font Crimson Pro serta Lato (lisensi SIL OFL 1.1).
-04-Website        Situs satu halaman. Buka index.html.
+02-Logo           Logo SVG dan PNG transparan: bertumpuk (stacked), horizontal, lambang (mark), nama (wordmark).
+                  Warna: warna (utama, untuk latar putih/terang), terbalik (untuk latar gelap),
+                  navy, putih, hitam (satu warna: cetak, stempel, bordir, ukiran).
+                  Favicon-dan-Avatar: ikon situs, ikon aplikasi, dan foto profil.
+                  Sumber: file logo asli yang divektorisasi.
+03-Warna-dan-Font Kode warna (CSS, JSON, Tailwind) dan font Spectral serta Albert Sans (lisensi SIL OFL 1.1).
+04-Website        Contoh situs satu halaman statis. Buka index.html.
+                  (Website resort yang tayang, beserta dashboard, ada di repositori proyek, folder web/.)
 05-Sosial-Media   24 PNG: feed, carousel, story, sampul highlight, cover Facebook, YouTube, WhatsApp.
 06-Mockup         9 mockup 2400 x 1600 px.
 07-Foto           Potongan foto sumber.
+08-Riset          Perbandingan logo asli dan hasil vektor, hasil pencocokan font, tabel kontras warna.
 
 Catatan: teks program, kontak, dan ulasan masih contoh. Foto perlu diganti dengan foto asli resor.
 '''

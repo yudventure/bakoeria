@@ -85,6 +85,12 @@ def mark(sk, x0, y0, s=1, pre='bk'):
             titik = ''.join(f'<stop offset="{o}" stop-color="{ubah(c)}"/>' for o, c in b['stops'])
             defs.append(f'<linearGradient id="{gid}" gradientUnits="userSpaceOnUse" x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}">{titik}</linearGradient>')
             f = f'url(#{gid})'
+        elif sk.get(b['lapis']) == 'ombak':
+            # penyelam senada ombak: gradasi ombak dalam (bentuk ombak ke-2), dengan pencerahan yang sama
+            ubah = sk['ombak'] or (lambda c: c); gid = f'{pre}s{i}'; om = [x for x in T['bentuk'] if 'grad' in x][1]
+            titik = ''.join(f'<stop offset="{o}" stop-color="{ubah(c)}"/>' for o, c in om['stops'])
+            defs.append(f'<linearGradient id="{gid}" gradientUnits="userSpaceOnUse" x1="270" y1="120" x2="30" y2="385">{titik}</linearGradient>')
+            f = f'url(#{gid})'
         else:
             v = sk[b['lapis']]; f = b['fill'] if v is None else v(b['fill']) if callable(v) else v
         paths.append(f'<path fill="{f}" d="{b["d"]}"/>')

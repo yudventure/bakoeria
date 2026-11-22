@@ -8,7 +8,7 @@
 | `brand/logo/` | 20 SVG logo (4 susunan × 5 warna) dan PNG transparan di `png/` |
 | `brand/favicon/` | Ikon situs, ikon aplikasi, avatar 1080 px |
 | `brand/tokens/` | Warna dan font sebagai `brand.css`, `colors.json`, `tailwind.config.js` |
-| `assets/` | Font WOFF2 (Crimson Pro, Lato) dan potongan foto |
+| `assets/` | Font WOFF2 (Spectral, Albert Sans), file logo sumber, dan potongan foto |
 | `web/` | **Aplikasi Next.js (React + Tailwind): situs publik dan dashboard `/kelola`.** Deploy ke Hostinger: `web/DEPLOY.md` |
 | `website/` | Versi statis awal situs (acuan desain) |
 | `social/export/` | 24 PNG: feed 4:5, carousel, story, sampul highlight, cover Facebook, banner YouTube, gambar OG |

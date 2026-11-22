@@ -85,7 +85,8 @@ export function Gerak() {
         // Hanya dihitung saat dekat layar, dan dibatasi agar tidak pernah melebar ke luar halaman.
         const r = el.getBoundingClientRect();
         if (r.bottom < -tinggi || r.top > tinggi * 2) continue;
-        const pusat = Math.max(-1, Math.min(1, (r.top + r.height / 2 - tinggi / 2) / tinggi));
+        /* Hanya dari sisi datangnya: bergeser masuk lalu berhenti di tempatnya, jadi tidak pernah terpotong wadahnya. */
+        const pusat = Math.max(0, Math.min(1, (r.top + r.height / 2 - tinggi / 2) / tinggi));
         el.style.transform = `translate3d(${pusat * Number(el.dataset.geser) * 60}px, 0, 0)`;
       }
       const total = document.documentElement.scrollHeight - tinggi;
