@@ -142,10 +142,15 @@ export default function PilihTanggal({ value, onChange, min, max, bahasa = "id",
     document.addEventListener("pointerdown", luar);
     return () => document.removeEventListener("pointerdown", luar);
   }, [buka]);
-  /* Fokus mengikuti hari yang disorot. */
+  /* Fokus mengikuti hari yang disorot, tanpa membuat halaman melompat. */
   useEffect(() => {
-    if (buka) papan.current?.querySelector<HTMLButtonElement>(`[data-tgl="${sorot}"]`)?.focus();
+    if (buka) papan.current?.querySelector<HTMLButtonElement>(`[data-tgl="${sorot}"]`)?.focus({ preventScroll: true });
   }, [buka, sorot]);
+  /* Saat dibuka, seluruh papan harus terlihat: tidak terpotong tepi layar dan tidak
+     tertutup menu atas yang menempel (jarak aman diatur lewat scroll-margin). */
+  useEffect(() => {
+    if (buka) papan.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [buka]);
 
   function tombol(e: React.KeyboardEvent) {
     const langkah: Record<string, () => string> = {
@@ -209,7 +214,7 @@ export default function PilihTanggal({ value, onChange, min, max, bahasa = "id",
           role="dialog"
           aria-label={label ?? t.pilih}
           onKeyDown={tombol}
-          className={`absolute z-50 w-[19.5rem] max-w-[calc(100vw-1.5rem)] ${keAtas ? "bottom-[calc(100%+.5rem)]" : "top-[calc(100%+.5rem)]"} ${keKanan ? "right-0" : "left-0"} ${g.papan}`}
+          className={`absolute z-50 w-[19.5rem] max-w-[calc(100vw-1.5rem)] scroll-mb-4 scroll-mt-28 ${keAtas ? "bottom-[calc(100%+.5rem)]" : "top-[calc(100%+.5rem)]"} ${keKanan ? "right-0" : "left-0"} ${g.papan}`}
         >
           <div className="flex items-center justify-between gap-2">
             <button type="button" className={g.panah} aria-label={t.sebelum} data-nav="-1" disabled={!bisaMundur} onClick={() => setSorot(jepit(geserBulan(sorot, -1)))}>‹</button>

@@ -1,4 +1,5 @@
 import { PencatatKunjungan } from "./pencatat";
+import Menginap from "./menginap";
 import { pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
@@ -160,50 +161,17 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
           </section>
         )}
 
-        {/* MENGINAP */}
-        <section id="menginap" className="scroll-mt-24 px-5 py-20">
-          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
-            <div className="muncul">
-              <h2 className="font-display text-[34px] font-normal leading-tight">{t.pilihanMenginap}</h2>
-              <Bintang className="mt-3 block text-[26px]" />
-              <p className="mt-4 text-[14px] text-malam/60">{k.cottageIsi}</p>
-            </div>
-            {kamar.length > 0 ? (
-              <div className={`grid gap-4 sm:grid-cols-2 ${jenis.length % 2 === 0 ? "" : jenis.length % 3 === 1 && jenis.length > 4 ? "xl:grid-cols-2" : "xl:grid-cols-3"}`}>
-                {jenis.map(({ r, unit }, i) => {
-                  const f = bahasa === "id" ? (r.featuresId.length ? r.featuresId : r.featuresEn) : r.featuresEn.length ? r.featuresEn : r.featuresId;
-                  const ket = bahasa === "id" ? r.descId || r.descEn : r.descEn || r.descId;
-                  const promo = r.normalRate != null && r.normalRate > r.baseRate;
-                  const nama = r.roomType ?? r.name;
-                  return (
-                    <article key={nama} style={{ "--tunda": i % 4 } as React.CSSProperties} className="muncul group flex flex-col overflow-hidden rounded-[1.4rem] bg-white transition-shadow duration-500 hover:shadow-[0_18px_44px_rgba(10,36,64,.14)] shadow-[0_10px_30px_rgba(10,36,64,.07)] ring-1 ring-malam/5">
-                      <div className="relative overflow-hidden">
-                        <img src={FOTO[i % FOTO.length]} alt={nama} loading="lazy" className="aspect-[16/10] w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.06]" />
-                        {promo && <span className="absolute left-4 top-4 rounded-full bg-emas-tua px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white">{t.promo}</span>}
-                      </div>
-                      <div className="flex flex-1 flex-col p-5">
-                        <h3 className="font-display text-[24px] leading-tight">{nama}</h3>
-                        <p className="mt-1 text-[13px] text-malam/55">{[unit > 1 ? t.unit(unit) : null, r.sizeM2 ? `${r.sizeM2} m²` : null, t.muat(r.capAdult, r.capChild)].filter(Boolean).join(" · ")}</p>
-                        {ket && <p className="mt-3 text-[13.5px] leading-relaxed text-malam/70">{ket}</p>}
-                        {f.length > 0 && (
-                          <ul className="mt-4 grid gap-1.5 text-[13.5px] text-malam/75">
-                            {f.map((x) => <li key={x} className="flex gap-2"><span aria-hidden="true" className="mt-[0.45em] size-1.5 shrink-0 rounded-full bg-karang" />{x}</li>)}
-                          </ul>
-                        )}
-                        <div className="mt-auto flex items-end justify-between gap-3 pt-6">
-                          <p className="text-[15px] leading-tight">
-                            {promo && <s className="block text-[13px] text-malam/45">{rupiah(r.normalRate)}</s>}
-                            <b className="font-display text-[26px] font-medium text-malam">{rupiah(r.baseRate)}</b>
-                            <span className="text-[12px] text-malam/55"> {t.perMalam}</span>
-                          </p>
-                          <a href="#pesan" aria-label={t.pesanKamar(nama)} className="grid size-10 shrink-0 place-items-center rounded-full bg-emas-tua text-white transition hover:brightness-110"><Ikon nama="panah" className="size-4" /></a>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
+        {/* MENGINAP: sorotan dan galeri; tanpa kamar di database memakai isi dari menu Website */}
+        {jenis.length > 0 ? (
+          <Menginap jenis={jenis} isi={k.cottageIsi} bahasa={bahasa} tanda={<Bintang className="block text-[26px]" />} />
+        ) : (
+          <section id="menginap" className="scroll-mt-24 px-5 py-20">
+            <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
+              <div className="muncul">
+                <h2 className="font-display text-[34px] font-normal leading-tight">{t.pilihanMenginap}</h2>
+                <Bintang className="mt-3 block text-[26px]" />
+                <p className="mt-4 text-[14px] text-malam/60">{k.cottageIsi}</p>
               </div>
-            ) : (
               <div className="grid gap-4 sm:grid-cols-2">
                 <img src="/img/cottage-left.jpg" alt={alt.cottage} className="muncul aspect-[16/10] w-full rounded-[1.4rem] object-cover" />
                 <div className="muncul rounded-[1.4rem] bg-white p-6 shadow-[0_10px_30px_rgba(10,36,64,.07)] ring-1 ring-malam/5">
@@ -213,12 +181,9 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                   </ul>
                 </div>
               </div>
-            )}
-          </div>
-          {kamar.length > 0 && (
-<div className="mx-auto mt-6 max-w-6xl lg:pl-[15rem]"><p className="muncul rounded-2xl bg-busa/60 px-5 py-4 text-[14px] leading-relaxed text-malam/75">{t.kebijakanAnak} {KAMUS[bahasa].form.termasukMakan}</p></div>
-          )}
-        </section>
+            </div>
+          </section>
+        )}
 
         {/* PROGRAM SELAM */}
         <section id="menyelam" className="scroll-mt-24 px-5 pb-20">
