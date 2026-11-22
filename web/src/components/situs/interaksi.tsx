@@ -41,7 +41,18 @@ export function Nav({ bahasa }: { bahasa: Bahasa }) {
   return (
     <header className={`sticky top-0 z-40 bg-[#F6F4EF]/95 backdrop-blur-xl transition ${solid || buka ? "shadow-[0_6px_24px_rgba(10,36,64,.08)]" : ""}`}>
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-4">
-        <a href="#atas" aria-label="Bakoeria Dive Resort, ke atas" className="shrink-0">
+        {/* Logo kembali ke alamat utama yang bersih (tanpa #atas atau tanda bagian lain). */}
+        <a
+          href={awalanBahasa(bahasa)}
+          aria-label="Bakoeria Dive Resort"
+          className="shrink-0"
+          onClick={(e) => {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+            e.preventDefault();
+            window.history.replaceState(null, "", awalanBahasa(bahasa));
+            window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+          }}
+        >
           <img src="/brand/bakoeria-logo-horizontal-warna.svg" alt="Bakoeria Dive Resort" className="h-11 w-auto sm:h-[3.25rem]" />
         </a>
         <nav aria-label="Utama" className="hidden items-center gap-8 lg:flex">
