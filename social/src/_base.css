@@ -18,6 +18,11 @@ body{font-family:'Albert Sans',sans-serif;color:var(--gading);background:var(--m
 
 /* Pola khas "Ukir Ombak" (brand/pattern): SATU motif besar yang samar di sudut bidang, seperti ukiran pada lambang. */
 .sky::after{content:"";position:absolute;inset:0;background:url(../../brand/pattern/bakoeria-ukiran-putih.svg) no-repeat right -22% bottom -4%/118% auto;opacity:.07;pointer-events:none}
-.ukir{position:absolute;right:-16%;bottom:-3%;width:112%;opacity:.12;pointer-events:none}
+/* Variasi supaya tidak monoton: tiap template memakai susunan dan sudut yang berbeda. */
+.sky.u2::after{background:url(../../brand/pattern/bakoeria-ukiran-cermin-putih.svg) no-repeat left -22% bottom -4%/118% auto}
+.sky.u3::after{background:url(../../brand/pattern/bakoeria-ukiran-sayap-putih.svg) no-repeat center top -3%/150% auto}
+.sky.u4::after{background:url(../../brand/pattern/bakoeria-ukiran-lembah-putih.svg) no-repeat center bottom -3%/155% auto}
+.sky.u5::after{background:url(../../brand/pattern/bakoeria-ukiran-beriring-putih.svg) no-repeat right -40% top 46%/135% auto}
+.ukir{position:absolute;left:-16%;bottom:-3%;width:112%;opacity:.12;pointer-events:none}
 .pita{display:block;width:100%;height:44px;background:url(../../brand/pattern/bakoeria-pita-pasir.svg) center/auto 100% repeat-x}
 .pita.navy{background-image:url(../../brand/pattern/bakoeria-pita-navy.svg)}

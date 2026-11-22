@@ -41,7 +41,7 @@ export default function Masuk() {
     <main className="grid min-h-svh bg-panel-latar lg:grid-cols-[1.1fr_1fr]">
       <div className="relative hidden overflow-hidden bg-malam lg:block">
         <div className="bintang absolute inset-0" />
-        <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-putih.svg" className="pointer-events-none absolute -right-48 -top-10 w-[820px] max-w-none opacity-[0.07]" />
+        <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-sayap-putih.svg" className="pointer-events-none absolute left-1/2 -top-6 w-[1100px] max-w-none -translate-x-1/2 opacity-[0.07]" />
         <img src="/img/resort-night.jpg" alt="" className="absolute inset-x-0 bottom-0 w-full [mask-image:linear-gradient(transparent,#000_30%)]" />
         <div className="relative flex h-full flex-col items-center px-10 pt-[14vh] text-center">
           <img src="/brand/bakoeria-logo-stacked-terbalik.svg" alt="Bakoeria Dive Resort" className="w-[300px]" />

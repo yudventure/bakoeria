@@ -7,7 +7,7 @@ vektorisasi logo (tools/logo-trace.json, kunci 'ukiran'), tidak digambar ulang.
   python3 tools/build_pattern.py && node tools/build_pattern.js
 
 Hasil di brand/pattern/:
-  bakoeria-ukiran-<warna>.svg   motif tunggal
+  bakoeria-ukiran-<warna>.svg   motif tunggal; variasi: -cermin, -sayap, -lembah, -beriring
   bakoeria-pola-<nama>.svg      satu ubin pola ulang tanpa sambungan (ulang ke segala arah)
   bakoeria-pita-<warna>.svg     satu ruas pita pembatas (ulang mendatar)
   bakoeria-medali-<warna>.svg   tiga motif melingkar pada lingkaran lambang
@@ -20,16 +20,28 @@ BB = T['bbox']; cx, cy = (BB[0]+BB[2])/2-x0, (BB[1]+BB[3])/2-y0      # pusat lin
 out = root/'brand/pattern'; out.mkdir(parents=True, exist_ok=True)
 for f in out.glob('*.svg'): f.unlink()
 
-def motif(fill, tr=''): return f'<path fill="{fill}" transform="{tr} translate({-x0:.2f} {-y0:.2f})" d="{U["d"]}"/>'
+def motif(fill, tr=''): return f'<path fill="{fill}" fill-rule="evenodd" transform="{tr} translate({-x0:.2f} {-y0:.2f})" d="{U["d"]}"/>'
 def svg(W, H, body, title, vb=None): return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{vb or f"0 0 {W:.1f} {H:.1f}"}" width="{W:.0f}" height="{H:.0f}" role="img" aria-label="{title}"><title>{title}</title>{body}</svg>\n'
 
 TINTA = {'pasir': '#947C5F', 'navy': '#133250', 'putih': '#FFFFFF', 'toska': '#188B9A'}
-for n, c in TINTA.items():
-    (out/f'bakoeria-ukiran-{n}.svg').write_text(svg(w+16, h+16, motif(c, 'translate(8 8)'), 'Motif ukiran Bakoeria'))
+# Motif besar dan variasinya. Supaya tidak monoton, pemakaian digilir antara:
+#   asli, cermin (dibalik kiri-kanan), sayap (sepasang bertemu di puncak),
+#   lembah (sepasang bertemu di dasar), dan beriring (asli lalu cerminnya, mengalir).
+P = 8
+VARIASI = {
+    '':          (w, h,            lambda c: motif(c)),
+    '-cermin':   (w, h,            lambda c: motif(c, f'translate({w:.2f} 0) scale(-1 1)')),
+    '-sayap':    (2*w-6, h,        lambda c: motif(c)+motif(c, f'translate({2*w-6:.2f} 0) scale(-1 1)')),
+    '-lembah':   (2*w-6, h,        lambda c: motif(c, f'translate({w:.2f} 0) scale(-1 1)')+motif(c, f'translate({w-6:.2f} 0)')),
+    '-beriring': (2*w+120, h*1.9,  lambda c: motif(c)+motif(c, f'translate({2*w+120:.2f} {h*.9:.2f}) scale(-1 1)')),
+}
+for v, (vw, vh, buat) in VARIASI.items():
+    for n, c in TINTA.items():
+        (out/f'bakoeria-ukiran{v}-{n}.svg').write_text(svg(vw+2*P, vh+2*P, f'<g transform="translate({P} {P})">{buat(c)}</g>', 'Motif Ukir Ombak'+(f' ({v[1:]})' if v else '')))
 
 # Versi sederhana (ikon): lekuk dihaluskan dan serpihan kecil dibuang, terbaca sampai 16 px.
 I = T['ukiran_ikon']; ix0, iy0, ix1, iy1 = I['bbox']; iw, ih = ix1-ix0, iy1-iy0
-def ikon(fill, tr=''): return f'<path fill="{fill}" transform="{tr} translate({-ix0:.2f} {-iy0:.2f})" d="{I["d"]}"/>'
+def ikon(fill, tr=''): return f'<path fill="{fill}" fill-rule="evenodd" transform="{tr} translate({-ix0:.2f} {-iy0:.2f})" d="{I["d"]}"/>'
 for n, c in TINTA.items():
     (out/f'bakoeria-ukir-ikon-{n}.svg').write_text(svg(iw+12, ih+12, ikon(c, 'translate(6 6)'), 'Ikon Ukir Ombak'))
 # Ikon dalam bidang bulat (cap, stiker, avatar sorotan): motif sederhana di tengah lingkaran.

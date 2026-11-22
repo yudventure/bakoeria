@@ -57,6 +57,8 @@ Kontras (WCAG 2.2, lengkapnya di `research/contrast-table.md`): Navy Samudra di 
 Ukiran di bawah ombak pada lambang dijadikan pola khas merek. Motifnya diambil langsung dari hasil vektorisasi logo (`tools/build_pattern.py`), tidak digambar ulang. File: `brand/pattern/`.
 
 - **Cara pakai utama: satu motif besar per bidang**, terpotong di sudut dan samar. Putih 5 sampai 10% di latar gelap, pasir 15 sampai 25% di latar terang, putih 12 sampai 20% di bidang warna. File: `bakoeria-ukiran-*`.
+- **Variasi supaya tidak monoton**: `-cermin` (dibalik kiri-kanan), `-sayap` (sepasang bertemu di puncak), `-lembah` (sepasang bertemu di dasar), `-beriring` (motif lalu cerminnya, mengalir). Gilir susunan dan sudutnya; dua bidang bersebelahan jangan sama.
+- Garis tepi motif pola dirapikan (`tools/rapikan_kontur.py`): kurva dihaluskan, ujung runcing dikunci. Logo sendiri tidak diubah.
 - **Versi sederhana untuk ikon**: lekuk dihaluskan dan serpihan kecil dibuang, terbaca sampai 16 px. Untuk ikon, cap, stiker, butir daftar, dan tanda kecil di samping judul. File: `bakoeria-ukir-ikon-*`, `bakoeria-ukir-cap-*`.
 - Turunan untuk kemasan dan kain bila diperlukan: pola ulang tanpa sambungan (`bakoeria-pola-*`), pita, dan medali.
 - Satu warna saja (putih, pasir, navy, atau toska). Jangan diregangkan, jangan menutupi teks, dan bukan pengganti logo.

@@ -254,7 +254,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         {/* TANYA JAWAB */}
         <section id="tanya" className="relative scroll-mt-24 overflow-hidden px-5 pb-20">
           {/* Pola khas: satu ukiran besar yang samar di sudut. */}
-          <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-pasir.svg" loading="lazy" className="pointer-events-none absolute -bottom-10 -left-40 w-[760px] max-w-none opacity-[0.1]" />
+          <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-cermin-pasir.svg" loading="lazy" className="pointer-events-none absolute -bottom-10 -left-44 w-[760px] max-w-none opacity-[0.1]" />
           <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
             <div className="muncul">
               <h2 className="font-display text-[34px] font-normal leading-tight">{t.tanyaJawab}</h2>

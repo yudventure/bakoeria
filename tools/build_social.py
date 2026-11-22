@@ -3,8 +3,19 @@ import pathlib, json
 root=pathlib.Path(__file__).resolve().parent.parent; out=root/'social/src'
 L='../../brand/logo/'; I='../../assets/img/'
 jobs=[]
+_n=[0]
+def _gilir(html):
+    """Tiap latar .sky mendapat variasi motif berikutnya (u1..u5), supaya template tidak seragam."""
+    out=[]
+    for bagian in html.split('class="f sky'):
+        out.append(bagian)
+    hasil=out[0]
+    for bagian in out[1:]:
+        _n[0]+=1; k=(_n[0]-1)%5+1
+        hasil+='class="f sky'+('' if k==1 else f' u{k}')+bagian
+    return hasil
 def page(name,w,h,body,css=''):
-    (out/f'{name}.html').write_text(f'<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>{css}</style><body>{body}</body>')
+    (out/f'{name}.html').write_text(f'<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>{css}</style><body>{_gilir(body)}</body>')
     jobs.append({'src':f'social/src/{name}.html','out':f'social/export/{name}.png','w':w,'h':h})
 mark=f'<img src="{L}bakoeria-mark-terbalik.svg" style="width:150px">'
 foot=lambda handle='@bakoeria':f'<div style="display:flex;justify-content:space-between;align-items:flex-end;width:100%"><img src="{L}bakoeria-logo-horizontal-terbalik.svg" style="width:330px"><span class="lb" style="font-size:20px">{handle}</span></div>'
@@ -38,7 +49,7 @@ for i,(t,s) in enumerate(tips,1):
 <div><div style="font-family:Spectral;font-size:240px;line-height:.9;color:transparent;-webkit-text-stroke:2px var(--emas)">0{i}</div><h1 class="d" style="font-size:98px;margin-top:36px">{t}</h1><p style="font-weight:300;font-size:44px;line-height:1.45;color:var(--pasir);margin-top:34px;max-width:800px">{s}</p></div>
 {foot()}</div>''')
 # 5 ulasan
-page('ig-feed-04-ulasan',1080,1350,f'''<div class="f c" style="background:var(--gading);color:var(--malam);padding:130px 110px 110px;justify-content:space-between"><img class="ukir" src="../../brand/pattern/bakoeria-ukiran-pasir.svg"><div class="frame" style="border-color:rgba(10,36,64,.3)"></div>
+page('ig-feed-04-ulasan',1080,1350,f'''<div class="f c" style="background:var(--gading);color:var(--malam);padding:130px 110px 110px;justify-content:space-between"><img class="ukir" src="../../brand/pattern/bakoeria-ukiran-cermin-pasir.svg"><div class="frame" style="border-color:rgba(10,36,64,.3)"></div>
 <span class="lb" style="font-size:22px;color:var(--malam)">Kata tamu</span>
 <div><div style="font-family:Spectral;font-size:220px;line-height:.5;color:var(--emas-tua)">“</div><p style="font-family:Spectral;font-style:italic;font-size:70px;line-height:1.25;color:var(--malam)">Pulang dari laut, lampu teras sudah menyala dan kopi sudah menunggu.</p>
 <p class="lb" style="font-size:22px;color:var(--malam);margin-top:56px">Nama tamu · contoh ulasan</p></div>

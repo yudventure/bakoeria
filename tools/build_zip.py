@@ -25,7 +25,7 @@ BACA='''BAKOERIA DIVE RESORT - PAKET IDENTITAS MEREK v2.0
 07-Foto           Potongan foto sumber.
 08-Riset          Perbandingan logo asli dan hasil vektor, hasil pencocokan font, tabel kontras warna.
 09-Pola-Khas      Pola khas "Ukir Ombak", diambil dari ukiran di lambang. Cara pakai: SATU motif besar yang samar
-                  di sudut bidang (bakoeria-ukiran-*). Versi sederhana untuk ikon dan cap (bakoeria-ukir-ikon-*,
+                  di sudut bidang (bakoeria-ukiran-*; variasi -cermin, -sayap, -lembah, -beriring). Versi sederhana untuk ikon dan cap (bakoeria-ukir-ikon-*,
                   bakoeria-ukir-cap-*). Turunan untuk kemasan dan kain: pola ulang (bakoeria-pola-*), pita, medali.
 
 Catatan: teks program, kontak, dan ulasan masih contoh. Foto perlu diganti dengan foto asli resor.

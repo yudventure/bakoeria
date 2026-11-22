@@ -122,22 +122,23 @@ labp, npz = ndimage.label(pasir > .5); uk = np.zeros(pasir.shape, bool)
 for i in range(1, npz+1):
     mk = labp == i
     if mk.sum() >= 12 and ndimage.center_of_mass(mk)[0] > 400: uk |= mk
-pu, mu = telusur(np.where(ndimage.binary_dilation(uk, iterations=2), pasir, 0))
-yu, xu = np.where(mu); ukiran = {'d': ke_d(pu), 'bbox': [xu.min()/S, yu.min()/S, xu.max()/S, yu.max()/S]}
+# Motif pola ditampilkan sangat besar, jadi garis tepinya dirapikan: kurva dihaluskan,
+# ujung runcing dikunci (tools/rapikan_kontur.py). Logo sendiri tidak diubah.
+from rapikan_kontur import rapikan
+def topeng_halus(g, blur=.6):
+    gi = Image.fromarray((np.clip(g, 0, 1)*255).astype('uint8')).resize((c.width*S, c.height*S), Image.LANCZOS).filter(ImageFilter.GaussianBlur(S*blur))
+    return np.asarray(gi) > 128
+du, bu = rapikan(topeng_halus(np.where(ndimage.binary_dilation(uk, iterations=2), pasir, 0)), S, sigma=8)
+ukiran = {'d': du, 'bbox': [round(float(v), 2) for v in bu]}
 
-# Versi sederhana untuk ikon dan motif tunggal besar: celah sempit ditutup, serpihan
-# kecil dibuang, lalu ditelusuri lebih halus. Diturunkan dari bentuk yang sama, bukan digambar ulang.
-def telusur_halus(mask, blur=1.6, turd=40):
-    gi = Image.fromarray((mask*255).astype('uint8')).resize((c.width*S, c.height*S), Image.LANCZOS).filter(ImageFilter.GaussianBlur(S*blur))
-    m = np.asarray(gi) > 128
-    return potrace.Bitmap(~m).trace(turdsize=S*S*turd, alphamax=1.3, opttolerance=1.2), m
+# Versi sederhana untuk ikon: celah sempit ditutup dan serpihan kecil dibuang lebih dulu.
 bulat = lambda r: (np.hypot(*np.mgrid[-r:r+1, -r:r+1]) <= r)
 sd = ndimage.binary_opening(ndimage.binary_closing(uk, structure=bulat(2)), structure=bulat(2))
 lsd, nsd = ndimage.label(sd)
 for i in range(1, nsd+1):
     if (lsd == i).sum() < 260: sd[lsd == i] = False
-ps, ms = telusur_halus(sd)
-ysd, xsd = np.where(ms); ukiran_ikon = {'d': ke_d(ps), 'bbox': [xsd.min()/S, ysd.min()/S, xsd.max()/S, ysd.max()/S]}
+di, bi = rapikan(topeng_halus(sd.astype(float), 1.2), S, sigma=9, luas_min=200)
+ukiran_ikon = {'d': di, 'bbox': [round(float(v), 2) for v in bi]}
 
 semua = np.zeros_like(next(iter(topeng.values())))
 for m in topeng.values(): semua |= m
