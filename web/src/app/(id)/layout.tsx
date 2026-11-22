@@ -15,13 +15,13 @@ export const metadata: Metadata = {
     locale: "id_ID",
     alternateLocale: ["en_GB"],
     /* JPEG kecil (< 200 KB): WhatsApp tidak menampilkan gambar yang besar. ?v= memaksa pratinjau lama diperbarui. */
-    images: [{ url: "/img/og-id.jpg?v=2", width: 1200, height: 630, alt: "Bakoeria Dive Resort, cottage kayu jati di bawah langit malam", type: "image/jpeg" }],
+    images: [{ url: "/img/og-id.jpg?v=3", width: 1200, height: 630, alt: "Bakoeria Dive Resort, cottage kayu jati di bawah langit malam", type: "image/jpeg" }],
   },
-  twitter: { card: "summary_large_image", title: "Bakoeria Dive Resort · Raja Ampat", description: "Resort selam kecil dengan cottage kayu jati di tepi pantai Raja Ampat. Menyelam siang, bermalam di bawah bintang.", images: ["/img/og-id.jpg?v=2"] },
+  twitter: { card: "summary_large_image", title: "Bakoeria Dive Resort · Raja Ampat", description: "Resort selam kecil dengan cottage kayu jati di tepi pantai Raja Ampat. Menyelam siang, bermalam di bawah bintang.", images: ["/img/og-id.jpg?v=3"] },
   alternates: { canonical: "/id", languages: { en: "/", id: "/id" } },
 };
 
-export const viewport: Viewport = { themeColor: "#041C3E", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#133250", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

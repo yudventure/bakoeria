@@ -228,7 +228,7 @@ export function Rangka({ children, cari }: { children: ReactNode; cari: ReactNod
             <Ikon d="M4 7h16M4 12h16M4 17h16" />
           </button>
           <a href="#ringkasan" className="flex shrink-0 items-center gap-3">
-            <img src="/brand/bakoeria-mark-navy.svg" alt="" className="h-9 w-auto" />
+            <img src="/brand/bakoeria-mark-warna.svg" alt="" className="h-9 w-auto" />
             <span className="hidden leading-tight sm:block">
               <span className="block font-display text-lg font-semibold uppercase tracking-[0.08em] text-panel-utama">Bakoeria</span>
               <span className="block text-[10px] font-bold uppercase tracking-[0.24em] text-emas-tua">Dive Resort</span>

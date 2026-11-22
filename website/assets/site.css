@@ -1,12 +1,12 @@
 /* Bakoeria Dive Resort — gaya situs. Token mengikuti brand/tokens/brand.css */
 :root{
-  --malam-laut:#041C3E; --malam-dalam:#020F26; --malam-lembut:#0B2A5B;
-  --emas:#E2B05E; --emas-muda:#F5DB9D; --emas-tua:#B98A3A; --ambar:#D69521;
-  --jati:#422D1B; --pasir:#E6D5B3; --gading:#F7F0DF; --palem:#7E9A3A; --karang:#2A8A93;
-  --garis:rgba(226,176,94,.26);
-  --emas-gradasi:linear-gradient(160deg,#F8E7B0 0%,#EECB7C 50%,#D6A851 100%);
-  --display:'Crimson Pro','Crimson Text',Georgia,serif;
-  --body:'Lato','Helvetica Neue',Arial,sans-serif;
+  --malam-laut:#0A2440; --malam-dalam:#061A30; --malam-lembut:#12406B;
+  --emas:#D8C7A8; --emas-muda:#EAF6F7; --emas-tua:#947C5F; --ambar:#188B9A;
+  --jati:#422D1B; --pasir:#E9DFCD; --gading:#F7F3EC; --palem:#7E9A3A; --karang:#188B9A;
+  --garis:rgba(216,199,168,.26);
+  --emas-gradasi:linear-gradient(160deg,#FFFFFF 0%,#D7EEF0 50%,#8FD0D8 100%);
+  --display:'Spectral','Crimson Text',Georgia,serif;
+  --body:'Albert Sans','Helvetica Neue',Arial,sans-serif;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -37,7 +37,7 @@ p{margin:0}
 .btn{display:inline-block;font-family:var(--body);font-weight:700;font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;text-decoration:none;padding:17px 30px;background:var(--emas-gradasi);color:var(--malam-dalam);border:1px solid transparent;cursor:pointer;transition:filter .2s,background .2s,color .2s}
 .btn:hover{filter:brightness(1.08)}
 .btn.ghost{background:transparent;color:var(--emas-muda);border-color:var(--emas)}
-.btn.ghost:hover{background:rgba(226,176,94,.12)}
+.btn.ghost:hover{background:rgba(216,199,168,.12)}
 .btn.sm{padding:11px 20px}
 
 /* nav */
@@ -60,10 +60,10 @@ p{margin:0}
 }
 
 /* hero: langit CSS, foto resor menyatu dari bawah */
-.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#020F26 0%,#031C3D 46%,#06295a 100%);display:flex;flex-direction:column;align-items:center;padding-top:clamp(120px,15vw,170px)}
-.stars{position:absolute;inset:0 0 40%;background-image:radial-gradient(1.2px 1.2px at 12% 22%,rgba(247,240,223,.8) 50%,transparent 51%),radial-gradient(1px 1px at 27% 58%,rgba(247,240,223,.55) 50%,transparent 51%),radial-gradient(1.4px 1.4px at 41% 14%,rgba(247,240,223,.7) 50%,transparent 51%),radial-gradient(1px 1px at 58% 40%,rgba(247,240,223,.5) 50%,transparent 51%),radial-gradient(1.3px 1.3px at 73% 18%,rgba(247,240,223,.75) 50%,transparent 51%),radial-gradient(1px 1px at 86% 52%,rgba(247,240,223,.5) 50%,transparent 51%),radial-gradient(1.1px 1.1px at 93% 9%,rgba(247,240,223,.7) 50%,transparent 51%),radial-gradient(1px 1px at 6% 70%,rgba(247,240,223,.45) 50%,transparent 51%),radial-gradient(1px 1px at 49% 78%,rgba(247,240,223,.4) 50%,transparent 51%),radial-gradient(1.2px 1.2px at 66% 66%,rgba(247,240,223,.55) 50%,transparent 51%)}
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,#061A30 0%,#0A2440 46%,#0F4F7B 100%);display:flex;flex-direction:column;align-items:center;padding-top:clamp(120px,15vw,170px)}
+.stars{position:absolute;inset:0 0 40%;background-image:radial-gradient(1.2px 1.2px at 12% 22%,rgba(247,243,236,.8) 50%,transparent 51%),radial-gradient(1px 1px at 27% 58%,rgba(247,243,236,.55) 50%,transparent 51%),radial-gradient(1.4px 1.4px at 41% 14%,rgba(247,243,236,.7) 50%,transparent 51%),radial-gradient(1px 1px at 58% 40%,rgba(247,243,236,.5) 50%,transparent 51%),radial-gradient(1.3px 1.3px at 73% 18%,rgba(247,243,236,.75) 50%,transparent 51%),radial-gradient(1px 1px at 86% 52%,rgba(247,243,236,.5) 50%,transparent 51%),radial-gradient(1.1px 1.1px at 93% 9%,rgba(247,243,236,.7) 50%,transparent 51%),radial-gradient(1px 1px at 6% 70%,rgba(247,243,236,.45) 50%,transparent 51%),radial-gradient(1px 1px at 49% 78%,rgba(247,243,236,.4) 50%,transparent 51%),radial-gradient(1.2px 1.2px at 66% 66%,rgba(247,243,236,.55) 50%,transparent 51%)}
 .hero-in{position:relative;z-index:2;text-align:center;padding-inline:20px;display:flex;flex-direction:column;align-items:center}
-.hero-logo{width:min(460px,78vw);height:auto}
+.hero-logo{width:min(330px,68vw);height:auto}
 .hero-tag{font-family:var(--display);font-style:italic;font-size:clamp(20px,2.6vw,27px);color:var(--pasir);margin-top:30px}
 .hero-cta{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:34px}
 .hero-photo{position:relative;z-index:1;width:100%;max-width:1536px;margin-top:-8px;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 26%);mask-image:linear-gradient(180deg,transparent 0,#000 26%)}
@@ -128,7 +128,7 @@ p{margin:0}
 .contact dd{margin:0;font-family:var(--display);font-size:20px;color:var(--gading);user-select:all}
 .form{background:var(--malam-dalam);border:1px solid var(--garis);padding:clamp(24px,4vw,44px);display:grid;gap:8px}
 .form label{font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--emas);margin-top:12px}
-.form input,.form select,.form textarea{width:100%;background:transparent;border:0;border-bottom:1px solid rgba(226,176,94,.45);color:var(--gading);font:300 17px var(--body);padding:10px 0;border-radius:0}
+.form input,.form select,.form textarea{width:100%;background:transparent;border:0;border-bottom:1px solid rgba(216,199,168,.45);color:var(--gading);font:300 17px var(--body);padding:10px 0;border-radius:0}
 .form select option{background:var(--malam-dalam)}
 .form input:focus,.form select:focus,.form textarea:focus{outline:0;border-color:var(--emas-muda)}
 .form .two{display:grid;grid-template-columns:1fr 1fr;gap:20px}

@@ -26,10 +26,10 @@ export function JudulHero({ awalan, kata }: { awalan: string; kata: string[] }) 
             </span>
           ))}
         </h1>
-        <span className="muncul-lambat mt-[2vw] hidden text-[13px] tracking-[0.18em] text-white [text-shadow:0_1px_10px_rgba(4,28,62,.7)] sm:block" style={{ "--tunda-ms": "900ms" } as React.CSSProperties}>dive resort</span>
+        <span className="muncul-lambat mt-[2vw] hidden text-[13px] tracking-[0.18em] text-white [text-shadow:0_1px_10px_rgba(10,36,64,.7)] sm:block" style={{ "--tunda-ms": "900ms" } as React.CSSProperties}>dive resort</span>
       </div>
       {kata.length > 0 && (
-        <p className="muncul-lambat mt-5 flex flex-wrap items-baseline gap-x-3 font-display text-[clamp(22px,2.6vw,34px)] italic leading-tight text-white [text-shadow:0_1px_14px_rgba(4,28,62,.6)]" style={{ "--tunda-ms": "1050ms" } as React.CSSProperties}>
+        <p className="muncul-lambat mt-5 flex flex-wrap items-baseline gap-x-3 font-display text-[clamp(22px,2.6vw,34px)] italic leading-tight text-white [text-shadow:0_1px_14px_rgba(10,36,64,.6)]" style={{ "--tunda-ms": "1050ms" } as React.CSSProperties}>
           {awalan && <span className="text-white/80">{awalan}</span>}
           <span className="sr-only">{kata.join(", ")}</span>
           <span aria-hidden="true" className="relative inline-block h-[1.25em] overflow-hidden align-bottom text-emas-muda">

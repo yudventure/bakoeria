@@ -1,67 +1,66 @@
 {
-  "malam-laut": {
-    "name": "Malam Laut",
-    "hex": "#041C3E",
-    "role": "Warna dasar: latar utama, teks gelap"
+  "navy-samudra": {
+    "name": "Navy Samudra",
+    "hex": "#133250",
+    "role": "Nama di logo, judul, teks utama",
+    "sumber": "diukur: huruf BAKOERIA"
   },
-  "malam-dalam": {
-    "name": "Malam Dalam",
-    "hex": "#020F26",
-    "role": "Latar footer, bagian paling gelap"
+  "laut-dalam": {
+    "name": "Laut Dalam",
+    "hex": "#0A2440",
+    "role": "Latar gelap, footer, foto malam",
+    "sumber": "navy samudra digelapkan"
   },
-  "malam-lembut": {
-    "name": "Malam Lembut",
-    "hex": "#0B2A5B",
-    "role": "Permukaan kartu di atas Malam Laut"
+  "biru-ombak": {
+    "name": "Biru Ombak",
+    "hex": "#0F6490",
+    "role": "Ombak, tautan, tombol utama",
+    "sumber": "diukur: ombak atas"
   },
-  "emas-lentera": {
-    "name": "Emas Lentera",
-    "hex": "#E2B05E",
-    "role": "Logo, judul, garis, tombol utama"
+  "toska-karang": {
+    "name": "Toska Karang",
+    "hex": "#188B9A",
+    "role": "Ujung gradasi ombak, aksen",
+    "sumber": "diukur: ombak bawah"
   },
-  "emas-muda": {
-    "name": "Emas Muda",
-    "hex": "#F5DB9D",
-    "role": "Sorotan, judul besar di atas gelap"
+  "busa-toska": {
+    "name": "Busa Toska",
+    "hex": "#D7EEF0",
+    "role": "Latar lembut, sorotan, label status",
+    "sumber": "toska karang dicerahkan"
   },
-  "emas-tua": {
-    "name": "Emas Tua",
-    "hex": "#B98A3A",
-    "role": "Ujung gradasi, garis di atas terang"
+  "pasir-pantai": {
+    "name": "Pasir Pantai",
+    "hex": "#947C5F",
+    "role": "Palem, rumah, ukiran, sublabel",
+    "sumber": "diukur: lapisan pasir"
   },
-  "ambar-lampu": {
-    "name": "Ambar Lampu",
-    "hex": "#D69521",
-    "role": "Aksen cahaya hangat, ikon aktif"
+  "pasir-tua": {
+    "name": "Pasir Tua",
+    "hex": "#6B5840",
+    "role": "Teks bernuansa pasir di latar terang",
+    "sumber": "pasir pantai digelapkan untuk kontras"
   },
-  "kayu-jati": {
-    "name": "Kayu Jati",
-    "hex": "#422D1B",
-    "role": "Permukaan hangat: papan, kemasan"
+  "pasir-muda": {
+    "name": "Pasir Muda",
+    "hex": "#E9DFCD",
+    "role": "Latar hangat, garis pemisah",
+    "sumber": "pasir pantai dicerahkan"
   },
-  "jati-terang": {
-    "name": "Jati Terang",
-    "hex": "#6B4A1E",
-    "role": "Garis dan bayangan hangat"
+  "kerang": {
+    "name": "Kerang",
+    "hex": "#F7F3EC",
+    "role": "Latar halaman dan cetak",
+    "sumber": "putih hangat"
   },
-  "pasir": {
-    "name": "Pasir",
-    "hex": "#E6D5B3",
-    "role": "Teks pendukung dan latar netral"
+  "putih-garam": {
+    "name": "Putih Garam",
+    "hex": "#FFFFFF",
+    "role": "Latar logo utama, teks di atas gelap",
+    "sumber": "latar logo asli"
   },
-  "gading": {
-    "name": "Gading",
-    "hex": "#F7F0DF",
-    "role": "Teks di atas gelap, latar cetak"
-  },
-  "palem": {
-    "name": "Palem",
-    "hex": "#7E9A3A",
-    "role": "Aksen: status baik, alam"
-  },
-  "karang": {
-    "name": "Karang",
-    "hex": "#2A8A93",
-    "role": "Aksen: konteks selam siang hari"
+  "gradasi-ombak": {
+    "name": "Gradasi Ombak",
+    "css": "linear-gradient(135deg,#0F4F7B 0%,#0F6490 45%,#188B9A 100%)"
   }
 }

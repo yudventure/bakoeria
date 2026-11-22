@@ -148,7 +148,7 @@ export default function Laporan() {
                   const depan = t.b > hariIniWit().slice(0, 7);
                   return (
                     <g key={t.b} onClick={() => setBulan(t.b)} className="cursor-pointer">
-                      {v > 0 && <rect x={i * 60 + 14} y={170 - Math.max(h, 3)} width="32" height={Math.max(h, 3)} rx={Math.min(6, Math.max(h, 3) / 2)} fill={kini ? "#E2B05E" : depan ? "#C9D3E3" : "#0B2A5B"} />}
+                      {v > 0 && <rect x={i * 60 + 14} y={170 - Math.max(h, 3)} width="32" height={Math.max(h, 3)} rx={Math.min(6, Math.max(h, 3) / 2)} fill={kini ? "#188B9A" : depan ? "#C9D3E3" : "#133250"} />}
                       <text x={i * 60 + 30} y="190" textAnchor="middle" fontSize="12" fill="#5F6675" fontWeight={kini ? 700 : 400}>{namaBulan(t.b, true)}</text>
                       <text x={i * 60 + 30} y="205" textAnchor="middle" fontSize="10" fill="#8a909c">{Math.round(t.okupansi * 100)}%</text>
                     </g>

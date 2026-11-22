@@ -17,35 +17,35 @@ def page(body,cls='',title=''):
 def head(eye,h,lead=''): return f'<span class="eye">{eye}</span><h2>{h}</h2>'+(f'<p class="lead">{lead}</p>' if lead else '')
 def ftab(rows,k,extra=''): return '<table><tr><th>#</th><th>Font dan bobot</th><th>Skor</th><th></th></tr>'+''.join(f'<tr><td>{i+1}</td><td>{x[1]}</td><td>{x[0]:.3f}</td><td><div class="bar"><i style="width:{x[0]*100:.0f}%"></i></div></td></tr>' for i,x in enumerate(rows[:k]))+extra+'</table>'
 
-page(f'''<div class="stars"></div><div class="cv"><img src="{L}bakoeria-logo-stacked-gold.svg" style="width:118mm"><p class="it" style="font-size:17pt;margin-top:12mm">Menyelam siang, bermalam di bawah bintang.</p></div>
+page(f'''<div class="stars"></div><div class="cv"><img src="{L}bakoeria-logo-stacked-terbalik.svg" style="width:118mm"><p class="it" style="font-size:17pt;margin-top:12mm">Menyelam siang, bermalam di bawah bintang.</p></div>
 <div class="cvf"><span>Panduan Identitas Merek</span><span>Versi 1.0 · November 2026</span></div>''','cover sky')
 
 page(head('Esensi merek','Tempat laut menjadi rumah','Bakoeria Dive Resort adalah resor selam butik yang tenang dan personal: cottage kayu jati, lampu gantung hangat, pasir di bawah kaki, dan langit penuh bintang.')+'''
 <div class="g3" style="margin-top:9mm"><div class="box"><h3>Posisi</h3><p>Resor selam butik. Premium dalam rasa, bukan dalam gaya mewah yang berjarak.</p></div><div class="box"><h3>Janji</h3><p>Laut yang bagus siang hari, tempat pulang yang hangat malam hari, dan tim yang mengenal nama tamunya.</p></div><div class="box"><h3>Tamu</h3><p>Penyelam bersertifikat dan pemula, pasangan, serta kelompok kecil yang mencari pulau yang belum ramai.</p></div></div>
-<div class="g2" style="margin-top:6mm"><div class="box"><h3>Kepribadian</h3><ul><li><b>Hangat</b>, seperti cahaya lampu teras.</li><li><b>Tenang</b>, tidak berteriak dan tidak penuh promo.</li><li><b>Membumi</b>: kayu, pasir, dan daun palem.</li><li><b>Tepercaya</b> dalam hal keselamatan selam.</li></ul></div><div class="box"><h3>Tagline</h3><p class="it" style="font-size:17pt;color:#F5DB9D">Menyelam siang, bermalam di bawah bintang.</p><p style="margin-top:4mm">Cadangan: "Tempat laut menjadi rumah."</p></div></div>''')
+<div class="g2" style="margin-top:6mm"><div class="box"><h3>Kepribadian</h3><ul><li><b>Hangat</b>, seperti cahaya lampu teras.</li><li><b>Tenang</b>, tidak berteriak dan tidak penuh promo.</li><li><b>Membumi</b>: kayu, pasir, dan daun palem.</li><li><b>Tepercaya</b> dalam hal keselamatan selam.</li></ul></div><div class="box"><h3>Tagline</h3><p class="it" style="font-size:17pt;color:#EAF6F7">Menyelam siang, bermalam di bawah bintang.</p><p style="margin-top:4mm">Cadangan: "Tempat laut menjadi rumah."</p></div></div>''')
 
 page(head('Logo · akurasi','Divektorisasi dari logo asli','Lambang ditelusuri langsung dari foto. Nama dipasang dengan font yang paling cocok, dengan ukuran dan jarak yang diukur dari aslinya.')+f'''
-<div class="row" style="margin-top:7mm;gap:8mm;align-items:stretch"><div style="flex:1.5"><img src="{jpg('research/logo-accuracy.png',1500,88)}" style="width:100%;border:.3mm solid rgba(226,176,94,.3)"><div class="cap">Kiri: logo pada foto asli · Kanan: hasil vektor</div></div>
+<div class="row" style="margin-top:7mm;gap:8mm;align-items:stretch"><div style="flex:1.5"><img src="{jpg('research/logo-accuracy.png',1500,88)}" style="width:100%;border:.3mm solid rgba(216,199,168,.3)"><div class="cap">Kiri: logo pada foto asli · Kanan: hasil vektor</div></div>
 <div style="flex:1"><table><tr><th>Ukuran pada logo asli</th><th>Nilai</th></tr><tr><td>Lebar lambang</td><td>360 px</td></tr><tr><td>Lebar nama</td><td>572 px</td></tr><tr><td>Tinggi huruf nama</td><td>68 px</td></tr><tr><td>Jarak antarhuruf nama</td><td>0,065 em</td></tr><tr><td>Tinggi huruf sublabel</td><td>28 px</td></tr><tr><td>Jarak antarhuruf sublabel</td><td>0,284 em</td></tr><tr><td>Garis pengapit</td><td>70 × 3,6 px</td></tr><tr><td>Lambang ke nama</td><td>39 px</td></tr><tr><td>Nama ke sublabel</td><td>24 px</td></tr></table></div></div>
 <p class="note">Batasan: sumbernya foto, bukan file vektor. Lambang hanya selebar 360 px di foto, dan font adalah yang paling mirip, belum tentu font aslinya. Jika file logo asli tersedia, pakai itu sebagai master.</p>''')
 
 pl=lambda cls,f,cap,w: f'<div class="plate {cls}"><img src="{L}{f}.svg" style="width:{w}mm"><small>{cap}</small></div>'
 page(head('Logo · varian','Susunan dan warna')+f'''<div class="g2" style="margin-top:7mm">{pl('pn','bakoeria-logo-stacked-gold','Utama · bertumpuk',62)}{pl('pn','bakoeria-logo-horizontal-gold','Horizontal · header dan kop surat',92)}</div>
-<div class="g4" style="margin-top:5mm">{pl('pn','bakoeria-mark-gold','Lambang',38)}{pl('pi','bakoeria-logo-stacked-navy','Navy di gading',42)}{pl('pg','bakoeria-logo-stacked-navy','Navy di emas',42)}{pl('pt','bakoeria-logo-stacked-gold-flat','Emas rata · ukiran, bordir',42)}</div>''')
+<div class="g4" style="margin-top:5mm">{pl('pn','bakoeria-mark-gold','Lambang',38)}{pl('pi','bakoeria-logo-stacked-navy','Navy di gading',42)}{pl('pg','bakoeria-logo-stacked-navy','Navy di emas',42)}{pl('pt','bakoeria-logo-stacked-navy','Emas rata · ukiran, bordir',42)}</div>''')
 
-page(head('Logo · aturan','Cara memakai logo')+f'''<div class="g2" style="margin-top:7mm"><div class="box" style="display:flex;flex-direction:column;align-items:center;gap:5mm"><div style="padding:9mm;outline:.3mm dashed #E2B05E;position:relative"><img src="{L}bakoeria-logo-horizontal-gold.svg" style="width:92mm;display:block"><span style="position:absolute;top:1.5mm;left:50%;color:#E2B05E;font-size:9pt">x</span><span style="position:absolute;left:3mm;top:45%;color:#E2B05E;font-size:9pt">x</span></div><p style="align-self:flex-start"><b>Ruang aman.</b> Kosongkan area di semua sisi sebesar tinggi huruf "B" pada nama (x).</p></div>
+page(head('Logo · aturan','Cara memakai logo')+f'''<div class="g2" style="margin-top:7mm"><div class="box" style="display:flex;flex-direction:column;align-items:center;gap:5mm"><div style="padding:9mm;outline:.3mm dashed #D8C7A8;position:relative"><img src="{L}bakoeria-logo-horizontal-terbalik.svg" style="width:92mm;display:block"><span style="position:absolute;top:1.5mm;left:50%;color:#D8C7A8;font-size:9pt">x</span><span style="position:absolute;left:3mm;top:45%;color:#D8C7A8;font-size:9pt">x</span></div><p style="align-self:flex-start"><b>Ruang aman.</b> Kosongkan area di semua sisi sebesar tinggi huruf "B" pada nama (x).</p></div>
 <div class="box"><h3>Ukuran minimum</h3><ul><li>Logo lengkap: 32 mm cetak, 140 px layar.</li><li>Lambang saja: 10 mm cetak, 24 px layar.</li></ul><h3 style="margin-top:6mm">Latar</h3><ul><li>Emas hanya di atas navy atau Kayu Jati.</li><li>Di latar terang, pakai varian navy.</li><li>Di atas foto, pilih area langit atau bidang gelap yang tenang.</li></ul><h3 style="margin-top:6mm">Jangan</h3><ul><li>Meregangkan atau memutar.</li><li>Mengganti font nama.</li><li>Memberi bayangan atau garis tepi.</li><li>Menaruh logo emas di latar terang.</li></ul></div></div>''')
 
 page(head('Tipografi · riset','Font dicocokkan huruf demi huruf','Tiap huruf logo asli dipotong dari foto dan dibandingkan bentuknya dengan sekitar 60 keluarga Google Fonts. Skor 1,0 berarti identik.')+f'''
 <div class="g2" style="margin-top:7mm"><div class="box"><h3>Nama "BAKOERIA"</h3>{ftab(fm['nama'],6,'<tr><td>·</td><td>cinzel-700</td><td>0.747</td><td><div class="bar"><i style="width:75%"></i></div></td></tr>')}</div><div class="box"><h3>Sublabel "DIVE RESORT"</h3>{ftab(fm['sublabel'],7)}</div></div>
 <p class="note">Cinzel sekilas tampak cocok karena bergaya huruf Romawi, tetapi kontras tebal-tipisnya terlalu tajam dan proporsinya terlalu lebar.</p>''')
 
-page(head('Tipografi · sistem','Crimson Pro dan Lato')+'''<div class="g2" style="margin-top:6mm"><div class="box"><span class="eye">Judul · Crimson Pro Medium</span><div class="big">Tempat laut<br>menjadi rumah</div><p class="it" style="font-size:15pt;margin-top:3mm">Italic untuk tagline dan kutipan.</p><p style="margin-top:4mm">Serif gaya buku lama dengan kontras sedang: hangat dan elegan. Cadangan: Spectral, Georgia.</p></div>
-<div class="box"><span class="eye">Label dan teks · Lato</span><div style="font-weight:700;font-size:17pt;letter-spacing:.28em;color:#E2B05E">CEK KETERSEDIAAN</div><p style="font-size:12pt;color:#F7F0DF;margin-top:4mm">Lato Light untuk paragraf. Briefing selam pukul 07.30 di dermaga, peralatan sudah kami siapkan.</p><p style="margin-top:4mm">Sans humanis yang ramah dan terbaca di ukuran kecil. Cadangan: Helvetica Neue, Arial.</p></div></div>
-<table style="margin-top:6mm"><tr><th>Gaya</th><th>Font</th><th>Ukuran web</th><th>Jarak huruf</th></tr><tr><td>Judul besar</td><td>Crimson Pro 500, kapital</td><td>30 sampai 50 px</td><td>0,07 em</td></tr><tr><td>Subjudul</td><td>Crimson Pro 500</td><td>20 sampai 23 px</td><td>0,05 em</td></tr><tr><td>Tagline, kutipan</td><td>Crimson Pro Italic 400</td><td>20 sampai 27 px</td><td>0</td></tr><tr><td>Label, tombol, menu</td><td>Lato 700, kapital</td><td>11 sampai 13 px</td><td>0,22 sampai 0,28 em</td></tr><tr><td>Paragraf</td><td>Lato 300</td><td>16 sampai 17 px, baris 1,7</td><td>0</td></tr></table>''')
+page(head('Tipografi · sistem','Spectral dan Lato')+'''<div class="g2" style="margin-top:6mm"><div class="box"><span class="eye">Judul · Spectral Medium</span><div class="big">Tempat laut<br>menjadi rumah</div><p class="it" style="font-size:15pt;margin-top:3mm">Italic untuk tagline dan kutipan.</p><p style="margin-top:4mm">Serif gaya buku lama dengan kontras sedang: hangat dan elegan. Cadangan: Spectral, Georgia.</p></div>
+<div class="box"><span class="eye">Label dan teks · Lato</span><div style="font-weight:700;font-size:17pt;letter-spacing:.28em;color:#D8C7A8">CEK KETERSEDIAAN</div><p style="font-size:12pt;color:#F7F3EC;margin-top:4mm">Lato Light untuk paragraf. Briefing selam pukul 07.30 di dermaga, peralatan sudah kami siapkan.</p><p style="margin-top:4mm">Sans humanis yang ramah dan terbaca di ukuran kecil. Cadangan: Helvetica Neue, Arial.</p></div></div>
+<table style="margin-top:6mm"><tr><th>Gaya</th><th>Font</th><th>Ukuran web</th><th>Jarak huruf</th></tr><tr><td>Judul besar</td><td>Spectral 500, kapital</td><td>30 sampai 50 px</td><td>0,07 em</td></tr><tr><td>Subjudul</td><td>Spectral 500</td><td>20 sampai 23 px</td><td>0,05 em</td></tr><tr><td>Tagline, kutipan</td><td>Spectral Italic 400</td><td>20 sampai 27 px</td><td>0</td></tr><tr><td>Label, tombol, menu</td><td>Lato 700, kapital</td><td>11 sampai 13 px</td><td>0,22 sampai 0,28 em</td></tr><tr><td>Paragraf</td><td>Lato 300</td><td>16 sampai 17 px, baris 1,7</td><td>0</td></tr></table>''')
 
 sw=''.join(f'<div class="sw"><div style="height:17mm;background:{v["hex"]}"></div><div class="m"><b>{v["name"]}</b><span>{v["hex"]}</span><em>{v["role"]}</em></div></div>' for v in cols.values())
-page(head('Warna · palet','Malam, lentera, dan jati','Diambil dari warna dominan foto resor: sepertiga navy langit malam, sepertiga cokelat kayu, sisanya rentang emas lampu. Karang ditambahkan untuk materi selam siang.')+f'<div class="g5" style="margin-top:6mm">{sw}</div><p class="note">Gradasi emas logo: #F8E7B0 ke #EECB7C ke #D6A851, sudut 160°. Proporsi pemakaian: navy 60%, jati dan pasir 20%, emas 15%, aksen 5%.</p>')
+page(head('Warna · palet','Malam, lentera, dan jati','Diambil dari warna dominan foto resor: sepertiga navy langit malam, sepertiga cokelat kayu, sisanya rentang emas lampu. Karang ditambahkan untuk materi selam siang.')+f'<div class="g5" style="margin-top:6mm">{sw}</div><p class="note">Gradasi emas logo: #FFFFFF ke #D7EEF0 ke #8FD0D8, sudut 160°. Proporsi pemakaian: navy 60%, jati dan pasir 20%, emas 15%, aksen 5%.</p>')
 
 half=(len(ct)+1)//2
 tb=lambda rows:'<table><tr><th>Teks</th><th>Latar</th><th>Rasio</th><th>Hasil</th></tr>'+''.join(f'<tr><td>{a}</td><td>{b}</td><td>{c}</td><td class="{"bad" if "Gagal" in d else "ok"}">{d}</td></tr>' for a,b,c,d in rows)+'</table>'
@@ -58,9 +58,9 @@ def full(src,eye,h,cap,crop=None,w=1800): page(head(eye,h)+f'<div class="fig"><i
 import shutil
 shutil.copy('/tmp/fx/site_d.png',root/'research/website-desktop.png') if pathlib.Path('/tmp/fx/site_d.png').exists() else None
 if (root/'research/website-desktop.png').exists():
-    page(head('Website','Situs satu halaman')+f'<div class="row" style="gap:6mm;margin-top:5mm;align-items:flex-start"><img src="{jpg("research/website-desktop.png",1300,80,(0,0,1440,1120),"-a")}" style="flex:1;min-width:0;width:50%;border:.3mm solid rgba(226,176,94,.3)"><img src="{jpg("research/website-desktop.png",1300,80,(0,1760,1440,2880),"-b")}" style="flex:1;min-width:0;width:50%;border:.3mm solid rgba(226,176,94,.3)"></div><div class="cap">website/index.html · hero, program selam, cottage, ritme harian, galeri, tanya jawab, formulir pesan lewat WhatsApp</div>')
+    page(head('Website','Situs satu halaman')+f'<div class="row" style="gap:6mm;margin-top:5mm;align-items:flex-start"><img src="{jpg("research/website-desktop.png",1300,80,(0,0,1440,1120),"-a")}" style="flex:1;min-width:0;width:50%;border:.3mm solid rgba(216,199,168,.3)"><img src="{jpg("research/website-desktop.png",1300,80,(0,1760,1440,2880),"-b")}" style="flex:1;min-width:0;width:50%;border:.3mm solid rgba(216,199,168,.3)"></div><div class="cap">website/index.html · hero, program selam, cottage, ritme harian, galeri, tanya jawab, formulir pesan lewat WhatsApp</div>')
 S='social/export/'
-def strip(files,h): return '<div class="row" style="gap:4mm;margin-top:5mm;justify-content:center">'+''.join(f'<img src="{jpg(S+f+".png",520,80)}" style="height:{h}mm;border:.3mm solid rgba(226,176,94,.3)">' for f in files)+'</div>'
+def strip(files,h): return '<div class="row" style="gap:4mm;margin-top:5mm;justify-content:center">'+''.join(f'<img src="{jpg(S+f+".png",520,80)}" style="height:{h}mm;border:.3mm solid rgba(216,199,168,.3)">' for f in files)+'</div>'
 page(head('Sosial media','Feed dan carousel')+strip(['ig-feed-01-tagline','ig-feed-02-foto','ig-feed-03-program','ig-feed-04-ulasan','ig-carousel-01-sampul','ig-carousel-02-tips'],50)+strip(['ig-carousel-03-tips','ig-carousel-04-tips','ig-carousel-05-tips','ig-carousel-06-tips','ig-square-01-pengumuman'],50)+'<div class="cap">Feed 4:5 (1080 × 1350) dan persegi (1080 × 1080)</div>')
 page(head('Sosial media','Story, highlight, dan sampul')+strip(['ig-story-01-foto','ig-story-02-jadwal','ig-story-03-tanya','ig-highlight-menyelam','ig-highlight-cottage','ig-highlight-lokasi','ig-highlight-tarif'],58)+strip(['facebook-cover','whatsapp-katalog-cover'],42)+'<div class="cap">Story dan sampul highlight (1080 × 1920) · cover Facebook · cover katalog WhatsApp</div>')
 for f,t in [('00-brand-board','Brand board'),('01-kartu-nama','Kartu nama'),('02-kop-surat-amplop','Kop surat dan amplop'),('03-papan-nama','Papan nama gerbang'),('04-kunci-dan-kamar','Kunci, kartu sambutan, gantungan pintu'),('05-seragam-dan-tas','Seragam dan tas'),('06-website-digital','Website di desktop dan ponsel'),('07-instagram','Instagram'),('08-perlengkapan-selam','Logbook, stiker tabung, bendera perahu')]:
@@ -71,40 +71,40 @@ page(head('Paket file','Isi dan catatan')+'''<table style="margin-top:6mm"><tr><
 css='''@import url(%s);
 @page{size:297mm 210mm;margin:0}
 *{box-sizing:border-box;margin:0}
-body{font-family:'Lato',sans-serif;font-weight:300;font-size:10.5pt;line-height:1.55;color:#F7F0DF;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.pg{width:297mm;height:210mm;padding:19mm 20mm 20mm;background:#041C3E;position:relative;overflow:hidden;page-break-after:always;break-after:page}
-.pg:nth-child(even){background:#020F26}
-.sky{background:linear-gradient(180deg,#020F26,#041C3E 55%,#0A2C5E)!important}
-.stars{position:absolute;inset:0;background-image:radial-gradient(.5mm .5mm at 12%% 14%%,rgba(247,240,223,.8) 50%%,transparent 51%%),radial-gradient(.4mm .4mm at 27%% 34%%,rgba(247,240,223,.5) 50%%,transparent 51%%),radial-gradient(.5mm .5mm at 41%% 9%%,rgba(247,240,223,.7) 50%%,transparent 51%%),radial-gradient(.4mm .4mm at 62%% 20%%,rgba(247,240,223,.5) 50%%,transparent 51%%),radial-gradient(.5mm .5mm at 76%% 12%%,rgba(247,240,223,.8) 50%%,transparent 51%%),radial-gradient(.4mm .4mm at 88%% 30%%,rgba(247,240,223,.5) 50%%,transparent 51%%),radial-gradient(.4mm .4mm at 8%% 62%%,rgba(247,240,223,.4) 50%%,transparent 51%%),radial-gradient(.4mm .4mm at 93%% 70%%,rgba(247,240,223,.4) 50%%,transparent 51%%)}
+body{font-family:'Albert Sans',sans-serif;font-weight:300;font-size:10.5pt;line-height:1.55;color:#F7F3EC;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pg{width:297mm;height:210mm;padding:19mm 20mm 20mm;background:#0A2440;position:relative;overflow:hidden;page-break-after:always;break-after:page}
+.pg:nth-child(even){background:#061A30}
+.sky{background:linear-gradient(180deg,#061A30,#0A2440 55%,#0F4F7B)!important}
+.stars{position:absolute;inset:0;background-image:radial-gradient(.5mm .5mm at 12%% 14%%,rgba(247,243,236,.8) 50%%,transparent 51%%),radial-gradient(.4mm .4mm at 27%% 34%%,rgba(247,243,236,.5) 50%%,transparent 51%%),radial-gradient(.5mm .5mm at 41%% 9%%,rgba(247,243,236,.7) 50%%,transparent 51%%),radial-gradient(.4mm .4mm at 62%% 20%%,rgba(247,243,236,.5) 50%%,transparent 51%%),radial-gradient(.5mm .5mm at 76%% 12%%,rgba(247,243,236,.8) 50%%,transparent 51%%),radial-gradient(.4mm .4mm at 88%% 30%%,rgba(247,243,236,.5) 50%%,transparent 51%%),radial-gradient(.4mm .4mm at 8%% 62%%,rgba(247,243,236,.4) 50%%,transparent 51%%),radial-gradient(.4mm .4mm at 93%% 70%%,rgba(247,243,236,.4) 50%%,transparent 51%%)}
 .cv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.cvf,.pf{position:absolute;left:20mm;right:20mm;bottom:10mm;display:flex;justify-content:space-between;font-weight:700;font-size:7pt;letter-spacing:.26em;text-transform:uppercase;color:#E2B05E}
-.pf{padding-top:3mm;border-top:.2mm solid rgba(226,176,94,.3)}
-.pf.ov{border:0;color:#F7F0DF;text-shadow:0 0 2mm #000;bottom:7mm}
+.cvf,.pf{position:absolute;left:20mm;right:20mm;bottom:10mm;display:flex;justify-content:space-between;font-weight:700;font-size:7pt;letter-spacing:.26em;text-transform:uppercase;color:#D8C7A8}
+.pf{padding-top:3mm;border-top:.2mm solid rgba(216,199,168,.3)}
+.pf.ov{border:0;color:#F7F3EC;text-shadow:0 0 2mm #000;bottom:7mm}
 .bleed{padding:0}.bleed img{width:100%%;height:100%%;object-fit:cover;display:block}
-h2{font-family:'Crimson Pro',serif;font-weight:500;font-size:25pt;letter-spacing:.07em;text-transform:uppercase;line-height:1.15;color:#EECB7C}
-h3{font-family:'Crimson Pro',serif;font-weight:500;font-size:14pt;color:#F5DB9D;margin-bottom:2mm}
-.eye{display:block;font-weight:700;font-size:7.5pt;letter-spacing:.28em;text-transform:uppercase;color:#E2B05E;margin-bottom:3mm}
-.lead{font-size:12pt;color:#E6D5B3;margin-top:3mm;max-width:200mm}
-.it{font-family:'Crimson Pro',serif;font-style:italic;color:#E6D5B3}
-.big{font-family:'Crimson Pro',serif;font-weight:500;font-size:27pt;letter-spacing:.07em;text-transform:uppercase;line-height:1.1;color:#EECB7C}
+h2{font-family:'Spectral',serif;font-weight:500;font-size:25pt;letter-spacing:.07em;text-transform:uppercase;line-height:1.15;color:#D7EEF0}
+h3{font-family:'Spectral',serif;font-weight:500;font-size:14pt;color:#EAF6F7;margin-bottom:2mm}
+.eye{display:block;font-weight:700;font-size:7.5pt;letter-spacing:.28em;text-transform:uppercase;color:#D8C7A8;margin-bottom:3mm}
+.lead{font-size:12pt;color:#E9DFCD;margin-top:3mm;max-width:200mm}
+.it{font-family:'Spectral',serif;font-style:italic;color:#E9DFCD}
+.big{font-family:'Spectral',serif;font-weight:500;font-size:27pt;letter-spacing:.07em;text-transform:uppercase;line-height:1.1;color:#D7EEF0}
 .note{font-size:9pt;color:rgba(230,213,179,.75);margin-top:5mm;max-width:220mm}
-.cap{font-weight:700;font-size:7pt;letter-spacing:.22em;text-transform:uppercase;color:#E6D5B3;margin-top:3mm}
+.cap{font-weight:700;font-size:7pt;letter-spacing:.22em;text-transform:uppercase;color:#E9DFCD;margin-top:3mm}
 .row{display:flex}
 .g2,.g3,.g4,.g5{display:grid;gap:5mm}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr);gap:4mm}
-.box{border:.2mm solid rgba(226,176,94,.32);padding:5mm 6mm}
-.box p,.box li{color:#E6D5B3}.box ul{padding-left:4.5mm}.box b{color:#F7F0DF;font-weight:700}
+.box{border:.2mm solid rgba(216,199,168,.32);padding:5mm 6mm}
+.box p,.box li{color:#E9DFCD}.box ul{padding-left:4.5mm}.box b{color:#F7F3EC;font-weight:700}
 .plate{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4mm;height:62mm}
 .g4 .plate{height:58mm}
 .plate small{font-weight:700;font-size:6.5pt;letter-spacing:.2em;text-transform:uppercase;opacity:.8}
-.pn{background:#0B2A5B}.pi{background:#F7F0DF;color:#041C3E}.pg_{}.pg.x{}.plate.pg{}
-.plate.pi small{color:#041C3E}.pt{background:#422D1B}
+.pn{background:#12406B}.pi{background:#F7F3EC;color:#0A2440}.pg_{}.pg.x{}.plate.pg{}
+.plate.pi small{color:#0A2440}.pt{background:#422D1B}
 table{border-collapse:collapse;width:100%%;font-size:9.5pt}
-th{text-align:left;font-weight:700;font-size:6.8pt;letter-spacing:.2em;text-transform:uppercase;color:#E2B05E;padding:2mm 3mm 2mm 0;border-bottom:.2mm solid rgba(226,176,94,.4)}
-td{padding:1.9mm 3mm 1.9mm 0;border-bottom:.15mm solid rgba(226,176,94,.16);color:#E6D5B3}
-.bar{width:30mm;height:1.4mm;background:rgba(226,176,94,.16)}.bar i{display:block;height:100%%;background:#E2B05E}
+th{text-align:left;font-weight:700;font-size:6.8pt;letter-spacing:.2em;text-transform:uppercase;color:#D8C7A8;padding:2mm 3mm 2mm 0;border-bottom:.2mm solid rgba(216,199,168,.4)}
+td{padding:1.9mm 3mm 1.9mm 0;border-bottom:.15mm solid rgba(216,199,168,.16);color:#E9DFCD}
+.bar{width:30mm;height:1.4mm;background:rgba(216,199,168,.16)}.bar i{display:block;height:100%%;background:#D8C7A8}
 .ok{color:#A9C46A}.bad{color:#E58C7A;font-weight:700}
-.sw{border:.2mm solid rgba(226,176,94,.3)}.sw .m{padding:2.5mm 3mm}.sw b{display:block;font-family:'Crimson Pro',serif;font-weight:500;font-size:11.5pt;color:#F7F0DF}.sw span{display:block;font-size:8pt;letter-spacing:.06em;color:#E2B05E}.sw em{display:block;font-style:normal;font-size:7.6pt;line-height:1.35;color:#E6D5B3;margin-top:1mm}
+.sw{border:.2mm solid rgba(216,199,168,.3)}.sw .m{padding:2.5mm 3mm}.sw b{display:block;font-family:'Spectral',serif;font-weight:500;font-size:11.5pt;color:#F7F3EC}.sw span{display:block;font-size:8pt;letter-spacing:.06em;color:#D8C7A8}.sw em{display:block;font-style:normal;font-size:7.6pt;line-height:1.35;color:#E9DFCD;margin-top:1mm}
 '''.replace('%s',str(root/'assets/fonts.css')).replace('%%','%')
-css=css.replace('.pg_{}.pg.x{}.plate.pg{}','.plate.pg{width:auto;height:58mm;padding:0;background:#E2B05E!important;color:#020F26;page-break-after:auto;break-after:auto}')
+css=css.replace('.pg_{}.pg.x{}.plate.pg{}','.plate.pg{width:auto;height:58mm;padding:0;background:#D8C7A8!important;color:#061A30;page-break-after:auto;break-after:auto}')
 (tmp/'guidelines.html').write_text(f'<!doctype html><meta charset="utf-8"><title>Bakoeria Dive Resort — Panduan Identitas Merek</title><style>{css}</style><body>{"".join(pages)}</body>')
 print(n[0],'halaman')

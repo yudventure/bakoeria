@@ -43,13 +43,13 @@ export default function Masuk() {
         <div className="bintang absolute inset-0" />
         <img src="/img/resort-night.jpg" alt="" className="absolute inset-x-0 bottom-0 w-full [mask-image:linear-gradient(transparent,#000_30%)]" />
         <div className="relative flex h-full flex-col items-center px-10 pt-[14vh] text-center">
-          <img src="/brand/bakoeria-logo-stacked-gold.svg" alt="Bakoeria Dive Resort" className="w-[300px]" />
+          <img src="/brand/bakoeria-logo-stacked-terbalik.svg" alt="Bakoeria Dive Resort" className="w-[300px]" />
           <p className="mt-6 font-display text-xl italic text-pasir">Menyelam siang, bermalam di bawah bintang.</p>
         </div>
       </div>
       <div className="flex items-center justify-center px-5 py-12">
         <form onSubmit={lanjut} className="w-full max-w-sm">
-          <img src="/brand/bakoeria-logo-horizontal-navy.svg" alt="Bakoeria Dive Resort" className="mb-10 w-56 lg:hidden" />
+          <img src="/brand/bakoeria-logo-horizontal-warna.svg" alt="Bakoeria Dive Resort" className="mb-10 w-56 lg:hidden" />
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emas-tua">Dashboard resort</p>
           <h1 className="mt-2 text-3xl font-bold text-panel-tinta">{mode === "siap" ? "Buat akun pertama" : "Masuk"}</h1>
           <p className="mt-2 text-sm text-panel-redup">

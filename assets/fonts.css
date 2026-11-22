@@ -1,9 +1,12 @@
-/* Font brand Bakoeria, di-host sendiri (lisensi SIL OFL 1.1). */
-@font-face{font-family:'Crimson Pro';font-weight:400;font-display:swap;src:url(fonts/crimson-pro-latin-400-normal.woff2) format('woff2')}
-@font-face{font-family:'Crimson Pro';font-weight:500;font-display:swap;src:url(fonts/crimson-pro-latin-500-normal.woff2) format('woff2')}
-@font-face{font-family:'Crimson Pro';font-weight:600;font-display:swap;src:url(fonts/crimson-pro-latin-600-normal.woff2) format('woff2')}
-@font-face{font-family:'Crimson Pro';font-weight:400;font-style:italic;font-display:swap;src:url(fonts/crimson-pro-latin-400-italic.woff2) format('woff2')}
-@font-face{font-family:'Crimson Pro';font-weight:500;font-style:italic;font-display:swap;src:url(fonts/crimson-pro-latin-500-italic.woff2) format('woff2')}
-@font-face{font-family:'Lato';font-weight:300;font-display:swap;src:url(fonts/lato-latin-300-normal.woff2) format('woff2')}
-@font-face{font-family:'Lato';font-weight:400;font-display:swap;src:url(fonts/lato-latin-400-normal.woff2) format('woff2')}
-@font-face{font-family:'Lato';font-weight:700;font-display:swap;src:url(fonts/lato-latin-700-normal.woff2) format('woff2')}
+/* Font brand Bakoeria v2, di-host sendiri (lisensi SIL OFL 1.1).
+   Spectral: nama dan judul. Albert Sans: sublabel, label, dan teks. Dipilih lewat tools/font_match.py. */
+@font-face{font-family:'Spectral';font-weight:400;font-display:swap;src:url(fonts/spectral-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Spectral';font-weight:500;font-display:swap;src:url(fonts/spectral-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Spectral';font-weight:600;font-display:swap;src:url(fonts/spectral-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Spectral';font-weight:400;font-style:italic;font-display:swap;src:url(fonts/spectral-latin-400-italic.woff2) format('woff2')}
+@font-face{font-family:'Spectral';font-weight:500;font-style:italic;font-display:swap;src:url(fonts/spectral-latin-500-italic.woff2) format('woff2')}
+@font-face{font-family:'Albert Sans';font-weight:300;font-display:swap;src:url(fonts/albert-sans-latin-300-normal.woff2) format('woff2')}
+@font-face{font-family:'Albert Sans';font-weight:400;font-display:swap;src:url(fonts/albert-sans-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Albert Sans';font-weight:500;font-display:swap;src:url(fonts/albert-sans-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Albert Sans';font-weight:600;font-display:swap;src:url(fonts/albert-sans-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Albert Sans';font-weight:700;font-display:swap;src:url(fonts/albert-sans-latin-700-normal.woff2) format('woff2')}

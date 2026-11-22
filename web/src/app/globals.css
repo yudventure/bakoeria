@@ -1,42 +1,46 @@
 @import "tailwindcss";
 
-@font-face { font-family: "Crimson Pro"; font-weight: 400; font-display: swap; src: url(/fonts/crimson-pro-latin-400-normal.woff2) format("woff2"); }
-@font-face { font-family: "Crimson Pro"; font-weight: 500; font-display: swap; src: url(/fonts/crimson-pro-latin-500-normal.woff2) format("woff2"); }
-@font-face { font-family: "Crimson Pro"; font-weight: 600; font-display: swap; src: url(/fonts/crimson-pro-latin-600-normal.woff2) format("woff2"); }
-@font-face { font-family: "Crimson Pro"; font-weight: 400; font-style: italic; font-display: swap; src: url(/fonts/crimson-pro-latin-400-italic.woff2) format("woff2"); }
-@font-face { font-family: "Crimson Pro"; font-weight: 500; font-style: italic; font-display: swap; src: url(/fonts/crimson-pro-latin-500-italic.woff2) format("woff2"); }
-@font-face { font-family: "Lato"; font-weight: 300; font-display: swap; src: url(/fonts/lato-latin-300-normal.woff2) format("woff2"); }
-@font-face { font-family: "Lato"; font-weight: 400; font-display: swap; src: url(/fonts/lato-latin-400-normal.woff2) format("woff2"); }
-@font-face { font-family: "Lato"; font-weight: 700; font-display: swap; src: url(/fonts/lato-latin-700-normal.woff2) format("woff2"); }
+@font-face { font-family: "Spectral"; font-weight: 400; font-display: swap; src: url(/fonts/spectral-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Spectral"; font-weight: 500; font-display: swap; src: url(/fonts/spectral-latin-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "Spectral"; font-weight: 600; font-display: swap; src: url(/fonts/spectral-latin-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "Spectral"; font-weight: 400; font-style: italic; font-display: swap; src: url(/fonts/spectral-latin-400-italic.woff2) format("woff2"); }
+@font-face { font-family: "Spectral"; font-weight: 500; font-style: italic; font-display: swap; src: url(/fonts/spectral-latin-500-italic.woff2) format("woff2"); }
+@font-face { font-family: "Albert Sans"; font-weight: 300; font-display: swap; src: url(/fonts/albert-sans-latin-300-normal.woff2) format("woff2"); }
+@font-face { font-family: "Albert Sans"; font-weight: 400; font-display: swap; src: url(/fonts/albert-sans-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Albert Sans"; font-weight: 500; font-display: swap; src: url(/fonts/albert-sans-latin-500-normal.woff2) format("woff2"); }
+@font-face { font-family: "Albert Sans"; font-weight: 600; font-display: swap; src: url(/fonts/albert-sans-latin-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "Albert Sans"; font-weight: 700; font-display: swap; src: url(/fonts/albert-sans-latin-700-normal.woff2) format("woff2"); }
 
-/* Token brand Bakoeria. Sama dengan brand/tokens/brand.css di akar repo. */
+/* Token brand Bakoeria v2 (logo ombak, penyelam, pasir). Nama token lama dipertahankan supaya kelas tidak berubah:
+   malam = navy samudra, emas-tua = biru ombak (tombol, label), emas = pasir, emas-muda = busa toska.
+   Nilainya sama dengan brand/tokens/brand.css di akar repo. */
 @theme {
-  --font-display: "Crimson Pro", Georgia, serif;
-  --font-sans: "Lato", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Spectral", Georgia, serif;
+  --font-sans: "Albert Sans", "Helvetica Neue", Arial, sans-serif;
 
-  --color-malam: #041c3e;
-  --color-malam-dalam: #020f26;
-  --color-malam-lembut: #0b2a5b;
-  --color-emas: #e2b05e;
-  --color-emas-muda: #f5db9d;
-  --color-emas-tua: #b98a3a;
-  --color-ambar: #d69521;
+  --color-malam: #133250;
+  --color-malam-dalam: #0a2440;
+  --color-malam-lembut: #12406b;
+  --color-emas: #c9b28c;
+  --color-emas-muda: #bfe6ec;
+  --color-emas-tua: #0f6490;
+  --color-ambar: #188b9a;
   --color-jati: #422d1b;
   --color-jati-terang: #6b4a1e;
-  --color-pasir: #e6d5b3;
-  --color-gading: #f7f0df;
+  --color-pasir: #e9dfcd;
+  --color-gading: #f7f3ec;
   --color-palem: #7e9a3a;
-  --color-karang: #2a8a93;
+  --color-karang: #188b9a;
 
   /* Panel admin: terang dan netral, dengan navy sebagai warna utama dan emas sebagai aksen. */
   --color-panel-latar: #f4f3ef;
   --color-panel-garis: #e5e2da;
   --color-panel-tinta: #18202e;
   --color-panel-redup: #5f6675;
-  --color-panel-utama: #041c3e;
-  --color-panel-utama-2: #0b2a5b;
+  --color-panel-utama: #133250;
+  --color-panel-utama-2: #0f6490;
   --color-panel-lembut: #eef1f6;
-  --color-panel-emas-lembut: #fbf1dc;
+  --color-panel-emas-lembut: #e4f2f4;
   --color-panel-hijau: #2f7a4f;
   --color-panel-hijau-lembut: #e3f1e8;
   --color-panel-merah: #b03826;
@@ -44,8 +48,8 @@
   --color-panel-kuning: #9a6a10;
   --color-panel-kuning-lembut: #fbf0d6;
 
-  --shadow-panel: 0 1px 2px rgba(4, 28, 62, 0.05), 0 4px 16px rgba(4, 28, 62, 0.06);
-  --shadow-angkat: 0 12px 40px rgba(4, 28, 62, 0.18);
+  --shadow-panel: 0 1px 2px rgba(19, 50, 80, 0.05), 0 4px 16px rgba(19, 50, 80, 0.06);
+  --shadow-angkat: 0 12px 40px rgba(19, 50, 80, 0.18);
 }
 
 /* Pengaman: tak ada elemen bergerak yang boleh membuat halaman lebih lebar dari layar (Safari iOS akan memperkecil seluruh halaman). */

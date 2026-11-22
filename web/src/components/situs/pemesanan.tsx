@@ -76,7 +76,7 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
 
   if (selesai) {
     return (
-      <div className="rounded-[2rem] border border-white/70 bg-white/85 p-8 shadow-[0_20px_60px_rgba(4,28,62,.12)] backdrop-blur-xl sm:p-10" role="status">
+      <div className="rounded-[2rem] border border-white/70 bg-white/85 p-8 shadow-[0_20px_60px_rgba(10,36,64,.12)] backdrop-blur-xl sm:p-10" role="status">
         <p className={kelasLabel}>{t.diterima}</p>
         <h3 className="mt-2 font-display text-4xl text-malam">{t.terimaKasih(f.nama.split(" ")[0])}</h3>
         <p className="mt-4 text-malam/70">
@@ -89,7 +89,7 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
   }
 
   return (
-    <div className="rounded-[2rem] border border-white/70 bg-white/85 p-5 shadow-[0_20px_60px_rgba(4,28,62,.12)] backdrop-blur-xl sm:p-8">
+    <div className="rounded-[2rem] border border-white/70 bg-white/85 p-5 shadow-[0_20px_60px_rgba(10,36,64,.12)] backdrop-blur-xl sm:p-8">
       <form onSubmit={cek} className="grid gap-4 sm:grid-cols-[1fr_1fr_6rem_auto] sm:items-end">
         <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.tiba}</span><input type="date" className={`${kelasMasukan} min-w-0 max-w-full appearance-none [&::-webkit-date-and-time-value]:text-left`} min={hari} value={tgl.masuk} onChange={(e) => setTgl({ ...tgl, masuk: e.target.value, keluar: tgl.keluar <= e.target.value ? tambahHari(e.target.value, 1) : tgl.keluar })} required /></label>
         <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.pulang}</span><input type="date" className={`${kelasMasukan} min-w-0 max-w-full appearance-none [&::-webkit-date-and-time-value]:text-left`} min={tambahHari(tgl.masuk, 1)} value={tgl.keluar} onChange={(e) => setTgl({ ...tgl, keluar: e.target.value })} required /></label>
@@ -111,7 +111,7 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
               {opsi.map((x) => (
                 <label key={x.id} className={`flex cursor-pointer items-center justify-between gap-4 rounded-2xl border p-4 transition ${!x.tersedia ? "cursor-not-allowed border-malam/5 opacity-45" : pilih === x.id ? "border-emas-tua bg-emas/10" : "border-malam/10 bg-white/70 hover:border-emas-tua/50"}`}>
                   <span className="flex items-center gap-3">
-                    <input type="radio" name="kamar" value={x.id} disabled={!x.tersedia} checked={pilih === x.id} onChange={() => setPilih(x.id)} className="accent-[#B98A3A]" />
+                    <input type="radio" name="kamar" value={x.id} disabled={!x.tersedia} checked={pilih === x.id} onChange={() => setPilih(x.id)} className="accent-[#0F6490]" />
                     <span>
                       <span className="block font-display text-xl text-malam">{x.nama}</span>
                       <span className="text-sm text-malam/55">{x.tersedia ? `${x.tipe ? x.tipe + " · " : ""}${KAMUS[bahasa].hingga(x.kapasitas)}` : t.terisi}</span>

@@ -1,1 +1,17 @@
-module.exports={theme:{extend:{colors:{'malam-laut':'#041C3E','malam-dalam':'#020F26','malam-lembut':'#0B2A5B','emas-lentera':'#E2B05E','emas-muda':'#F5DB9D','emas-tua':'#B98A3A','ambar-lampu':'#D69521','kayu-jati':'#422D1B','jati-terang':'#6B4A1E','pasir':'#E6D5B3','gading':'#F7F0DF','palem':'#7E9A3A','karang':'#2A8A93'},fontFamily:{display:['Crimson Pro','Georgia','serif'],body:['Lato','Helvetica Neue','Arial','sans-serif']},letterSpacing:{display:'.07em',label:'.28em'}}}};
+/** Token brand Bakoeria v2 untuk Tailwind 3 (Tailwind 4: salin ke @theme). */
+module.exports = { theme: { extend: {
+  colors: {
+    'navy-samudra': '#133250',
+    'laut-dalam': '#0A2440',
+    'biru-ombak': '#0F6490',
+    'toska-karang': '#188B9A',
+    'busa-toska': '#D7EEF0',
+    'pasir-pantai': '#947C5F',
+    'pasir-tua': '#6B5840',
+    'pasir-muda': '#E9DFCD',
+    'kerang': '#F7F3EC',
+    'putih-garam': '#FFFFFF',
+  },
+  fontFamily: { display: ['Spectral', 'Georgia', 'serif'], sans: ['Albert Sans', 'Helvetica Neue', 'Arial', 'sans-serif'] },
+  backgroundImage: { 'gradasi-ombak': 'linear-gradient(135deg,#0F4F7B 0%,#0F6490 45%,#188B9A 100%)' },
+} } };
