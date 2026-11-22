@@ -38,6 +38,7 @@ function bacaKamar(o: Record<string, unknown>) {
       descId: teks(o.descId, 1200),
       featuresEn: baris(o.featuresEn),
       featuresId: baris(o.featuresId),
+      normalRate: Number(o.normalRate) > 0 ? Number(o.normalRate) : null,
     },
   };
 }

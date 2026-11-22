@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS rooms (
   desc_id TEXT NULL,
   features_en TEXT NULL,
   features_id TEXT NULL,
+  normal_rate DECIMAL(14,2) NULL,
   UNIQUE KEY rooms_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -54,6 +55,8 @@ CREATE TABLE IF NOT EXISTS bookings (
   source VARCHAR(10) NOT NULL DEFAULT 'MANUAL',
   external_uid VARCHAR(255) NULL,
   pax SMALLINT UNSIGNED NULL,
+  pax_child TINYINT UNSIGNED NULL,
+  pax_infant TINYINT UNSIGNED NULL,
   dives SMALLINT UNSIGNED NULL,
   total_amount DECIMAL(14,2) NULL,
   ota_commission_est DECIMAL(14,2) NULL,

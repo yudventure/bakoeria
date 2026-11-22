@@ -2,7 +2,7 @@ import { jumlahMalam, MENEMPATI, tanggalSah, tumpang, hariIniWit } from "@/lib/b
 import { databaseReady } from "@/lib/db";
 import { ambilKamar, bookingDalam } from "@/lib/server/buku";
 import { gagal, ok } from "@/lib/server/rute";
-import { rincianHarga } from "@/lib/booking";
+import { rincianHarga, totalDenganAnak } from "@/lib/booking";
 
 /** Kamar yang kosong untuk [masuk, keluar), dengan total harga. Tanpa data tamu. */
 export async function GET(req: Request) {
@@ -17,15 +17,28 @@ export async function GET(req: Request) {
   if (jumlahMalam(masuk, keluar) > 30) return gagal(m("Untuk menginap lebih dari 30 malam, hubungi kami langsung.", "For stays longer than 30 nights, please contact us directly."));
   const [kamar, pesanan] = await Promise.all([ambilKamar(false), bookingDalam(masuk, keluar)]);
   const terisi = new Set(pesanan.filter((p) => MENEMPATI.includes(p.status) || p.status === "TENTATIVE").filter((p) => tumpang(p.checkIn, p.checkOut, masuk, keluar)).map((p) => p.roomId));
+  const anak = Math.max(0, Math.min(6, Math.round(Number(u.get("anak")) || 0)));
   return ok({
     malam: jumlahMalam(masuk, keluar),
-    kamar: kamar.map((k) => ({
-      id: k.id,
-      nama: k.name,
-      tipe: k.roomType,
-      kapasitas: k.capAdult + k.capChild,
-      tersedia: !terisi.has(k.id),
-      total: rincianHarga(masuk, keluar, k.baseRate, k.musim).total,
-    })),
+    kamar: kamar.map((k) => {
+      const h = rincianHarga(masuk, keluar, k.baseRate, k.musim);
+      const t = totalDenganAnak(h.total, anak);
+      /* Harga normal (dicoret) hanya bila semua malam memakai tarif dasar yang sedang promo. */
+      const promo = k.normalRate && k.normalRate > k.baseRate && h.baris.every((b) => b.tarif === k.baseRate);
+      return {
+        id: k.id,
+        nama: k.name,
+        tipe: k.roomType,
+        ket: (en ? k.descEn || k.descId : k.descId || k.descEn) || null,
+        dewasa: k.capAdult,
+        anak: k.capChild,
+        kapasitas: k.capAdult + k.capChild,
+        tersedia: !terisi.has(k.id),
+        hargaKamar: t.kamar,
+        tambahanAnak: t.tambahanAnak,
+        total: t.total,
+        normal: promo ? totalDenganAnak(k.normalRate! * h.baris.length, anak).total : null,
+      };
+    }),
   });
 }

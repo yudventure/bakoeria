@@ -87,6 +87,19 @@ export function rincianHarga(masuk: string, keluar: string, dasar: number, musim
   return { baris, total: baris.reduce((s, b) => s + b.tarif, 0) };
 }
 
+/**
+ * Kebijakan anak Bakoeria:
+ *  - di bawah 5 tahun: gratis, tidur bersama orang tua;
+ *  - 5 tahun ke atas: 50% dari harga kamar per malam, mendapat extra bed.
+ */
+export const KEBIJAKAN_ANAK = { umurBayar: 5, persen: 0.5 } as const;
+
+/** Total menginap: harga kamar, ditambah 50% harga kamar per anak 5 tahun ke atas, tiap malam. */
+export function totalDenganAnak(hargaKamar: number, anakBayar: number) {
+  const tambahan = Math.round(hargaKamar * KEBIJAKAN_ANAK.persen * Math.max(0, anakBayar));
+  return { kamar: hargaKamar, tambahanAnak: tambahan, total: hargaKamar + tambahan };
+}
+
 /** Kode booking pendek yang mudah diucapkan: tanpa 0/O dan 1/I. */
 export function kodeBooking(acak: () => number = Math.random) {
   const huruf = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

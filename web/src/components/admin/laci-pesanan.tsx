@@ -1,5 +1,6 @@
 "use client";
 
+import PilihTanggal from "@/components/tanggal";
 import { useEffect, useState } from "react";
 import { hariIniWit, jumlahMalam, LABEL_CHANNEL, LABEL_KIND, LABEL_METHOD, LABEL_STATUS, rupiah, sisaTagihan, tglPanjang, type PaymentKind, type PaymentMethod, type Status } from "@/lib/booking";
 import { nomorWa } from "@/lib/konten";
@@ -175,7 +176,7 @@ export default function LaciPesanan() {
           <div><Label>Check-in</Label><dd className="mt-1 font-bold">{tglPanjang(p.checkIn)}</dd></div>
           <div><Label>Check-out</Label><dd className="mt-1 font-bold">{tglPanjang(p.checkOut)}</dd></div>
           <div><Label>Malam</Label><dd className="angka mt-1 font-bold">{jumlahMalam(p.checkIn, p.checkOut)}</dd></div>
-          <div><Label>Tamu</Label><dd className="angka mt-1 font-bold">{p.pax ?? "–"}{p.dives ? ` · ${p.dives} selam` : ""}</dd></div>
+          <div><Label>Tamu</Label><dd className="angka mt-1 font-bold">{p.pax ?? "–"}{p.paxChild ? ` · ${p.paxChild} anak 5+` : ""}{p.paxInfant ? ` · ${p.paxInfant} balita` : ""}{p.dives ? ` · ${p.dives} selam` : ""}</dd></div>
         </dl>
 
         {p.guest && (
@@ -221,7 +222,7 @@ export default function LaciPesanan() {
               <div className="mt-3 grid gap-3 rounded-2xl ring-1 ring-panel-garis p-4">
                 <div className="grid grid-cols-2 gap-3">
                   <Bidang label="Jumlah (Rp)"><input className={masukan} type="number" min={0} value={bayar.amount} onChange={(e) => setBayar({ ...bayar, amount: e.target.value })} autoFocus /></Bidang>
-                  <Bidang label="Tanggal"><input className={masukan} type="date" value={bayar.paidAt} onChange={(e) => setBayar({ ...bayar, paidAt: e.target.value })} /></Bidang>
+                  <Bidang label="Tanggal"><PilihTanggal value={bayar.paidAt} onChange={(v) => setBayar({ ...bayar, paidAt: v })} /></Bidang>
                   <Bidang label="Jenis">
                     <select className={masukan} value={bayar.kind} onChange={(e) => setBayar({ ...bayar, kind: e.target.value as PaymentKind })}>
                       {(Object.keys(LABEL_KIND) as PaymentKind[]).map((k) => <option key={k} value={k}>{LABEL_KIND[k]}</option>)}

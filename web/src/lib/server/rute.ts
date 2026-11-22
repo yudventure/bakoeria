@@ -57,6 +57,8 @@ export function bacaBooking(o: Record<string, unknown>, sebagian = false): { dat
     d.status = s;
   }
   if (ada("pax")) d.pax = intAtauNull(o.pax);
+  if (ada("paxChild")) d.paxChild = intAtauNull(o.paxChild);
+  if (ada("paxInfant")) d.paxInfant = intAtauNull(o.paxInfant);
   if (ada("dives")) d.dives = intAtauNull(o.dives);
   if (ada("totalAmount")) d.totalAmount = angkaAtauNull(o.totalAmount);
   if (ada("otaCommissionEst")) d.otaCommissionEst = angkaAtauNull(o.otaCommissionEst);

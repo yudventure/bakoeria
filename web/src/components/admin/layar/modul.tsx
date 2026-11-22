@@ -1,5 +1,6 @@
 "use client";
 
+import PilihTanggal from "@/components/tanggal";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { rupiah } from "@/lib/booking";
 import { koleksiDari, PARAMETER_AWAL, type Bidang as TBidang, type Modul, type ParameterSdm, type Rekaman } from "@/lib/modul";
@@ -111,8 +112,10 @@ export function FormRekaman({ koleksiId, awal, rujukan, tutup, simpan, hapus }: 
               </select>
             ) : b.tipe === "catatan" ? (
               <textarea className={masukan} rows={3} value={String(nilai[b.k] ?? "")} onChange={(e) => setNilai({ ...nilai, [b.k]: e.target.value })} />
+            ) : b.tipe === "tanggal" ? (
+              <PilihTanggal value={String(nilai[b.k] ?? "")} bolehKosong={!b.wajib} onChange={(v) => setNilai({ ...nilai, [b.k]: v })} />
             ) : (
-              <input className={masukan} type={b.tipe === "angka" ? "number" : b.tipe === "tanggal" ? "date" : "text"} min={b.tipe === "angka" && !b.negatif ? 0 : undefined} value={String(nilai[b.k] ?? "")} onChange={(e) => setNilai({ ...nilai, [b.k]: e.target.value })} />
+              <input className={masukan} type={b.tipe === "angka" ? "number" : "text"} min={b.tipe === "angka" && !b.negatif ? 0 : undefined} value={String(nilai[b.k] ?? "")} onChange={(e) => setNilai({ ...nilai, [b.k]: e.target.value })} />
             )}
           </Bidang>
         ))}

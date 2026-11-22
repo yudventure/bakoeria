@@ -29,6 +29,7 @@ export const SKEMA: string[] = [
     desc_id TEXT NULL,
     features_en TEXT NULL,
     features_id TEXT NULL,
+    normal_rate DECIMAL(14,2) NULL,
     UNIQUE KEY rooms_name (name)
   ) ${T}`,
   `CREATE TABLE IF NOT EXISTS seasonal_rates (
@@ -63,6 +64,8 @@ export const SKEMA: string[] = [
     source VARCHAR(10) NOT NULL DEFAULT 'MANUAL',
     external_uid VARCHAR(255) NULL,
     pax SMALLINT UNSIGNED NULL,
+    pax_child TINYINT UNSIGNED NULL,
+    pax_infant TINYINT UNSIGNED NULL,
     dives SMALLINT UNSIGNED NULL,
     total_amount DECIMAL(14,2) NULL,
     ota_commission_est DECIMAL(14,2) NULL,
@@ -148,4 +151,9 @@ export const KOLOM_TAMBAHAN: [tabel: string, kolom: string, definisi: string][] 
   ["rooms", "desc_id", "TEXT NULL"],
   ["rooms", "features_en", "TEXT NULL"],
   ["rooms", "features_id", "TEXT NULL"],
+  /* Harga sebelum promo (ditampilkan dicoret); kosong bila tidak ada promo. */
+  ["rooms", "normal_rate", "DECIMAL(14,2) NULL"],
+  /* Rincian tamu: anak 5 tahun ke atas (50% harga kamar, extra bed) dan balita di bawah 5 tahun (gratis). pax = jumlah semua tamu. */
+  ["bookings", "pax_child", "TINYINT UNSIGNED NULL"],
+  ["bookings", "pax_infant", "TINYINT UNSIGNED NULL"],
 ];

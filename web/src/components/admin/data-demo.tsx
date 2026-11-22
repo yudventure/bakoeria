@@ -48,7 +48,7 @@ export default function DataDemo({ ringkas = false, selesai }: { ringkas?: boole
       <p className="text-sm text-panel-redup">
         {s.aktif
           ? "Semua yang dibuat oleh tombol ini tercatat, jadi tombol hapus hanya menghapus data demo. Kamar, tamu, dan catatan yang Anda tambahkan sendiri tetap aman."
-          : "Memasang 4 kamar dengan nama dan spesifikasi contoh (tampil di website), 9 tamu dan 10 pesanan di kalender, pembayaran, tarif musiman, serta contoh catatan keuangan, aset, pegawai, absensi, dan stok gudang. Hanya bisa dipasang saat belum ada kamar."}
+          : "Memasang 4 cottage (2 Cottage Double dan 2 Cottage Single, harga promo Rp 1.450.000 dari Rp 1.980.000), 9 tamu dan 10 pesanan contoh di kalender beserta pembayarannya, serta contoh catatan keuangan, aset, pegawai, absensi, dan stok gudang. Hanya bisa dipasang saat belum ada kamar."}
       </p>
     </Kartu>
   );

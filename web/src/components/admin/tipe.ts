@@ -21,6 +21,7 @@ export interface Kamar {
   descId: string;
   featuresEn: string[];
   featuresId: string[];
+  normalRate: number | null;
   musim: { id: string; dateFrom: string; dateTo: string; rate: number; label: string | null }[];
 }
 export interface Pesanan {
@@ -34,6 +35,8 @@ export interface Pesanan {
   status: Status;
   source: "MANUAL" | "ICAL" | "WEBSITE";
   pax: number | null;
+  paxChild: number | null;
+  paxInfant: number | null;
   dives: number | null;
   totalAmount: number | null;
   otaCommissionEst: number | null;

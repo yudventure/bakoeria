@@ -1,5 +1,6 @@
 "use client";
 
+import PilihTanggal from "@/components/tanggal";
 import { useMemo, useState } from "react";
 import { hariIniWit, rupiah, tambahHari } from "@/lib/booking";
 import { hitungGaji, LABEL_PARAMETER, STATUS_ABSEN, SUMBER_PARAMETER, type ParameterSdm } from "@/lib/modul";
@@ -86,7 +87,7 @@ export default function Sdm() {
               aksi={
                 <div className="flex items-center gap-2">
                   <button onClick={() => setTgl(tambahHari(tgl, -1))} className="grid size-9 place-items-center rounded-full ring-1 ring-panel-garis" aria-label="Hari sebelumnya">‹</button>
-                  <input type="date" className={masukan + " w-40"} value={tgl} onChange={(e) => setTgl(e.target.value)} />
+                  <PilihTanggal className="w-44" label="Tanggal absensi" value={tgl} onChange={setTgl} />
                   <button onClick={() => setTgl(tambahHari(tgl, 1))} className="grid size-9 place-items-center rounded-full ring-1 ring-panel-garis" aria-label="Hari berikutnya">›</button>
                 </div>
               }

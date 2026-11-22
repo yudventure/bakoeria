@@ -34,6 +34,8 @@ export interface Kamar {
   descId: string;
   featuresEn: string[];
   featuresId: string[];
+  /** Harga sebelum promo, atau null bila tidak ada promo. */
+  normalRate: number | null;
   musim: { id: string; dateFrom: string; dateTo: string; rate: number; label: string | null }[];
 }
 
@@ -57,6 +59,7 @@ export async function ambilKamar(semua = true): Promise<Kamar[]> {
     descId: String(r.desc_id ?? ""),
     featuresEn: daftarBaris(r.features_en),
     featuresId: daftarBaris(r.features_id),
+    normalRate: r.normal_rate == null ? null : Number(r.normal_rate),
     musim: musim.filter((m) => m.room_id === r.id).map((m) => ({ id: String(m.id), dateFrom: tglSaja(m.date_from), dateTo: tglSaja(m.date_to), rate: Number(m.rate), label: (m.label as string) ?? null })),
   }));
 }
@@ -82,6 +85,10 @@ export interface Pesanan {
   status: Status;
   source: "MANUAL" | "ICAL" | "WEBSITE";
   pax: number | null;
+  /** Anak 5 tahun ke atas (50% harga kamar, extra bed). */
+  paxChild: number | null;
+  /** Balita di bawah 5 tahun (gratis). */
+  paxInfant: number | null;
   dives: number | null;
   totalAmount: number | null;
   otaCommissionEst: number | null;
@@ -112,6 +119,8 @@ async function bentuk(rows: Record<string, unknown>[], lewat?: K): Promise<Pesan
     status: b.status as Status,
     source: b.source as Pesanan["source"],
     pax: angka(b.pax),
+    paxChild: angka(b.pax_child),
+    paxInfant: angka(b.pax_infant),
     dives: angka(b.dives),
     totalAmount: angka(b.total_amount),
     otaCommissionEst: angka(b.ota_commission_est),
@@ -204,6 +213,8 @@ export interface DataBooking {
   channel: Channel;
   status: Status;
   pax?: number | null;
+  paxChild?: number | null;
+  paxInfant?: number | null;
   dives?: number | null;
   totalAmount?: number | null;
   otaCommissionEst?: number | null;
@@ -256,9 +267,9 @@ export async function buatBooking(d: DataBooking, aktor: string | null, opsi: { 
     for (let i = 0; i < 5 && (await kueri("SELECT 1 FROM bookings WHERE code = ?", [code], k)).length; i++) code = kodeBooking();
     const id = idBaru();
     await jalankan(
-      `INSERT INTO bookings (id, code, room_id, guest_id, check_in, check_out, channel, status, source, external_uid, pax, dives, total_amount, ota_commission_est, notes, hold_expires_at, conflict_group, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, d.externalUid ? "IC-" + code.slice(3) : code, d.roomId, guestId, d.checkIn, d.checkOut, d.channel, status, d.source ?? "MANUAL", d.externalUid ?? null, d.pax ?? null, d.dives ?? null, d.totalAmount ?? null, d.otaCommissionEst ?? null, d.notes?.trim() || null, tanggalWaktu(d.holdExpiresAt), conflictGroup, aktor],
+      `INSERT INTO bookings (id, code, room_id, guest_id, check_in, check_out, channel, status, source, external_uid, pax, pax_child, pax_infant, dives, total_amount, ota_commission_est, notes, hold_expires_at, conflict_group, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, d.externalUid ? "IC-" + code.slice(3) : code, d.roomId, guestId, d.checkIn, d.checkOut, d.channel, status, d.source ?? "MANUAL", d.externalUid ?? null, d.pax ?? null, d.paxChild ?? null, d.paxInfant ?? null, d.dives ?? null, d.totalAmount ?? null, d.otaCommissionEst ?? null, d.notes?.trim() || null, tanggalWaktu(d.holdExpiresAt), conflictGroup, aktor],
       k,
     );
     await catatAudit(k, id, "buat", aktor, d);
@@ -273,6 +284,8 @@ const KOLOM: Partial<Record<keyof DataBooking, string>> = {
   channel: "channel",
   status: "status",
   pax: "pax",
+  paxChild: "pax_child",
+  paxInfant: "pax_infant",
   dives: "dives",
   totalAmount: "total_amount",
   otaCommissionEst: "ota_commission_est",
@@ -410,17 +423,18 @@ export interface DataKamar {
   descId: string;
   featuresEn: string[];
   featuresId: string[];
+  normalRate: number | null;
 }
 
 export async function kamarDenganNama(name: string) {
   return (await kueri<{ id: string }>("SELECT id FROM rooms WHERE name = ?", [name]))[0] ?? null;
 }
 
-const spek = (d: DataKamar) => [d.sizeM2, d.descEn || null, d.descId || null, d.featuresEn.join("\n") || null, d.featuresId.join("\n") || null];
+const spek = (d: DataKamar) => [d.sizeM2, d.descEn || null, d.descId || null, d.featuresEn.join("\n") || null, d.featuresId.join("\n") || null, d.normalRate && d.normalRate > d.baseRate ? d.normalRate : null];
 
 export async function buatKamar(d: DataKamar, id = idBaru()) {
   await jalankan(
-    "INSERT INTO rooms (id, name, room_type, cap_adult, cap_child, base_rate, is_active, inactive_reason, sort_order, size_m2, desc_en, desc_id, features_en, features_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO rooms (id, name, room_type, cap_adult, cap_child, base_rate, is_active, inactive_reason, sort_order, size_m2, desc_en, desc_id, features_en, features_id, normal_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     [id, d.name, d.roomType, d.capAdult, d.capChild, d.baseRate, d.isActive, d.inactiveReason, d.sortOrder, ...spek(d)],
   );
   return id;
@@ -428,7 +442,7 @@ export async function buatKamar(d: DataKamar, id = idBaru()) {
 
 export async function ubahKamar(id: string, d: DataKamar) {
   await jalankan(
-    "UPDATE rooms SET name = ?, room_type = ?, cap_adult = ?, cap_child = ?, base_rate = ?, is_active = ?, inactive_reason = ?, sort_order = ?, size_m2 = ?, desc_en = ?, desc_id = ?, features_en = ?, features_id = ? WHERE id = ?",
+    "UPDATE rooms SET name = ?, room_type = ?, cap_adult = ?, cap_child = ?, base_rate = ?, is_active = ?, inactive_reason = ?, sort_order = ?, size_m2 = ?, desc_en = ?, desc_id = ?, features_en = ?, features_id = ?, normal_rate = ? WHERE id = ?",
     [d.name, d.roomType, d.capAdult, d.capChild, d.baseRate, d.isActive, d.inactiveReason, d.sortOrder, ...spek(d), id],
   );
 }

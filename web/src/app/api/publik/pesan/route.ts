@@ -1,9 +1,9 @@
 import { headers } from "next/headers";
 
-import { jumlahMalam, rupiah, tanggalSah, tglPanjang, hariIniWit } from "@/lib/booking";
+import { jumlahMalam, rupiah, tanggalSah, tglPanjang, hariIniWit, totalDenganAnak } from "@/lib/booking";
 import { tglBahasa } from "@/lib/kamus";
 import { databaseReady } from "@/lib/db";
-import { BentrokError, bookingDalam, buatBooking, hargaOtomatis } from "@/lib/server/buku";
+import { ambilKamar, BentrokError, bookingDalam, buatBooking, hargaOtomatis } from "@/lib/server/buku";
 import { MENEMPATI, tumpang } from "@/lib/booking";
 import { alamatSaja, kirimEmail, pengirim } from "@/lib/server/email";
 import { badan, gagal, ok } from "@/lib/server/rute";
@@ -38,7 +38,15 @@ export async function POST(req: Request) {
   const minat = s(o.minat, 60);
   const masuk = o.masuk;
   const keluar = o.keluar;
-  const tamu = Math.max(1, Math.min(20, Math.round(Number(o.tamu) || 1)));
+  const bulat = (v: unknown, maks: number) => Math.max(0, Math.min(maks, Math.round(Number(v) || 0)));
+  /* Bentuk lama hanya mengirim `tamu`; bentuk baru mengirim dewasa, anak (5 tahun ke atas), dan balita. */
+  const dewasa = Math.max(1, bulat(o.dewasa ?? o.tamu, 20));
+  const anak = bulat(o.anak, 6);
+  const balita = bulat(o.balita, 6);
+  const tamu = dewasa + anak + balita;
+  const asal = s(o.asal, 80);
+  const sertifikat = s(o.sertifikat, 80);
+  const jamTiba = s(o.jamTiba, 40);
   if (!nama) return gagal(m("Isi nama Anda.", "Please enter your name."));
   if (!telepon && !email) return gagal(m("Isi nomor WhatsApp atau email supaya kami bisa membalas.", "Please enter a WhatsApp number or email so we can reply."));
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return gagal(m("Alamat email tidak sah.", "That email address is not valid."));
@@ -46,8 +54,13 @@ export async function POST(req: Request) {
   if (masuk < hariIniWit()) return gagal(m("Tanggal tiba sudah lewat.", "That arrival date has already passed."));
   if (jumlahMalam(masuk, keluar) > 30) return gagal(m("Untuk menginap lebih dari 30 malam, hubungi kami langsung.", "For stays longer than 30 nights, please contact us directly."));
   if (typeof o.kamar !== "string") return gagal(m("Pilih cottage.", "Please choose a cottage."));
-  const harga = await hargaOtomatis(o.kamar, masuk, keluar);
-  if (!harga) return gagal(m("Cottage itu tidak ditemukan.", "That cottage was not found."));
+  const hargaKamar = await hargaOtomatis(o.kamar, masuk, keluar);
+  const kamarDipilih = (await ambilKamar(false)).find((k) => k.id === o.kamar);
+  if (!hargaKamar || !kamarDipilih) return gagal(m("Cottage itu tidak ditemukan.", "That cottage was not found."));
+  if (dewasa > kamarDipilih.capAdult || anak > kamarDipilih.capChild)
+    return gagal(m(`Cottage ini untuk paling banyak ${kamarDipilih.capAdult} dewasa dan ${kamarDipilih.capChild} anak dengan extra bed.`, `This cottage sleeps up to ${kamarDipilih.capAdult} adults and ${kamarDipilih.capChild} children on extra beds.`));
+  /* Anak 5 tahun ke atas: 50% harga kamar per malam (extra bed). Balita gratis. Dihitung di server. */
+  const harga = totalDenganAnak(hargaKamar.total, anak);
   const kamarId = o.kamar;
   const terisi = (await bookingDalam(masuk, keluar)).some((b) => b.roomId === kamarId && (MENEMPATI.includes(b.status) || b.status === "TENTATIVE") && tumpang(b.checkIn, b.checkOut, masuk, keluar));
   if (terisi) return gagal(m("Cottage itu baru saja terisi untuk tanggal tersebut. Pilih cottage lain.", "That cottage has just been booked for those dates. Please choose another."), 409);
@@ -62,14 +75,16 @@ export async function POST(req: Request) {
         status: "TENTATIVE",
         source: "WEBSITE",
         pax: tamu,
+        paxChild: anak,
+        paxInfant: balita,
         totalAmount: harga.total,
-        notes: [minat && `Minat: ${minat}`, `Bahasa situs: ${en ? "Inggris" : "Indonesia"}`, catatan].filter(Boolean).join("\n") || null,
+        notes: [`Tamu: ${dewasa} dewasa${anak ? `, ${anak} anak 5 tahun ke atas (50%, extra bed)` : ""}${balita ? `, ${balita} balita di bawah 5 tahun (gratis)` : ""}`, anak ? `Harga: kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)}` : "", jamTiba && `Perkiraan tiba: ${jamTiba}`, minat && `Minat: ${minat}`, `Bahasa situs: ${en ? "Inggris" : "Indonesia"}`, catatan].filter(Boolean).join("\n") || null,
         holdExpiresAt: new Date(kini + set.jamTahanan * 3600000).toISOString(),
-        guest: { name: nama, phone: telepon || null, email: email || null },
+        guest: { name: nama, phone: telepon || null, email: email || null, origin: asal || null, diveCert: sertifikat || null },
       },
       "Situs web",
     );
-    const ringkas = `${p.code}\n${nama} (${tamu} tamu)\n${p.roomName}, ${tglPanjang(masuk)} sampai ${tglPanjang(keluar)} (${jumlahMalam(masuk, keluar)} malam)\nPerkiraan ${rupiah(harga.total)}\nWhatsApp: ${telepon || "-"}\nEmail: ${email || "-"}\n${minat ? "Minat: " + minat + "\n" : ""}${catatan ? "Catatan: " + catatan + "\n" : ""}\nTahanan berlaku ${set.jamTahanan} jam. Konfirmasi di dashboard /kelola.`;
+    const ringkas = `${p.code}\n${nama} (${dewasa} dewasa${anak ? `, ${anak} anak 5+` : ""}${balita ? `, ${balita} balita` : ""})\n${p.roomName}, ${tglPanjang(masuk)} sampai ${tglPanjang(keluar)} (${jumlahMalam(masuk, keluar)} malam)\nPerkiraan ${rupiah(harga.total)}${anak ? ` (kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)})` : ""}\nAsal: ${asal || "-"} · Sertifikat: ${sertifikat || "-"}${jamTiba ? ` · Tiba: ${jamTiba}` : ""}\nWhatsApp: ${telepon || "-"}\nEmail: ${email || "-"}\n${minat ? "Minat: " + minat + "\n" : ""}${catatan ? "Catatan: " + catatan + "\n" : ""}\nTahanan berlaku ${set.jamTahanan} jam. Konfirmasi di dashboard /kelola.`;
     await kirimEmail(set.emailNotifikasi || alamatSaja(pengirim()), `Pesanan baru ${p.code} dari website`, ringkas, email || undefined);
     if (email) {
       const tb = (d: string) => tglBahasa(d, en ? "en" : "id");

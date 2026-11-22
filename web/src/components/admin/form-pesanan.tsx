@@ -1,7 +1,8 @@
 "use client";
 
+import PilihTanggal from "@/components/tanggal";
 import { useEffect, useMemo, useState } from "react";
-import { CHANNEL, jumlahMalam, KOMISI_BAWAAN, LABEL_CHANNEL, LABEL_STATUS, MENEMPATI, rincianHarga, rupiah, tambahHari, tanggalSah, tumpang, hariIniWit, type Channel, type Status } from "@/lib/booking";
+import { totalDenganAnak, CHANNEL, jumlahMalam, KOMISI_BAWAAN, LABEL_CHANNEL, LABEL_STATUS, MENEMPATI, rincianHarga, rupiah, tambahHari, tanggalSah, tumpang, hariIniWit, type Channel, type Status } from "@/lib/booking";
 import { lihatRupiah } from "@/lib/peran";
 import { api, GalatApi } from "./api";
 import { useData } from "./data";
@@ -25,6 +26,8 @@ export default function FormPesanan() {
     channel: (formAwal?.channel ?? "WHATSAPP") as Channel,
     status: (formAwal?.status ?? "CONFIRMED") as Status,
     pax: formAwal?.pax?.toString() ?? "2",
+    paxChild: formAwal?.paxChild?.toString() ?? "",
+    paxInfant: formAwal?.paxInfant?.toString() ?? "",
     dives: formAwal?.dives?.toString() ?? "",
     totalAmount: formAwal?.totalAmount?.toString() ?? "",
     otaCommissionEst: formAwal?.otaCommissionEst?.toString() ?? "",
@@ -51,7 +54,8 @@ export default function FormPesanan() {
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF((x) => ({ ...x, [k]: e.target.value }));
   const sah = tanggalSah(f.checkIn) && tanggalSah(f.checkOut) && f.checkOut > f.checkIn;
   const k = kamar.find((x) => x.id === f.roomId);
-  const saran = useMemo(() => (k && sah ? rincianHarga(f.checkIn, f.checkOut, k.baseRate, k.musim).total : null), [k, sah, f.checkIn, f.checkOut]);
+  const anakBayar = Math.max(0, Math.round(Number(f.paxChild) || 0));
+  const saran = useMemo(() => (k && sah ? totalDenganAnak(rincianHarga(f.checkIn, f.checkOut, k.baseRate, k.musim).total, anakBayar).total : null), [k, sah, f.checkIn, f.checkOut, anakBayar]);
   const bentrok = useMemo(
     () => (sah && MENEMPATI.includes(f.status) ? pesanan.filter((p) => p.id !== ubahId && p.roomId === f.roomId && MENEMPATI.includes(p.status) && tumpang(p.checkIn, p.checkOut, f.checkIn, f.checkOut)) : []),
     [sah, f.status, f.roomId, f.checkIn, f.checkOut, pesanan, ubahId],
@@ -76,6 +80,8 @@ export default function FormPesanan() {
       channel: f.channel,
       status: f.channel === "BLOCK" ? "BLOCKED" : f.status,
       pax: f.pax,
+      paxChild: f.paxChild,
+      paxInfant: f.paxInfant,
       dives: f.dives,
       notes: f.notes,
       guest: f.nama.trim() ? { id: formAwal?.guest?.id, name: f.nama, phone: f.telepon, email: f.email, origin: f.asal, diveCert: f.sertifikat } : null,
@@ -135,10 +141,10 @@ export default function FormPesanan() {
             </select>
           </Bidang>
           <Bidang label="Check-in">
-            <input type="date" className={masukan} value={f.checkIn} onChange={(e) => setF((x) => ({ ...x, checkIn: e.target.value, checkOut: x.checkOut <= e.target.value ? tambahHari(e.target.value, 1) : x.checkOut }))} />
+            <PilihTanggal value={f.checkIn} onChange={(v) => setF((x) => ({ ...x, checkIn: v, checkOut: x.checkOut <= v ? tambahHari(v, 1) : x.checkOut }))} />
           </Bidang>
           <Bidang label="Check-out" ket={sah ? `${jumlahMalam(f.checkIn, f.checkOut)} malam` : undefined}>
-            <input type="date" className={masukan} value={f.checkOut} min={tambahHari(f.checkIn, 1)} onChange={set("checkOut")} />
+            <PilihTanggal value={f.checkOut} min={tambahHari(f.checkIn, 1)} onChange={(v) => setF((x) => ({ ...x, checkOut: v }))} />
           </Bidang>
           {!blok && (
             <Bidang label="Status">
@@ -171,15 +177,19 @@ export default function FormPesanan() {
             <Bidang label="Asal"><input className={masukan} value={f.asal} onChange={set("asal")} placeholder="Kota atau negara" /></Bidang>
             <Bidang label="Sertifikat selam"><input className={masukan} value={f.sertifikat} onChange={set("sertifikat")} placeholder="Misalnya Open Water" /></Bidang>
             <div className="grid grid-cols-2 gap-4">
-              <Bidang label="Jumlah tamu"><input className={masukan} type="number" min={1} value={f.pax} onChange={set("pax")} /></Bidang>
+              <Bidang label="Jumlah tamu" ket="Semua tamu, termasuk anak."><input className={masukan} type="number" min={1} value={f.pax} onChange={set("pax")} /></Bidang>
               <Bidang label="Penyelaman"><input className={masukan} type="number" min={0} value={f.dives} onChange={set("dives")} placeholder="0" /></Bidang>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Bidang label="Anak 5 tahun ke atas" ket="50% harga kamar, dapat extra bed."><input className={masukan} type="number" min={0} value={f.paxChild} onChange={set("paxChild")} placeholder="0" /></Bidang>
+              <Bidang label="Balita di bawah 5 tahun" ket="Gratis."><input className={masukan} type="number" min={0} value={f.paxInfant} onChange={set("paxInfant")} placeholder="0" /></Bidang>
             </div>
           </div>
         )}
 
         {rp && !blok && (
           <div className="grid gap-4 sm:grid-cols-2">
-            <Bidang label="Total (Rp)" ket={saran != null ? <>Menurut tarif kamar: <b>{rupiah(saran)}</b>{f.totalAmount === "" ? " (dipakai bila dikosongkan)" : ""}</> : undefined}>
+            <Bidang label="Total (Rp)" ket={saran != null ? <>Menurut tarif kamar{anakBayar ? ` + ${anakBayar} anak (50%)` : ""}: <b>{rupiah(saran)}</b>{f.totalAmount === "" ? " (dipakai bila dikosongkan)" : ""}</> : undefined}>
               <input className={masukan} type="number" min={0} value={f.totalAmount} onChange={set("totalAmount")} placeholder={saran != null ? String(saran) : ""} />
             </Bidang>
             <Bidang label="Perkiraan komisi OTA (Rp)" ket={KOMISI_BAWAAN[f.channel] ? `Kosongkan untuk ${Math.round(KOMISI_BAWAAN[f.channel]! * 100)}% dari total.` : "Isi bila ada komisi agen."}>

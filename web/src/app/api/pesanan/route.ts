@@ -1,4 +1,5 @@
 import { STATUS, type Status } from "@/lib/booking";
+import { totalDenganAnak } from "@/lib/booking";
 import { bolehCatat } from "@/lib/peran";
 import { wajib } from "@/lib/server/akses";
 import { buatBooking, cariBooking, hargaOtomatis, type DataBooking } from "@/lib/server/buku";
@@ -39,7 +40,7 @@ export async function POST(req: Request) {
     const d = r.data as DataBooking;
     if (d.totalAmount == null && baris.hargaOtomatis !== false && d.channel !== "BLOCK") {
       const h = await hargaOtomatis(d.roomId, d.checkIn, d.checkOut);
-      if (h) d.totalAmount = h.total;
+      if (h) d.totalAmount = totalDenganAnak(h.total, d.paxChild ?? 0).total;
     }
     try {
       const p = await buatBooking(d, a.nama);

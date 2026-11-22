@@ -1,5 +1,6 @@
 "use client";
 
+import PilihTanggal from "@/components/tanggal";
 import { useState } from "react";
 import { rupiah, tglPendek } from "@/lib/booking";
 import { lihatRupiah } from "@/lib/peran";
@@ -8,8 +9,8 @@ import { useData } from "../data";
 import type { Kamar } from "../tipe";
 import { Bidang, Kartu, Kosong, masukan, Modal, Pil, Tombol, useToast } from "../ui";
 
-const KOSONG = { id: "", name: "", roomType: "", capAdult: 2, capChild: 0, baseRate: 0, isActive: true, inactiveReason: "", sortOrder: 0, sizeM2: "" as number | "", descEn: "", descId: "", featuresEn: "", featuresId: "" };
-const keForm = (k: Kamar): typeof KOSONG => ({ ...k, roomType: k.roomType ?? "", inactiveReason: k.inactiveReason ?? "", sizeM2: k.sizeM2 ?? "", featuresEn: k.featuresEn.join("\n"), featuresId: k.featuresId.join("\n") });
+const KOSONG = { id: "", name: "", roomType: "", capAdult: 2, capChild: 0, baseRate: 0, isActive: true, inactiveReason: "", sortOrder: 0, normalRate: "" as number | "", sizeM2: "" as number | "", descEn: "", descId: "", featuresEn: "", featuresId: "" };
+const keForm = (k: Kamar): typeof KOSONG => ({ ...k, roomType: k.roomType ?? "", inactiveReason: k.inactiveReason ?? "", sizeM2: k.sizeM2 ?? "", normalRate: k.normalRate ?? "", featuresEn: k.featuresEn.join("\n"), featuresId: k.featuresId.join("\n") });
 
 export default function LayarKamar() {
   const { akun, kamar, muat } = useData();
@@ -89,7 +90,7 @@ export default function LayarKamar() {
               {rp && (
                 <>
                   <p className="text-sm text-panel-redup">Tarif dasar</p>
-                  <p className="angka text-2xl font-bold">{rupiah(k.baseRate)} <span className="text-sm font-normal text-panel-redup">/ malam</span></p>
+                  <p className="angka text-2xl font-bold">{rupiah(k.baseRate)} <span className="text-sm font-normal text-panel-redup">/ malam</span>{k.normalRate && k.normalRate > k.baseRate ? <span className="ml-2 align-middle text-sm font-normal text-panel-redup"><s>{rupiah(k.normalRate)}</s> <span className="rounded-full bg-panel-hijau-lembut px-2 py-0.5 text-xs font-bold text-panel-hijau">Promo</span></span> : null}</p>
                   <div className="mt-4 border-t border-panel-garis pt-3">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-bold">Tarif musiman</p>
@@ -122,7 +123,8 @@ export default function LayarKamar() {
             <Bidang label="Tipe"><input className={masukan} value={f.roomType ?? ""} onChange={(e) => setF({ ...f, roomType: e.target.value })} placeholder="Cottage pantai" /></Bidang>
             <Bidang label="Dewasa"><input className={masukan} type="number" min={1} value={f.capAdult} onChange={(e) => setF({ ...f, capAdult: Number(e.target.value) })} /></Bidang>
             <Bidang label="Anak"><input className={masukan} type="number" min={0} value={f.capChild} onChange={(e) => setF({ ...f, capChild: Number(e.target.value) })} /></Bidang>
-            <Bidang label="Tarif dasar per malam (Rp)"><input className={masukan} type="number" min={0} value={f.baseRate} onChange={(e) => setF({ ...f, baseRate: Number(e.target.value) })} /></Bidang>
+            <Bidang label="Tarif per malam (Rp)" ket="Harga yang berlaku dan ditagihkan."><input className={masukan} type="number" min={0} value={f.baseRate} onChange={(e) => setF({ ...f, baseRate: Number(e.target.value) })} /></Bidang>
+            <Bidang label="Harga normal sebelum promo (Rp)" ket="Opsional. Bila diisi dan lebih tinggi, tampil dicoret di website."><input className={masukan} type="number" min={0} value={f.normalRate} onChange={(e) => setF({ ...f, normalRate: e.target.value === "" ? "" : Number(e.target.value) })} /></Bidang>
             <Bidang label="Urutan"><input className={masukan} type="number" value={f.sortOrder} onChange={(e) => setF({ ...f, sortOrder: Number(e.target.value) })} /></Bidang>
             <Bidang label="Luas (m²)" ket="Kosongkan bila belum tahu."><input className={masukan} type="number" min={0} value={f.sizeM2} onChange={(e) => setF({ ...f, sizeM2: e.target.value === "" ? "" : Number(e.target.value) })} /></Bidang>
             <div className="hidden sm:block" />
@@ -141,8 +143,8 @@ export default function LayarKamar() {
         {musim && (
           <div className="grid gap-4 sm:grid-cols-2">
             <Bidang label="Nama musim" className="sm:col-span-2"><input className={masukan} value={musim.label} onChange={(e) => setMusim({ ...musim, label: e.target.value })} placeholder="Musim ramai, Natal, Lebaran" /></Bidang>
-            <Bidang label="Dari tanggal"><input className={masukan} type="date" value={musim.dateFrom} onChange={(e) => setMusim({ ...musim, dateFrom: e.target.value })} /></Bidang>
-            <Bidang label="Sampai tanggal" ket="Termasuk tanggal ini."><input className={masukan} type="date" value={musim.dateTo} onChange={(e) => setMusim({ ...musim, dateTo: e.target.value })} /></Bidang>
+            <Bidang label="Dari tanggal"><PilihTanggal value={musim.dateFrom} onChange={(v) => setMusim({ ...musim, dateFrom: v, dateTo: musim.dateTo && musim.dateTo < v ? v : musim.dateTo })} /></Bidang>
+            <Bidang label="Sampai tanggal" ket="Termasuk tanggal ini."><PilihTanggal value={musim.dateTo} min={musim.dateFrom || undefined} onChange={(v) => setMusim({ ...musim, dateTo: v })} /></Bidang>
             <Bidang label="Tarif per malam (Rp)" className="sm:col-span-2"><input className={masukan} type="number" min={0} value={musim.rate} onChange={(e) => setMusim({ ...musim, rate: e.target.value })} /></Bidang>
           </div>
         )}

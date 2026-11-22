@@ -21,6 +21,8 @@ interface Catatan {
   /** Diisi saat data demo dihapus, supaya tidak terpasang otomatis lagi. */
   dihapus?: string;
   dibuat: string;
+  /** Versi data kamar demo; 2 = Cottage Double dan Single dengan harga promo. */
+  versi?: number;
   kamar: string[];
   tamu: string[];
   modul: { m: Modul; koleksi: string; id: string }[];
@@ -34,34 +36,43 @@ export async function statusDemo(): Promise<{ aktif: boolean; dibuat?: string; k
 /** Tanggal di zona Papua (WIT), digeser n hari dari hari ini. */
 const tgl = (n: number) => new Date(Date.now() + 9 * 3600000 + n * 86400000).toISOString().slice(0, 10);
 
+/**
+ * Kamar Bakoeria yang sebenarnya: dua jenis cottage dengan isi yang sama, beda di kasurnya.
+ * Harga normal Rp 1.980.000 per malam, harga promo yang berlaku Rp 1.450.000.
+ * Jumlah unit per jenis (2 dan 2) masih perkiraan; ubah di menu Kamar & tarif.
+ */
+const HARGA_NORMAL = 1980000;
+const HARGA_PROMO = 1450000;
+const FASILITAS_EN = ["Air conditioning", "Private bathroom with shower", "American-style seated toilet", "Extra-large wardrobe", "Sofa", "Your own cottage, like a house", "Three meals a day included"];
+const FASILITAS_ID = ["AC", "Kamar mandi dalam dengan shower", "Toilet duduk American style", "Lemari pakaian yang sangat luas", "Sofa", "Satu cottage untuk sendiri, seperti rumah", "Sudah termasuk makan 3 kali sehari"];
 export const KAMAR_DEMO = [
   {
-    name: "Coral Garden Cottage", roomType: "Garden cottage", capAdult: 2, capChild: 1, baseRate: 1350000, sizeM2: 28,
-    descEn: "A teak cottage on stilts tucked among frangipani, a short walk from the jetty.",
-    descId: "Cottage jati panggung di antara pohon kamboja, dekat dermaga.",
-    featuresEn: ["Queen bed", "Private terrace", "Air conditioning", "Outdoor shower", "Garden view"],
-    featuresId: ["Kasur queen", "Teras pribadi", "AC", "Shower terbuka", "Pemandangan taman"],
+    name: "Cottage Double 1", roomType: "Cottage Double", capAdult: 2, capChild: 2, baseRate: HARGA_PROMO, normalRate: HARGA_NORMAL, sizeM2: null,
+    descEn: "A whole cottage to yourself, with one large bed.",
+    descId: "Satu cottage untuk sendiri, dengan satu kasur besar.",
+    featuresEn: ["One large bed (180 × 200 cm)", ...FASILITAS_EN],
+    featuresId: ["1 kasur besar (180 × 200 cm)", ...FASILITAS_ID],
   },
   {
-    name: "Manta Beach House", roomType: "Beachfront cottage", capAdult: 2, capChild: 1, baseRate: 1750000, sizeM2: 34,
-    descEn: "Right on the sand, with a hammock on the deck and the reef in front of you.",
-    descId: "Tepat di atas pasir, dengan hammock di teras dan karang di depan mata.",
-    featuresEn: ["King bed", "Sea-view deck", "Air conditioning", "Hammock", "Direct beach access"],
-    featuresId: ["Kasur king", "Teras menghadap laut", "AC", "Hammock", "Langsung ke pantai"],
+    name: "Cottage Double 2", roomType: "Cottage Double", capAdult: 2, capChild: 2, baseRate: HARGA_PROMO, normalRate: HARGA_NORMAL, sizeM2: null,
+    descEn: "A whole cottage to yourself, with one large bed.",
+    descId: "Satu cottage untuk sendiri, dengan satu kasur besar.",
+    featuresEn: ["One large bed (180 × 200 cm)", ...FASILITAS_EN],
+    featuresId: ["1 kasur besar (180 × 200 cm)", ...FASILITAS_ID],
   },
   {
-    name: "Lagoon Twin Cottage", roomType: "Twin cottage", capAdult: 2, capChild: 0, baseRate: 1450000, sizeM2: 30,
-    descEn: "Two single beds and a gear rack on the porch — made for dive buddies.",
-    descId: "Dua kasur single dan rak alat selam di teras, cocok untuk teman menyelam.",
-    featuresEn: ["Two single beds", "Dive gear rack", "Ceiling fan and AC", "Lagoon view", "Reading lamps"],
-    featuresId: ["Dua kasur single", "Rak alat selam", "Kipas dan AC", "Pemandangan laguna", "Lampu baca"],
+    name: "Cottage Single 1", roomType: "Cottage Single", capAdult: 2, capChild: 2, baseRate: HARGA_PROMO, normalRate: HARGA_NORMAL, sizeM2: null,
+    descEn: "A whole cottage to yourself, with two single beds.",
+    descId: "Satu cottage untuk sendiri, dengan dua kasur single.",
+    featuresEn: ["Two single beds (120 × 200 cm each)", ...FASILITAS_EN],
+    featuresId: ["2 kasur single (masing-masing 120 × 200 cm)", ...FASILITAS_ID],
   },
   {
-    name: "Kima Family Villa", roomType: "Family villa", capAdult: 4, capChild: 2, baseRate: 2450000, sizeM2: 52,
-    descEn: "Our largest house: two rooms under one roof and a wide veranda for slow evenings.",
-    descId: "Rumah terbesar kami: dua kamar di bawah satu atap dan beranda lebar untuk bersantai.",
-    featuresEn: ["King bed and bunk beds", "Two bedrooms", "Wide veranda", "Air conditioning", "Mini fridge", "Sea view"],
-    featuresId: ["Kasur king dan ranjang susun", "Dua kamar tidur", "Beranda lebar", "AC", "Kulkas mini", "Pemandangan laut"],
+    name: "Cottage Single 2", roomType: "Cottage Single", capAdult: 2, capChild: 2, baseRate: HARGA_PROMO, normalRate: HARGA_NORMAL, sizeM2: null,
+    descEn: "A whole cottage to yourself, with two single beds.",
+    descId: "Satu cottage untuk sendiri, dengan dua kasur single.",
+    featuresEn: ["Two single beds (120 × 200 cm each)", ...FASILITAS_EN],
+    featuresId: ["2 kasur single (masing-masing 120 × 200 cm)", ...FASILITAS_ID],
   },
 ];
 
@@ -92,18 +103,17 @@ export async function isiDemo(): Promise<{ kamar: number; pesanan: number; catat
   const ada = Number((await kueri<{ n: number }>("SELECT COUNT(*) AS n FROM rooms"))[0]?.n ?? 0);
   if (ada > 0) throw new DemoError("Sudah ada kamar asli. Data demo hanya dipasang di database yang masih kosong, supaya tidak tercampur.");
 
-  const catat: Catatan = { dibuat: new Date().toISOString(), kamar: [], tamu: [], modul: [] };
+  const catat: Catatan = { dibuat: new Date().toISOString(), versi: 2, kamar: [], tamu: [], modul: [] };
   let pesanan = 0;
   await transaksi(async (k) => {
     for (const [i, r] of KAMAR_DEMO.entries()) {
       const id = idBaru();
       catat.kamar.push(id);
       await k.query(
-        "INSERT INTO rooms (id, name, room_type, cap_adult, cap_child, base_rate, is_active, sort_order, size_m2, desc_en, desc_id, features_en, features_id) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)",
-        [id, r.name, r.roomType, r.capAdult, r.capChild, r.baseRate, i + 1, r.sizeM2, r.descEn, r.descId, r.featuresEn.join("\n"), r.featuresId.join("\n")],
+        "INSERT INTO rooms (id, name, room_type, cap_adult, cap_child, base_rate, normal_rate, is_active, sort_order, size_m2, desc_en, desc_id, features_en, features_id) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)",
+        [id, r.name, r.roomType, r.capAdult, r.capChild, r.baseRate, r.normalRate, i + 1, r.sizeM2, r.descEn, r.descId, r.featuresEn.join("\n"), r.featuresId.join("\n")],
       );
     }
-    await k.query("INSERT INTO seasonal_rates (id, room_id, date_from, date_to, rate, label) VALUES (?, ?, ?, ?, ?, ?)", [idBaru(), catat.kamar[1], tgl(30), tgl(45), 2150000, "Musim ramai"]);
     for (const [i, [ki, a, b, status, channel]] of RENCANA.entries()) {
       const g = idBaru();
       catat.tamu.push(g);
@@ -209,12 +219,39 @@ export async function hapusDemo(): Promise<{ dihapus: number; tertinggal: string
  * data demo belum pernah dihapus. Dipanggil dari halaman depan, jadi situs
  * baru langsung tampil berisi. Matikan dengan BAKOERIA_DEMO=0.
  */
+/**
+ * Kamar demo versi pertama (nama dan harga karangan) diganti di tempat dengan kamar
+ * yang sebenarnya. Id kamar tidak berubah, jadi pesanan yang menempel tetap utuh.
+ * Kamar demo yang sudah dihapus pengguna dilewati; tarif musiman contoh dibuang.
+ */
+async function perbaruiKamarDemo(c: Catatan) {
+  await transaksi(async (k) => {
+    for (const [i, id] of c.kamar.entries()) {
+      const r = KAMAR_DEMO[i];
+      if (!r) continue;
+      const [[bentrok]] = (await k.query("SELECT COUNT(*) AS n FROM rooms WHERE name = ? AND id <> ?", [r.name, id])) as unknown as [{ n: number }[]];
+      if (Number(bentrok.n) > 0) continue;
+      await k.query(
+        "UPDATE rooms SET name = ?, room_type = ?, cap_adult = ?, cap_child = ?, base_rate = ?, normal_rate = ?, size_m2 = ?, desc_en = ?, desc_id = ?, features_en = ?, features_id = ? WHERE id = ?",
+        [r.name, r.roomType, r.capAdult, r.capChild, r.baseRate, r.normalRate, r.sizeM2, r.descEn, r.descId, r.featuresEn.join("\n"), r.featuresId.join("\n"), id],
+      );
+    }
+    if (c.kamar.length) await k.query("DELETE FROM seasonal_rates WHERE room_id IN (?) AND label = 'Musim ramai'", [c.kamar]);
+  });
+  await ubahJson<Catatan | null>(BERKAS, null, (l) => (l ? { ...l, versi: 2 } : l));
+  console.log("[demo] kamar demo diperbarui ke Cottage Double dan Cottage Single");
+}
+
 let otomatis: Promise<void> | undefined;
 export function pastikanDemo(): Promise<void> {
   if (process.env.BAKOERIA_DEMO?.trim() === "0") return Promise.resolve();
   otomatis ??= (async () => {
     const c = await bacaJson<Catatan | null>(BERKAS, null);
-    if (c) return; // pernah dipasang (masih ada atau sudah dihapus)
+    if (c) {
+      // Data demo versi lama yang masih terpasang: kamar contohnya diperbarui ke kamar yang sebenarnya.
+      if (!c.dihapus && (c.versi ?? 1) < 2) await perbaruiKamarDemo(c);
+      return;
+    }
     const n = Number((await kueri<{ n: number }>("SELECT COUNT(*) AS n FROM rooms"))[0]?.n ?? 0);
     if (n > 0) return;
     await isiDemo();
