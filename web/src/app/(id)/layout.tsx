@@ -5,7 +5,16 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL?.trim() || "http://localhost:3000"),
   title: { default: "Bakoeria Dive Resort", template: "%s · Bakoeria Dive Resort" },
   description: "Resor selam butik dengan cottage kayu jati di tepi pantai. Menyelam siang, bermalam di bawah bintang.",
-  icons: { icon: [{ url: "/favicon.ico", sizes: "48x48" }, { url: "/brand/icon.svg", type: "image/svg+xml" }], apple: "/brand/apple-touch-icon.png" },
+  /* ?v= dinaikkan tiap kali ikon berganti: browser menyimpan favicon sangat lama dan tidak mengambil ulang bila alamatnya sama. */
+  icons: {
+    icon: [
+      { url: "/favicon.ico?v=3", sizes: "48x48" },
+      { url: "/brand/favicon-32.png?v=3", sizes: "32x32", type: "image/png" },
+      { url: "/brand/favicon-192.png?v=3", sizes: "192x192", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico?v=3",
+    apple: "/brand/apple-touch-icon.png?v=3",
+  },
   openGraph: {
     type: "website",
     siteName: "Bakoeria Dive Resort",
