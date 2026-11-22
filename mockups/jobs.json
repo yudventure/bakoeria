@@ -48,6 +48,12 @@
   "h": 1600
  },
  {
+  "src": "mockups/src/09-pola-khas.html",
+  "out": "mockups/export/09-pola-khas.png",
+  "w": 2400,
+  "h": 1600
+ },
+ {
   "src": "mockups/src/00-brand-board.html",
   "out": "mockups/export/00-brand-board.png",
   "w": 2400,

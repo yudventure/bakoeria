@@ -52,6 +52,15 @@ Gradasi Ombak: `linear-gradient(135deg,#0F4F7B,#0F6490 45%,#188B9A)`.
 
 Kontras (WCAG 2.2, lengkapnya di `research/contrast-table.md`): Navy Samudra di atas putih 13,13:1 (AAA); Biru Ombak di atas putih 6,47:1 (AA); Pasir Pantai dan Toska Karang hanya untuk teks besar atau bidang warna.
 
+## Pola khas: Ukir Ombak
+
+Ukiran di bawah ombak pada lambang dijadikan pola khas merek. Motifnya diambil langsung dari hasil vektorisasi logo (`tools/build_pattern.py`), tidak digambar ulang. File: `brand/pattern/`.
+
+- **Cara pakai utama: satu motif besar per bidang**, terpotong di sudut dan samar. Putih 5 sampai 10% di latar gelap, pasir 15 sampai 25% di latar terang, putih 12 sampai 20% di bidang warna. File: `bakoeria-ukiran-*`.
+- **Versi sederhana untuk ikon**: lekuk dihaluskan dan serpihan kecil dibuang, terbaca sampai 16 px. Untuk ikon, cap, stiker, butir daftar, dan tanda kecil di samping judul. File: `bakoeria-ukir-ikon-*`, `bakoeria-ukir-cap-*`.
+- Turunan untuk kemasan dan kain bila diperlukan: pola ulang tanpa sambungan (`bakoeria-pola-*`), pita, dan medali.
+- Satu warna saja (putih, pasir, navy, atau toska). Jangan diregangkan, jangan menutupi teks, dan bukan pengganti logo.
+
 ## Gaya dan suara
 
 - Latar putih atau kerang dengan banyak ruang kosong; lengkung ombak dan sudut membulat.
@@ -65,6 +74,7 @@ Kontras (WCAG 2.2, lengkapnya di `research/contrast-table.md`): Navy Samudra di 
 python3 tools/trace_mark.py assets/source/bakoeria-logo-v2.png tools/logo-trace.json
 python3 tools/build_tokens.py && python3 tools/build_logos.py && python3 tools/banding_logo.py
 python3 tools/build_favicon.py && node tools/build_favicon.js && node tools/batch_logo_png.js
+python3 tools/build_pattern.py && node tools/build_pattern.js
 python3 tools/build_social.py && node tools/render_all.js social/jobs.json
 python3 tools/build_mockups.py && node tools/render_all.js mockups/jobs.json
 python3 tools/build_pdf.py && node tools/render_pdf.js && python3 tools/build_zip.py

@@ -15,3 +15,9 @@ body{font-family:'Albert Sans',sans-serif;color:var(--gading);background:var(--m
 .rule i{display:block;height:2px;width:90px;background:var(--emas)}
 .photo{position:absolute;inset:0;background-size:cover;background-position:center}
 .c{align-items:center;text-align:center}
+
+/* Pola khas "Ukir Ombak" (brand/pattern): SATU motif besar yang samar di sudut bidang, seperti ukiran pada lambang. */
+.sky::after{content:"";position:absolute;inset:0;background:url(../../brand/pattern/bakoeria-ukiran-putih.svg) no-repeat right -22% bottom -4%/118% auto;opacity:.07;pointer-events:none}
+.ukir{position:absolute;right:-16%;bottom:-3%;width:112%;opacity:.12;pointer-events:none}
+.pita{display:block;width:100%;height:44px;background:url(../../brand/pattern/bakoeria-pita-pasir.svg) center/auto 100% repeat-x}
+.pita.navy{background-image:url(../../brand/pattern/bakoeria-pita-navy.svg)}

@@ -116,9 +116,32 @@ for nama, g in lapisan.items():
     else:
         bentuk.append({'lapis': nama, 'd': ke_d(pl), **warna(g > .5, False)})
 
+# Ukiran di bawah ombak ditelusuri juga sebagai motif tersendiri (dasar pola khas merek):
+# kepingan lapisan pasir yang pusatnya di bagian bawah lambang.
+labp, npz = ndimage.label(pasir > .5); uk = np.zeros(pasir.shape, bool)
+for i in range(1, npz+1):
+    mk = labp == i
+    if mk.sum() >= 12 and ndimage.center_of_mass(mk)[0] > 400: uk |= mk
+pu, mu = telusur(np.where(ndimage.binary_dilation(uk, iterations=2), pasir, 0))
+yu, xu = np.where(mu); ukiran = {'d': ke_d(pu), 'bbox': [xu.min()/S, yu.min()/S, xu.max()/S, yu.max()/S]}
+
+# Versi sederhana untuk ikon dan motif tunggal besar: celah sempit ditutup, serpihan
+# kecil dibuang, lalu ditelusuri lebih halus. Diturunkan dari bentuk yang sama, bukan digambar ulang.
+def telusur_halus(mask, blur=1.6, turd=40):
+    gi = Image.fromarray((mask*255).astype('uint8')).resize((c.width*S, c.height*S), Image.LANCZOS).filter(ImageFilter.GaussianBlur(S*blur))
+    m = np.asarray(gi) > 128
+    return potrace.Bitmap(~m).trace(turdsize=S*S*turd, alphamax=1.3, opttolerance=1.2), m
+bulat = lambda r: (np.hypot(*np.mgrid[-r:r+1, -r:r+1]) <= r)
+sd = ndimage.binary_opening(ndimage.binary_closing(uk, structure=bulat(2)), structure=bulat(2))
+lsd, nsd = ndimage.label(sd)
+for i in range(1, nsd+1):
+    if (lsd == i).sum() < 260: sd[lsd == i] = False
+ps, ms = telusur_halus(sd)
+ysd, xsd = np.where(ms); ukiran_ikon = {'d': ke_d(ps), 'bbox': [xsd.min()/S, ysd.min()/S, xsd.max()/S, ysd.max()/S]}
+
 semua = np.zeros_like(next(iter(topeng.values())))
 for m in topeng.values(): semua |= m
 ys, xs = np.where(semua); bb = [xs.min()/S, ys.min()/S, xs.max()/S, ys.max()/S]
-json.dump({'box': BOX, 'ukuran': [c.width, c.height], 'bbox': bb, 'bentuk': bentuk}, open(sys.argv[2], 'w'))
+json.dump({'box': BOX, 'ukuran': [c.width, c.height], 'bbox': bb, 'bentuk': bentuk, 'ukiran': ukiran, 'ukiran_ikon': ukiran_ikon}, open(sys.argv[2], 'w'))
 for b in bentuk: print(b['lapis'], b.get('fill') or [x[1] for x in b['stops']], len(b['d']), 'karakter')
 print('bbox', bb)

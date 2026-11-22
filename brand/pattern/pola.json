@@ -1,0 +1,42 @@
+{
+ "ubin": [
+  402,
+  486
+ ],
+ "motif": [
+  323.8,
+  178.6
+ ],
+ "pola": {
+  "pasir": {
+   "latar": "#F7F3EC",
+   "motif": "#947C5F",
+   "untuk": "pasir di atas kerang: kemasan, kain, sampul"
+  },
+  "halus": {
+   "latar": "#FFFFFF",
+   "motif": "#E9DFCD",
+   "untuk": "pasir muda di atas putih: latar kertas dan web"
+  },
+  "laut": {
+   "latar": "#0A2440",
+   "motif": "#17446E",
+   "untuk": "navy di atas laut dalam: latar gelap"
+  },
+  "ombak": {
+   "latar": "#0F6490",
+   "motif": "#2D84AD",
+   "untuk": "biru di atas biru ombak: bidang aksen"
+  },
+  "tinta": {
+   "latar": null,
+   "motif": "#947C5F",
+   "untuk": "motif pasir tanpa latar: untuk ditimpa di atas warna lain"
+  },
+  "tinta-putih": {
+   "latar": null,
+   "motif": "#FFFFFF",
+   "untuk": "motif putih tanpa latar: ditimpa tipis (5 sampai 10%) di atas latar gelap atau foto"
+  }
+ }
+}

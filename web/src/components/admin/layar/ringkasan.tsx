@@ -130,9 +130,7 @@ export default function Ringkasan() {
   return (
     <div className="grid gap-6">
       <section className="relative overflow-hidden rounded-[1.75rem] bg-panel-utama px-6 py-7 text-white sm:px-9 sm:py-9">
-        <svg aria-hidden viewBox="0 0 600 120" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 w-full opacity-[0.08]">
-          <path d="M0 70 C80 30 160 110 240 70 S400 30 480 70 S560 90 600 60 V120 H0Z" fill="white" />
-        </svg>
+        <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-putih.svg" className="pointer-events-none absolute -bottom-24 -right-28 w-[640px] max-w-none opacity-[0.08]" />
         <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/80">{LABEL_PERAN[akun.peran]} · Bakoeria Dive Resort</p>

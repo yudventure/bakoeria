@@ -38,7 +38,7 @@ for i,(t,s) in enumerate(tips,1):
 <div><div style="font-family:Spectral;font-size:240px;line-height:.9;color:transparent;-webkit-text-stroke:2px var(--emas)">0{i}</div><h1 class="d" style="font-size:98px;margin-top:36px">{t}</h1><p style="font-weight:300;font-size:44px;line-height:1.45;color:var(--pasir);margin-top:34px;max-width:800px">{s}</p></div>
 {foot()}</div>''')
 # 5 ulasan
-page('ig-feed-04-ulasan',1080,1350,f'''<div class="f c" style="background:var(--gading);color:var(--malam);padding:130px 110px 110px;justify-content:space-between"><div class="frame" style="border-color:rgba(10,36,64,.3)"></div>
+page('ig-feed-04-ulasan',1080,1350,f'''<div class="f c" style="background:var(--gading);color:var(--malam);padding:130px 110px 110px;justify-content:space-between"><img class="ukir" src="../../brand/pattern/bakoeria-ukiran-pasir.svg"><div class="frame" style="border-color:rgba(10,36,64,.3)"></div>
 <span class="lb" style="font-size:22px;color:var(--malam)">Kata tamu</span>
 <div><div style="font-family:Spectral;font-size:220px;line-height:.5;color:var(--emas-tua)">“</div><p style="font-family:Spectral;font-style:italic;font-size:70px;line-height:1.25;color:var(--malam)">Pulang dari laut, lampu teras sudah menyala dan kopi sudah menunggu.</p>
 <p class="lb" style="font-size:22px;color:var(--malam);margin-top:56px">Nama tamu · contoh ulasan</p></div>

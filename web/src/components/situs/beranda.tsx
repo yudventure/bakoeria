@@ -34,8 +34,9 @@ function Aksen({ teks }: { teks: string }) {
   );
 }
 
-function Bintang({ className = "" }: { className?: string }) {
-  return <span aria-hidden="true" className={`inline-block text-emas-tua ${className}`}>✻</span>;
+/** Tanda kecil di samping judul: versi sederhana pola khas "Ukir Ombak" (brand/pattern). */
+function Bintang({ className = "", terang = false }: { className?: string; terang?: boolean }) {
+  return <img aria-hidden="true" alt="" src={`/brand/bakoeria-ukir-ikon-${terang ? "putih" : "toska"}.svg`} className={`inline-block h-[0.62em] min-h-[13px] w-auto ${className}`} />;
 }
 
 async function kamarPublik(): Promise<Kamar[]> {
@@ -103,7 +104,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
             <div className="muncul grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
               <div className="-my-[0.1em] overflow-hidden py-[0.1em]"><h2 data-geser="0.9" className="font-display text-[clamp(56px,8vw,104px)] font-normal leading-[0.9] tracking-[-0.03em] text-malam/80 will-change-transform">{t.tentangKami}</h2></div>
               <div className="relative">
-                <Bintang className="absolute -top-2 right-0 text-2xl" />
+                <Bintang className="absolute -top-1 right-0 text-[34px]" />
                 <p className="pr-8 text-[clamp(18px,2.1vw,25px)] font-normal uppercase leading-[1.35] tracking-[0.02em] text-malam">
                   <Aksen teks={k.pernyataan} />
                   <span className="ml-2 inline-block h-[0.9em] w-[3.2em] translate-y-[0.12em] overflow-hidden rounded-full align-baseline">
@@ -134,7 +135,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,36,64,.82)_0%,rgba(10,36,64,.55)_45%,rgba(10,36,64,.35)_100%)]" />
             <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <h2 className="muncul font-display text-[clamp(40px,5.2vw,64px)] font-normal leading-[0.98] tracking-[-0.02em] text-white">
-                {k.keunggulanJudul} <Bintang className="text-xl" />
+                {k.keunggulanJudul} <Bintang className="ml-1 text-xl" terang />
               </h2>
               <div className="grid gap-3 sm:grid-cols-2">
                 {k.keunggulan.map((x, n) => (
@@ -156,7 +157,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
           <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
             <div className="muncul">
               <h2 className="font-display text-[34px] font-normal leading-tight">{t.pilihanMenginap}</h2>
-              <Bintang className="mt-2" />
+              <Bintang className="mt-3 block text-[26px]" />
               <p className="mt-4 text-[14px] text-malam/60">{k.cottageIsi}</p>
             </div>
             {kamar.length > 0 ? (
@@ -212,7 +213,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
           <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr] lg:items-center">
             <div className="muncul">
               <h2 className="font-display text-[34px] font-normal leading-tight">{t.programSelam}</h2>
-              <Bintang className="mt-2" />
+              <Bintang className="mt-3 block text-[26px]" />
               {k.programCatatan && <p className="mt-4 text-[14px] text-malam/60">{k.programCatatan}</p>}
             </div>
             <div className="muncul grid overflow-hidden rounded-[1.6rem] bg-white/70 ring-1 ring-malam/8 sm:grid-cols-2 xl:grid-cols-4">
@@ -251,11 +252,13 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         </section>
 
         {/* TANYA JAWAB */}
-        <section id="tanya" className="scroll-mt-24 px-5 pb-20">
-          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
+        <section id="tanya" className="relative scroll-mt-24 overflow-hidden px-5 pb-20">
+          {/* Pola khas: satu ukiran besar yang samar di sudut. */}
+          <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-pasir.svg" loading="lazy" className="pointer-events-none absolute -bottom-10 -left-40 w-[760px] max-w-none opacity-[0.1]" />
+          <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
             <div className="muncul">
               <h2 className="font-display text-[34px] font-normal leading-tight">{t.tanyaJawab}</h2>
-              <Bintang className="mt-2" />
+              <Bintang className="mt-3 block text-[26px]" />
             </div>
             <div className="muncul grid gap-2">
               {k.tanya.map((t, i) => (

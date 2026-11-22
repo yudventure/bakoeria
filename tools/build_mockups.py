@@ -67,6 +67,20 @@ flag=f'''<div style="display:flex;align-items:flex-start"><i style="display:bloc
 sticker=f'''<div class="sh" style="width:380px;height:380px;border-radius:50%;background:#F7F3EC;display:flex;align-items:center;justify-content:center;border:10px solid #D8C7A8;outline:2px solid #947C5F;outline-offset:-22px"><img src="{L}bakoeria-mark-warna.svg" style="width:230px"></div>'''
 page('08-perlengkapan-selam',f'<div class="stage bg-sand" style="gap:120px"><div style="transform:rotate(-4deg)">{logbook}</div><div style="display:flex;flex-direction:column;gap:80px;align-items:center"><div style="transform:rotate(8deg)">{sticker}</div></div>{flag}</div>{cap("Logbook selam · stiker tabung · bendera perahu","#422D1B")}')
 
+# 9 pola khas "Ukir Ombak": satu motif besar, dan versi sederhana sebagai ikon
+P='../../brand/pattern/'
+map_=f"""<div class="sh" style="width:720px;height:980px;background:#F7F3EC;position:relative;overflow:hidden;transform:rotate(-4deg);padding:70px 64px;display:flex;flex-direction:column;justify-content:space-between">
+<img src="{P}bakoeria-ukiran-pasir.svg" style="position:absolute;right:-250px;bottom:-40px;width:1050px;opacity:.22">
+<img src="{L}bakoeria-logo-horizontal-warna.svg" style="width:330px;position:relative">
+<div style="position:relative"><div style="font-family:Spectral;font-size:58px;line-height:1.1;color:#133250">Panduan<br>tamu</div><div style="font-weight:600;font-size:17px;letter-spacing:.28em;text-transform:uppercase;color:#6B5840;margin-top:16px">Selamat datang di Bakoeria</div></div></div>"""
+handuk=f"""<div class="sh" style="width:520px;height:1040px;background:#0F6490;border-radius:10px;position:relative;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;padding-top:110px">
+<img src="{P}bakoeria-ukiran-putih.svg" style="position:absolute;left:-190px;bottom:60px;width:1000px;opacity:.2">
+<img src="{L}bakoeria-mark-putih.svg" style="width:200px;position:relative"></div>"""
+kotak=f"""<div style="display:flex;flex-direction:column;gap:64px;align-items:center">
+<div class="sh" style="width:540px;height:540px;background:#0A2440;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center"><img src="{P}bakoeria-ukiran-putih.svg" style="position:absolute;right:-230px;top:-30px;width:900px;opacity:.09"><img src="{P}bakoeria-ukir-cap-kerang.svg" style="width:250px;position:relative;box-shadow:0 10px 24px rgba(0,0,0,.35);border-radius:50%"></div>
+<div style="display:flex;gap:34px;align-items:center"><img class="sh" src="{P}bakoeria-ukir-cap-navy.svg" style="width:150px;border-radius:50%"><img class="sh" src="{P}bakoeria-ukir-cap-pasir.svg" style="width:150px;border-radius:50%"><div class="sh paper" style="width:170px;height:150px;display:flex;align-items:center;justify-content:center"><img src="{P}bakoeria-ukir-ikon-navy.svg" style="width:120px"></div></div></div>"""
+page('09-pola-khas',f'<div class="stage bg-sand" style="gap:120px">{map_}{handuk}{kotak}</div>{cap("Pola khas Ukir Ombak · satu motif besar di sampul, handuk, dan kotak · versi sederhana sebagai ikon dan cap","#422D1B")}')
+
 # 8 brand board
 cols=json.load(open(root/'brand/tokens/colors.json'))
 sw=''.join(f'<div style="flex:1;min-width:0"><div style="height:210px;background:{v["hex"]};border:1px solid rgba(216,199,168,.25)"></div><div style="font-family:Spectral;font-size:26px;margin-top:14px;color:var(--gading)">{v["name"]}</div><div style="font-size:18px;letter-spacing:.08em;color:var(--pasir);font-weight:300">{v["hex"]}</div></div>' for k,v in cols.items() if k in ['navy-samudra','laut-dalam','biru-ombak','toska-karang','busa-toska','pasir-pantai','pasir-muda','kerang'])

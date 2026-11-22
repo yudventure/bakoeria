@@ -35,8 +35,9 @@ export default function Footer({ k, namaResort, bahasa }: { k: Konten; namaResor
   ];
 
   return (
-    <footer className="bg-malam text-white/70">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[minmax(0,1.3fr)_repeat(2,minmax(0,1fr))] lg:py-16">
+    <footer className="relative overflow-hidden bg-malam text-white/70">
+      <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-putih.svg" loading="lazy" className="pointer-events-none absolute -bottom-16 -right-44 w-[860px] max-w-none opacity-[0.06]" />
+      <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[minmax(0,1.3fr)_repeat(2,minmax(0,1fr))] lg:py-16">
         <div>
           <img src="/brand/bakoeria-logo-horizontal-terbalik.svg" alt={namaResort} className="h-16 w-auto" loading="lazy" />
           {k.footerTentang && <p className="mt-5 max-w-[38ch] text-[15px] leading-relaxed">{k.footerTentang}</p>}
