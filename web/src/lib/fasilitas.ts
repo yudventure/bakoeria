@@ -78,6 +78,8 @@ export const KATALOG_BAWAAN: KatalogFasilitas = {
     f("sofa", "sofa", "Sofa", "Sofa"),
     f("cottage", "rumah", "Your own cottage, like a house", "Satu cottage untuk sendiri, seperti rumah"),
     f("makan", "makan", "Three meals a day included", "Sudah termasuk makan 3 kali sehari"),
+    f("kayak", "kayak", "Free use of kayaks", "Gratis pakai kayak"),
+    f("snorkel", "snorkel", "Free snorkeling gear", "Gratis alat snorkel"),
     f("teras", "kursi", "Private terrace", "Teras pribadi"),
     f("handuk", "handuk", "Towels", "Handuk"),
     f("air-minum", "air", "Drinking water", "Air minum"),

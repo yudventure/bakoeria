@@ -1,7 +1,42 @@
 import "server-only";
-import { rapikanKatalog, type JenisFasilitas, type KatalogFasilitas } from "@/lib/fasilitas";
+import { cariLabel, KATALOG_BAWAAN, rapikanKatalog, type JenisFasilitas, type KatalogFasilitas } from "@/lib/fasilitas";
 import { databaseReady, jalankan, kueri } from "@/lib/db";
 import { bacaJson, ubahJson } from "./gudang";
+
+/**
+ * Sekali jalan (November 2026, permintaan pemilik): tamu menginap boleh memakai kayak
+ * dan alat snorkel gratis. Kedua fasilitas ditambahkan ke katalog kamar yang sudah
+ * tersimpan dan dicentang di semua kamar. Tanda di "migrasi-fasilitas.json" mencegahnya
+ * berjalan lagi, jadi centang yang nanti dilepas pemilik tidak dipasang ulang.
+ */
+let migrasi: Promise<void> | undefined;
+export function pastikanFasilitasTamu(): Promise<void> {
+  migrasi ??= (async () => {
+    const tanda = await bacaJson<Record<string, string> | null>("migrasi-fasilitas.json", null);
+    if (tanda?.kayakSnorkel) return;
+    const baru = KATALOG_BAWAAN.kamar.filter((x) => x.kunci === "kayak" || x.kunci === "snorkel");
+    const tersimpan = await bacaJson<Record<string, unknown> | null>("fasilitas.json", null);
+    if (tersimpan && Array.isArray(tersimpan.kamar)) {
+      const kat = rapikanKatalog(tersimpan);
+      const kurang = baru.filter((b) => !kat.kamar.some((x) => x.kunci === b.kunci || cariLabel([x], b.en) || cariLabel([x], b.id)));
+      if (kurang.length) await ubahJson("fasilitas.json", null, () => ({ ...kat, kamar: [...kat.kamar, ...kurang] }), 0o644);
+    }
+    if (databaseReady()) {
+      const kamar = await kueri<{ id: string; features_en: string | null; features_id: string | null }>("SELECT id, features_en, features_id FROM rooms");
+      for (const r of kamar) {
+        const en = baris(r.features_en), id = baris(r.features_id);
+        const tambahEn = baru.map((b) => b.en).filter((l) => !en.some((x) => x.toLowerCase() === l.toLowerCase()));
+        const tambahId = baru.map((b) => b.id).filter((l) => !id.some((x) => x.toLowerCase() === l.toLowerCase()));
+        if (tambahEn.length || tambahId.length) await jalankan("UPDATE rooms SET features_en = ?, features_id = ? WHERE id = ?", [[...en, ...tambahEn].join("\n"), [...id, ...tambahId].join("\n"), r.id]);
+      }
+      if (kamar.length === 0) return; // belum ada kamar: dicoba lagi nanti, tanda belum ditulis
+    }
+    await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), kayakSnorkel: new Date().toISOString() }), 0o644);
+  })()
+    .catch((e) => console.error("[fasilitas] gagal menambah kayak dan snorkel", e))
+    .finally(() => { migrasi = undefined; });
+  return migrasi;
+}
 
 export const bacaKatalog = async (): Promise<KatalogFasilitas> => rapikanKatalog(await bacaJson<unknown>("fasilitas.json", null));
 

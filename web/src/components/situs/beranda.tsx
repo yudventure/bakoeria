@@ -12,7 +12,7 @@ import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
 import { bacaGaleri, bacaPetaFoto } from "@/lib/server/foto";
-import { bacaKatalog } from "@/lib/server/fasilitas";
+import { bacaKatalog, pastikanFasilitasTamu } from "@/lib/server/fasilitas";
 import { ikonFasilitas, type Fasilitas } from "@/lib/fasilitas";
 import { atribut, gambar, gambarItem, type SlotFoto } from "@/lib/foto";
 import { Ikon } from "@/components/situs/ikon";
@@ -61,6 +61,7 @@ async function kamarPublik(): Promise<Kamar[]> {
   if (!databaseReady()) return [];
   try {
     await pastikanDemo();
+    await pastikanFasilitasTamu();
     return await ambilKamar(false);
   } catch (e) {
     console.error("[beranda] kamar tidak terbaca", e instanceof Error ? e.message : e);
