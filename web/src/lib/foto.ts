@@ -116,8 +116,9 @@ export function rapikanFoto(v: unknown): Foto | null {
  * Sebelum pemilik mengubah galeri, isinya diambil dari slot lama (kamar1-5, galeri1-5).
  */
 export const GALERI = {
-  menginap: { label: "Galeri menginap", mosaik: 5, slot: ["kamar1", "kamar2", "kamar3", "kamar4", "kamar5"] as SlotFoto[] },
-  aktivitas: { label: "Galeri aktivitas", mosaik: 5, slot: ["galeri1", "galeri2", "galeri3", "galeri4", "galeri5"] as SlotFoto[] },
+  /* Menginap: 5 foto mosaik + 4 foto sebaris di bawahnya selalu tampil (permintaan pemilik), selebihnya lewat "Show more". */
+  menginap: { label: "Galeri menginap", mosaik: 5, tetap: 4, slot: ["kamar1", "kamar2", "kamar3", "kamar4", "kamar5"] as SlotFoto[] },
+  aktivitas: { label: "Galeri aktivitas", mosaik: 5, tetap: 0, slot: ["galeri1", "galeri2", "galeri3", "galeri4", "galeri5"] as SlotFoto[] },
 } as const;
 export type NamaGaleri = keyof typeof GALERI;
 export const adaGaleri = (v: unknown): v is NamaGaleri => v === "menginap" || v === "aktivitas";

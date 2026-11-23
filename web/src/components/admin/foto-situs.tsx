@@ -298,6 +298,7 @@ export default function FotoSitus({ grup, galeri: namaGaleri, judul = "Foto" }: 
   }
   const unggahanGaleri = Object.entries(status).filter(([k]) => namaGaleri && k.startsWith(`galeri:${namaGaleri}:`));
   const mosaik = namaGaleri ? GALERI[namaGaleri].mosaik : 0;
+  const tampil = namaGaleri ? mosaik + GALERI[namaGaleri].tetap : 0;
 
   const slot = SLOT_FOTO.filter((s) => grup.includes(s.grup) && !SLOT_GALERI.has(s.id));
   return (
@@ -356,7 +357,7 @@ export default function FotoSitus({ grup, galeri: namaGaleri, judul = "Foto" }: 
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-sm font-bold">{GALERI[namaGaleri].label} · {daftar.length} foto</p>
-              <p className="text-xs text-panel-redup">{mosaik} foto pertama mengisi mosaik di situs; sisanya tampil setelah pengunjung menekan “Show more”. Seret foto atau pakai tombol ‹ › untuk mengatur urutan.</p>
+              <p className="text-xs text-panel-redup">{mosaik} foto pertama mengisi mosaik di situs{tampil > mosaik ? `, ${tampil - mosaik} berikutnya sebaris di bawahnya (selalu tampil)` : ""}; sisanya tampil setelah pengunjung menekan “Show more”. Seret foto atau pakai tombol ‹ › untuk mengatur urutan.</p>
             </div>
             <div className="flex gap-2">
               <Tombol kecil varian="garis" onClick={async () => {
@@ -380,7 +381,7 @@ export default function FotoSitus({ grup, galeri: namaGaleri, judul = "Foto" }: 
               >
                 <button type="button" disabled={!it.foto} title={it.foto ? "Klik untuk memilih titik fokus" : undefined} onClick={(e) => fokusGaleri(it, e)} className={`relative block aspect-[4/3] w-full overflow-hidden bg-panel-garis ${it.foto ? "cursor-crosshair" : "cursor-grab"}`}>
                   <img src={it.foto ? urlFoto(it.foto, it.foto.lebar[0]) : it.bawaan!} alt="" draggable={false} className="size-full object-cover" style={it.foto ? { objectPosition: `${it.foto.fokus[0]}% ${it.foto.fokus[1]}%` } : undefined} />
-                  <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-bold ${i < mosaik ? "bg-panel-utama text-white" : "bg-white/90 text-panel-tinta"}`}>{i + 1}{i < mosaik ? " · mosaik" : ""}</span>
+                  <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-bold ${i < tampil ? "bg-panel-utama text-white" : "bg-white/90 text-panel-tinta"}`}>{i + 1}{i < mosaik ? " · mosaik" : i < tampil ? " · baris bawah" : " · show more"}</span>
                   {it.foto && <span aria-hidden="true" className="absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-panel-hijau/80 shadow" style={{ left: `${it.foto.fokus[0]}%`, top: `${it.foto.fokus[1]}%` }} />}
                 </button>
                 <div className="flex items-center justify-between gap-1 px-2 py-1.5">

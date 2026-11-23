@@ -8,11 +8,17 @@ export interface FotoGaleri { src: string; srcSet?: string; style?: React.CSSPro
  * Galeri mosaik: tiap foto punya ukuran sendiri, dengan sudut membulat kecil.
  * Foto bisa diklik untuk diperbesar; panah kiri/kanan berpindah foto, Esc menutup.
  */
-export default function Galeri({ foto, teks, children, mosaik = foto.length }: { foto: FotoGaleri[]; teks: { buka: string; tutup: string; sebelum: string; sesudah: string; lebih?: string; kurang?: string }; children?: React.ReactNode; /** Jumlah foto di mosaik; sisanya tampil setelah "Show more". */ mosaik?: number }) {
+export default function Galeri({ foto, teks, children, mosaik = foto.length, tetap = 0 }: { foto: FotoGaleri[]; teks: { buka: string; tutup: string; sebelum: string; sesudah: string; lebih?: string; kurang?: string }; children?: React.ReactNode; /** Jumlah foto di mosaik; sisanya tampil setelah "Show more". */ mosaik?: number; /** Foto sesudah mosaik yang selalu tampil (sebaris di bawah mosaik). */ tetap?: number }) {
   const [buka, setBuka] = useState<number | null>(null);
   const [semua, setSemua] = useState(false);
   const atas = foto.slice(0, mosaik);
-  const sisa = foto.slice(mosaik);
+  const bawah = foto.slice(mosaik, mosaik + tetap);
+  const sisa = foto.slice(mosaik + tetap);
+  const ubinBawah = (x: FotoGaleri, i: number) => (
+    <button key={x.src + i} type="button" onClick={() => setBuka(i)} aria-label={`${teks.buka}: ${x.alt}`} className="group relative aspect-[4/3] overflow-hidden rounded-[1.4rem] outline-none ring-emas-tua ring-offset-2 ring-offset-[#F6F4EF] focus-visible:ring-2">
+      <img src={x.src} srcSet={x.srcSet} sizes={x.srcSet ? "(min-width: 1024px) 25vw, 50vw" : undefined} style={x.style} alt={x.alt} loading="lazy" className="size-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.07]" />
+    </button>
+  );
   const awalSisa = useRef<HTMLDivElement>(null);
   const idSisa = useId();
   const kotak = useRef<HTMLDialogElement>(null);
@@ -46,18 +52,13 @@ export default function Galeri({ foto, teks, children, mosaik = foto.length }: {
         {children}
       </div>
 
+      {bawah.length > 0 && <div className="muncul mt-3 grid grid-cols-2 gap-3 sm:mt-4 sm:gap-4 lg:grid-cols-4">{bawah.map((x, j) => ubinBawah(x, mosaik + j))}</div>}
+
       {/* Foto selebihnya: kisi rapi yang terbuka dengan tombol teks "Show more". */}
       {sisa.length > 0 && (
         <>
           <div ref={awalSisa} id={`${idSisa}`} hidden={!semua} className="mt-3 grid grid-cols-2 gap-3 sm:mt-4 sm:gap-4 lg:grid-cols-4">
-            {sisa.map((x, j) => {
-              const i = mosaik + j;
-              return (
-                <button key={x.src + i} type="button" onClick={() => setBuka(i)} aria-label={`${teks.buka}: ${x.alt}`} className="group relative aspect-[4/3] overflow-hidden rounded-[1.4rem] outline-none ring-emas-tua ring-offset-2 ring-offset-[#F6F4EF] focus-visible:ring-2">
-                  <img src={x.src} srcSet={x.srcSet} sizes={x.srcSet ? "(min-width: 1024px) 25vw, 50vw" : undefined} style={x.style} alt={x.alt} loading="lazy" className="size-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.07]" />
-                </button>
-              );
-            })}
+            {sisa.map((x, j) => ubinBawah(x, mosaik + tetap + j))}
           </div>
           <div className="mt-5 flex justify-center">
             <button
@@ -69,7 +70,7 @@ export default function Galeri({ foto, teks, children, mosaik = foto.length }: {
                 setSemua(!semua);
                 if (semua) awalSisa.current?.previousElementSibling?.scrollIntoView({ block: "end", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
               }}
-              className="text-[14px] font-bold tracking-wide text-emas-tua underline-offset-4 transition hover:underline"
+              className="rounded-md px-1 text-[14px] font-bold tracking-wide text-emas-tua underline-offset-4 outline-none transition hover:underline focus-visible:underline focus-visible:ring-2 focus-visible:ring-emas-tua/40"
             >
               {semua ? teks.kurang ?? "Show less" : teks.lebih ?? "Show more"}
             </button>

@@ -65,7 +65,7 @@ export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, pos
         {video && <div className="mt-10"><VideoLatar id={video} poster={poster} sizes="(min-width: 1152px) 1152px, 100vw" judul={g.video} /></div>}
 
         <div className={video ? "mt-4" : "mt-10"}>
-          <Galeri foto={foto} mosaik={TATA.length} teks={{ buka: g.buka, tutup: g.tutup, sebelum: g.sebelum, sesudah: g.sesudah, lebih: g.lebih, kurang: g.kurang }}>
+          <Galeri foto={foto} mosaik={TATA.length} tetap={4} teks={{ buka: g.buka, tutup: g.tutup, sebelum: g.sebelum, sesudah: g.sesudah, lebih: g.lebih, kurang: g.kurang }}>
             {/* Ubin harga, ikut dalam mosaik */}
             <div className="muncul relative col-span-6 flex flex-col justify-between overflow-hidden rounded-[1.4rem] bg-malam p-6 text-white lg:col-span-5 lg:col-start-8 lg:row-span-3 lg:row-start-4" style={{ "--tunda": 2 } as React.CSSProperties}>
               <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-putih.svg" className="pointer-events-none absolute -bottom-10 -right-24 w-[420px] max-w-none opacity-[0.09]" />
