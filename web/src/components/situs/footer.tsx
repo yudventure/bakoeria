@@ -1,4 +1,4 @@
-import { nomorWa, tautanInstagram, type Konten } from "@/lib/konten";
+import { nomorWa, tautanInstagram, type Konten, type SeksiId } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { Ikon } from "./ikon";
 
@@ -23,7 +23,7 @@ export default function Footer({ k, namaResort, bahasa }: { k: Konten; namaResor
     ["#sehari", t.sehari],
     ["#tanya", t.tanyaJawab],
     ["#pesan", t.menu.pesan],
-  ];
+  ].filter(([h]) => k.seksi[h.slice(1) as SeksiId] !== false);
   const wa = nomorWa(kontak.whatsapp);
   const pesanWa = encodeURIComponent(t.pesanWaUmum);
   /* Akun yang belum diisi mengarah ke halaman awal platformnya, supaya ikonnya tetap tampil. */

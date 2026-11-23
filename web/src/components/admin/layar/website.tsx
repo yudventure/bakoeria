@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { idYoutube, IKON_KEUNGGULAN, type Konten } from "@/lib/konten";
+import { idYoutube, IKON_KEUNGGULAN, SEKSI, type Konten } from "@/lib/konten";
 import { api } from "../api";
 import { Bidang, Galat, Kartu, masukan, Memuat, Tab, Tombol, useToast } from "../ui";
 import type { Bahasa } from "@/lib/kamus";
@@ -70,6 +70,30 @@ export default function Website() {
       <Kartu judul="Status situs">
         <label className="flex items-center gap-3 text-sm font-bold"><input type="checkbox" className="size-4" checked={k.tutup} onChange={(e) => set("tutup", e.target.checked)} /> Tutup sementara (situs menampilkan halaman perbaikan, dashboard tetap jalan)</label>
         <Bidang label="Pengumuman di atas halaman" ket="Kosongkan bila tidak ada." className="mt-4"><input className={masukan} value={k.pengumuman} onChange={(e) => set("pengumuman", e.target.value)} placeholder="Resort tutup 1–15 Februari untuk perawatan" /></Bidang>
+      </Kartu>
+      <Kartu judul="Seksi halaman" ket="Matikan seksi yang belum siap, misalnya program selam. Seksi yang mati hilang dari halaman, menu atas, dan footer. Berlaku untuk kedua bahasa; tekan Simpan agar tayang.">
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {SEKSI.map((x) => {
+            const nyala = k.seksi[x.id];
+            return (
+              <li key={x.id}>
+                <label data-seksi={x.id} className={`flex cursor-pointer items-start justify-between gap-4 rounded-2xl p-4 ring-1 transition ${nyala ? "bg-panel-latar ring-transparent" : "bg-transparent ring-panel-garis opacity-70"}`}>
+                  <span className="min-w-0">
+                    <b className="block text-sm">{x.label}</b>
+                    <span className="block text-xs text-panel-redup">{x.ket}</span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className={`text-xs font-bold ${nyala ? "text-panel-hijau" : "text-panel-redup"}`}>{nyala ? "Tampil" : "Mati"}</span>
+                    <input type="checkbox" role="switch" className="peer sr-only" checked={nyala} onChange={(e) => set("seksi", { ...k.seksi, [x.id]: e.target.checked })} />
+                    <span aria-hidden="true" className={`relative h-6 w-11 rounded-full transition peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 ${nyala ? "bg-panel-hijau" : "bg-panel-garis"}`}>
+                      <span className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-all ${nyala ? "left-[22px]" : "left-0.5"}`} />
+                    </span>
+                  </span>
+                </label>
+              </li>
+            );
+          })}
+        </ul>
       </Kartu>
       <Kartu judul="Kontak">
         <div className="grid gap-4 sm:grid-cols-2">

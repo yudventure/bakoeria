@@ -44,6 +44,9 @@ function Bintang({ className = "", terang = false }: { className?: string; teran
   return <img aria-hidden="true" alt="" src={`/brand/bakoeria-ukir-ikon-${terang ? "putih" : "toska"}.svg`} className={`inline-block h-[0.62em] min-h-[13px] w-auto ${className}`} />;
 }
 
+/** Tautan WhatsApp dibuka di tab baru; tautan ke bagian halaman tidak. */
+const luar = (h: string) => (h.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {});
+
 async function kamarPublik(): Promise<Kamar[]> {
   if (!databaseReady()) return [];
   try {
@@ -61,6 +64,9 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
   const alt = ALT[bahasa];
   const [k, set, kamar] = await Promise.all([bacaKonten(bahasa), bacaPengaturan(), kamarPublik()]);
   const wa = nomorWa(k.kontak.whatsapp);
+  /* Saklar seksi dari menu Website. Bila Pemesanan dimatikan, semua tombol pesan mengarah ke WhatsApp. */
+  const on = k.seksi;
+  const tautanPesan = on.pesan ? "#pesan" : wa ? `https://wa.me/${wa}?text=${encodeURIComponent(t.pesanWaUmum)}` : "";
   /* Cottage dengan jenis yang sama (misalnya dua Cottage Double) tampil sebagai satu kartu. */
   const jenis = [...kamar.reduce((peta, r) => {
     const kunci = r.roomType ?? r.name;
@@ -84,7 +90,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
   return (
     <div className="bg-[#F6F4EF] text-[16px] leading-relaxed text-malam">
       <a href="#isi" className="absolute -left-[999px] top-0 z-50 rounded-full bg-malam px-4 py-2 text-white focus:left-3 focus:top-3">{t.lewati}</a>
-      <Nav bahasa={bahasa} />
+      <Nav bahasa={bahasa} seksi={on} pesan={tautanPesan} />
       <Gerak />
       <PencatatKunjungan />
 
@@ -103,16 +109,16 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               {k.pengumuman && <p className="mt-5 max-w-md rounded-2xl border border-white/30 bg-white/10 px-4 py-3 text-sm text-white backdrop-blur-md">{k.pengumuman}</p>}
             </div>
           </div>
-          <div className="relative z-10 -mt-9 flex justify-center px-4">
-            <a href="#pesan" className="group flex items-center gap-10 rounded-full border border-white bg-[#F6F4EF]/95 py-2.5 pl-7 pr-2.5 shadow-[0_14px_40px_rgba(10,36,64,.16)] backdrop-blur">
+          {tautanPesan && <div className="relative z-10 -mt-9 flex justify-center px-4">
+            <a href={tautanPesan} {...luar(tautanPesan)} className="group flex items-center gap-10 rounded-full border border-white bg-[#F6F4EF]/95 py-2.5 pl-7 pr-2.5 shadow-[0_14px_40px_rgba(10,36,64,.16)] backdrop-blur">
               <span className="text-[14px] text-malam">{t.cekKetersediaan}</span>
               <span className="grid size-10 place-items-center rounded-full bg-emas-tua text-white transition group-hover:translate-x-0.5"><Ikon nama="panah" className="size-4" /></span>
             </a>
-          </div>
+          </div>}
         </section>
 
         {/* TENTANG */}
-        <section id="tentang" className="scroll-mt-24 px-5 pb-20 pt-16 sm:pt-20">
+        {on.tentang && <section id="tentang" className="scroll-mt-24 px-5 pb-20 pt-16 sm:pt-20">
           <div className="mx-auto max-w-6xl">
             <div className="muncul grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
               <div className="-my-[0.1em] overflow-hidden py-[0.1em]"><h2 data-geser="0.9" className="font-display text-[clamp(56px,8vw,104px)] font-normal leading-[0.9] tracking-[-0.03em] text-malam/80 will-change-transform">{t.tentangKami}</h2></div>
@@ -139,10 +145,10 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               </div>
             </div>
           </div>
-        </section>
+        </section>}
 
         {/* KEUNGGULAN */}
-        {k.keunggulan.length > 0 && (
+        {on.keunggulan && k.keunggulan.length > 0 && (
           <section className="relative overflow-hidden">
             <img data-parallax="0.6" src="/img/palms.jpg" alt="" className="absolute inset-0 h-full w-full object-cover will-change-transform" loading="lazy" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,36,64,.82)_0%,rgba(10,36,64,.55)_45%,rgba(10,36,64,.35)_100%)]" />
@@ -166,8 +172,8 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         )}
 
         {/* MENGINAP: sorotan dan galeri; tanpa kamar di database memakai isi dari menu Website */}
-        {jenis.length > 0 ? (
-          <Menginap jenis={jenis} isi={k.cottageIsi} bahasa={bahasa} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
+        {!on.menginap ? null : jenis.length > 0 ? (
+          <Menginap jenis={jenis} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
         ) : (
           <section id="menginap" className="scroll-mt-24 px-5 py-20">
             <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
@@ -190,7 +196,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         )}
 
         {/* PROGRAM SELAM: kartu yang membuka dan menampilkan harganya saat ditunjuk kursor */}
-        <section id="menyelam" className="scroll-mt-24 px-5 pb-20">
+        {on.menyelam && <section id="menyelam" className="scroll-mt-24 px-5 pb-20">
           <div className="mx-auto max-w-6xl">
             <div className="muncul grid gap-4 lg:grid-cols-[1fr_1.1fr] lg:items-end">
               <div>
@@ -200,13 +206,13 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               <p className="max-w-xl text-[14.5px] leading-relaxed text-malam/65 lg:justify-self-end">{[k.programCatatan, k.paketCatatan].filter(Boolean).join(" ")}</p>
             </div>
             <div className="muncul mt-8">
-              <HargaSelam paket={k.paket} teks={{ mulai: t.mulai, lihat: t.lihatHarga, pesan: t.cekKetersediaan }} />
+              <HargaSelam paket={k.paket} tautan={tautanPesan} teks={{ mulai: t.mulai, lihat: t.lihatHarga, pesan: t.cekKetersediaan }} />
             </div>
           </div>
-        </section>
+        </section>}
 
         {/* AKTIVITAS LAIN: tiga kartu video tegak dan galeri */}
-        {k.aktivitas.length > 0 && (
+        {on.aktivitas && k.aktivitas.length > 0 && (
           <section id="aktivitas" className="scroll-mt-24 px-5 pb-20">
             <div className="mx-auto max-w-6xl">
               <Aktivitas
@@ -232,7 +238,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         )}
 
         {/* SEHARI */}
-        <section id="sehari" className="scroll-mt-24 px-5 pb-20">
+        {on.sehari && <section id="sehari" className="scroll-mt-24 px-5 pb-20">
           <div className="muncul mx-auto max-w-6xl rounded-[1.6rem] bg-white/80 p-6 shadow-[0_10px_30px_rgba(10,36,64,.06)] ring-1 ring-malam/8 sm:p-8">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <h2 className="font-display text-[34px] font-normal leading-tight">{t.sehari}</h2>
@@ -250,11 +256,11 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               ))}
             </ol>
           </div>
-        </section>
+        </section>}
 
         {/* TANYA JAWAB */}
         {/* CARA MENUJU KE SINI: peta rute dan tiga langkah */}
-        {k.cara.length > 0 && (
+        {on.lokasi && k.cara.length > 0 && (
           <section id="lokasi" className="scroll-mt-24 px-5 pb-20">
             <div className="mx-auto max-w-6xl">
               <div className="muncul grid gap-4 lg:grid-cols-[1fr_1.1fr] lg:items-end">
@@ -297,7 +303,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
           </section>
         )}
 
-        <section id="tanya" className="relative scroll-mt-24 overflow-hidden px-5 pb-20">
+        {on.tanya && <section id="tanya" className="relative scroll-mt-24 overflow-hidden px-5 pb-20">
           {/* Pola khas: satu ukiran besar yang samar di sudut. */}
           <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-cermin-pasir.svg" loading="lazy" className="pointer-events-none absolute -bottom-10 -left-44 w-[760px] max-w-none opacity-[0.1]" />
           <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
@@ -317,10 +323,10 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               ))}
             </div>
           </div>
-        </section>
+        </section>}
 
         {/* PESAN */}
-        <section id="pesan" className="relative scroll-mt-24 overflow-hidden px-5 pb-56 pt-20 sm:pb-64">
+        {on.pesan && <section id="pesan" className="relative scroll-mt-24 overflow-hidden px-5 pb-56 pt-20 sm:pb-64">
           <img src="/img/resort-night.jpg" alt="" loading="lazy" className="absolute inset-x-0 bottom-0 h-[46%] w-full object-cover object-[50%_80%] [mask-image:linear-gradient(180deg,transparent,#000_40%)]" />
           <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
             <div className="muncul">
@@ -340,7 +346,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} />
             </div>
           </div>
-        </section>
+        </section>}
       </main>
 
       <Footer k={k} namaResort={set.namaResort} bahasa={bahasa} />

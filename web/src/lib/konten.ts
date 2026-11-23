@@ -77,7 +77,24 @@ export interface Konten {
   pernyataan: string;
   keunggulanJudul: string;
   keunggulan: Keunggulan[];
+  /** Saklar tiap seksi halaman depan (berlaku untuk kedua bahasa). false = seksi disembunyikan. */
+  seksi: Record<SeksiId, boolean>;
 }
+
+/** Seksi halaman depan yang bisa dimatikan dari menu Website. Pembuka (hero) selalu tampil. */
+export const SEKSI = [
+  { id: "tentang", label: "Tentang kami", ket: "Kalimat besar, tiga foto, dan paragraf pembuka." },
+  { id: "keunggulan", label: "Keunggulan", ket: "Panel foto pohon kelapa dengan kartu keunggulan." },
+  { id: "menginap", label: "Menginap", ket: "Video, sorotan cottage, dan galeri kamar." },
+  { id: "menyelam", label: "Program selam", ket: "Kartu dive program dengan daftar harga." },
+  { id: "aktivitas", label: "Aktivitas lain", ket: "Bird watching, kayaking, camping: video dan galeri." },
+  { id: "sehari", label: "Sehari di Bakoeria", ket: "Jadwal harian." },
+  { id: "lokasi", label: "Cara menuju ke sini", ket: "Peta rute dan dua jalur alternatif." },
+  { id: "tanya", label: "Tanya jawab", ket: "Daftar pertanyaan yang sering diajukan." },
+  { id: "pesan", label: "Pemesanan", ket: "Formulir pesan. Bila dimatikan, tombol pesan mengarah ke WhatsApp." },
+] as const;
+export type SeksiId = (typeof SEKSI)[number]["id"];
+export const SEKSI_AKTIF = Object.fromEntries(SEKSI.map((x) => [x.id, true])) as Record<SeksiId, boolean>;
 
 export const IKON_KEUNGGULAN = ["selam", "rumah", "tenang", "orang", "perahu", "lampu", "daun", "bintang"] as const;
 
@@ -299,6 +316,7 @@ export const KONTEN_BAWAAN: Konten = {
     { ikon: "tenang", judul: "Tenang dan pribadi", isi: "Sedikit cottage, kelompok selam kecil, malam yang sunyi." },
     { ikon: "orang", judul: "Untuk semua tingkat", isi: "Dari selam pertama sampai penyelam berpengalaman." },
   ],
+  seksi: SEKSI_AKTIF,
 };
 
 /** Isi bawaan bahasa Inggris (bahasa bawaan situs). Kontak sama dengan versi Indonesia. */
@@ -518,6 +536,7 @@ export const KONTEN_BAWAAN_EN: Konten = {
     { nilai: "", label: "dive programmes" },
     { nilai: "2", label: "dives a day" },
   ],
+  seksi: SEKSI_AKTIF,
 };
 
 export const bawaanKonten = (b: "en" | "id") => (b === "en" ? KONTEN_BAWAAN_EN : KONTEN_BAWAAN);
@@ -586,6 +605,7 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     pernyataan: s(k.pernyataan, b.pernyataan),
     keunggulanJudul: s(k.keunggulanJudul, b.keunggulanJudul),
     keunggulan: arr(k.keunggulan, b.keunggulan, (x) => ({ ikon: (IKON_KEUNGGULAN as readonly string[]).includes(String(x.ikon)) ? String(x.ikon) : "bintang", judul: s(x.judul, ""), isi: s(x.isi, "") })).slice(0, 6),
+    seksi: Object.fromEntries(SEKSI.map(({ id }) => { const v = ((k.seksi ?? {}) as Record<string, unknown>)[id]; return [id, typeof v === "boolean" ? v : true]; })) as Record<SeksiId, boolean>,
   };
 }
 

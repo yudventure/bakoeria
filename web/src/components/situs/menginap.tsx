@@ -26,7 +26,7 @@ const Ikon = ({ d, className = "" }: { d: string; className?: string }) => (
   <svg viewBox="0 0 24 24" className={`size-5 shrink-0 ${className}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
 );
 
-export default function Menginap({ jenis, isi, bahasa, tanda, video }: { jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
+export default function Menginap({ jenis, isi, bahasa, tanda, video, pesan = "#pesan" }: { jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "" (tombol disembunyikan). */ pesan?: string; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
   const t = KAMUS[bahasa];
   const g = t.galeri;
   const fitur = (r: Kamar) => (bahasa === "id" ? (r.featuresId.length ? r.featuresId : r.featuresEn) : r.featuresEn.length ? r.featuresEn : r.featuresId);
@@ -75,10 +75,10 @@ export default function Menginap({ jenis, isi, bahasa, tanda, video }: { jenis: 
                 </p>
                 <p className="mt-2 text-[13.5px] text-white/75">{g.hargaKet}</p>
               </div>
-              <a href="#pesan" className="relative mt-5 inline-flex items-center gap-3 self-start rounded-full bg-white py-2 pl-5 pr-2 text-sm font-bold text-malam transition hover:bg-emas-muda">
+              {pesan && <a href={pesan} {...(pesan.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})} className="relative mt-5 inline-flex items-center gap-3 self-start rounded-full bg-white py-2 pl-5 pr-2 text-sm font-bold text-malam transition hover:bg-emas-muda">
                 {t.cekKetersediaan}
                 <span className="grid size-8 place-items-center rounded-full bg-emas-tua text-white">→</span>
-              </a>
+              </a>}
             </div>
           </Galeri>
         </div>

@@ -24,7 +24,7 @@ const angka = (h: string) => Number(h.replace(/\D/g, "")) || 0;
  * kartu lain menyempit. Kartu pertama terbuka sejak awal. Di layar sempit kartu
  * ditumpuk dan dibuka dengan ketukan.
  */
-export default function HargaSelam({ paket, teks }: { paket: PaketGrup[]; teks: { mulai: string; lihat: string; pesan: string } }) {
+export default function HargaSelam({ paket, teks, tautan = "#pesan" }: { paket: PaketGrup[]; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "". */ tautan?: string; teks: { mulai: string; lihat: string; pesan: string } }) {
   const [buka, setBuka] = useState(0);
   const lebar = () => window.matchMedia("(min-width: 1024px) and (hover: hover)").matches;
   return (
@@ -73,7 +73,7 @@ export default function HargaSelam({ paket, teks }: { paket: PaketGrup[]; teks: 
                       </li>
                     ))}
                   </ul>
-                  <a href="#pesan" className="mt-4 inline-flex items-center gap-3 rounded-full bg-emas-tua py-1.5 pl-5 pr-1.5 text-sm font-bold text-white transition hover:brightness-110">{teks.pesan}<span className="grid size-8 place-items-center rounded-full bg-white/20">→</span></a>
+                  {tautan && <a href={tautan} {...(tautan.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})} className="mt-4 inline-flex items-center gap-3 rounded-full bg-emas-tua py-1.5 pl-5 pr-1.5 text-sm font-bold text-white transition hover:brightness-110">{teks.pesan}<span className="grid size-8 place-items-center rounded-full bg-white/20">→</span></a>}
                 </div>
               </div>
             </div>

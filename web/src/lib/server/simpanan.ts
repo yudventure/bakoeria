@@ -6,12 +6,12 @@ import { bacaJson, ubahJson } from "./gudang";
 
 /**
  * Isi situs per bahasa di `konten.json`: { en: {...}, id: {...} }. Kontak,
- * tautan media sosial, dan status tutup sama untuk kedua bahasa; yang
+ * tautan media sosial, status tutup, dan saklar seksi sama untuk kedua bahasa; yang
  * tersimpan di salah satu bahasa dipakai bersama. Berkas lama (satu objek
  * tanpa pembagian bahasa) dibaca sebagai versi Indonesia.
  */
 type Simpanan = { en?: Partial<Konten>; id?: Partial<Konten> } & Partial<Konten>;
-const BERSAMA = ["kontak", "tutup"] as const;
+const BERSAMA = ["kontak", "tutup", "seksi"] as const;
 
 function pisah(o: Simpanan | null): { en?: Partial<Konten>; id?: Partial<Konten> } {
   if (!o || typeof o !== "object") return {};

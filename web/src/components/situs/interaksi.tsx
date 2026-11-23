@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { KAMUS, awalanBahasa, type Bahasa } from "@/lib/kamus";
+import type { SeksiId } from "@/lib/konten";
 
 /**
  * Menu atas: logo di kiri, menu dan tombol ganti bahasa di kanan, di atas foto hero
@@ -9,7 +10,7 @@ import { KAMUS, awalanBahasa, type Bahasa } from "@/lib/kamus";
  * Juga memasang animasi muncul: elemen yang sudah terlihat saat halaman
  * dibuka tidak pernah disembunyikan.
  */
-export function Nav({ bahasa }: { bahasa: Bahasa }) {
+export function Nav({ bahasa, seksi, pesan }: { bahasa: Bahasa; seksi: Record<SeksiId, boolean>; /** "#pesan", tautan WhatsApp, atau "" */ pesan: string }) {
   const t = KAMUS[bahasa];
   const [solid, setSolid] = useState(false);
   const [buka, setBuka] = useState(false);
@@ -37,7 +38,7 @@ export function Nav({ bahasa }: { bahasa: Bahasa }) {
     ["#menyelam", t.menu.menyelam],
     ["#sehari", t.menu.sehari],
     ["#tanya", t.menu.tanya],
-  ];
+  ].filter(([h]) => seksi[h.slice(1) as SeksiId] !== false);
   return (
     <header className={`sticky top-0 z-40 bg-[#F6F4EF]/95 backdrop-blur-xl transition ${solid || buka ? "shadow-[0_6px_24px_rgba(10,36,64,.08)]" : ""}`}>
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-4">
@@ -76,7 +77,7 @@ export function Nav({ bahasa }: { bahasa: Bahasa }) {
           {menu.map(([h, l]) => (
             <a key={h} href={h} onClick={() => setBuka(false)} className="rounded-2xl px-3 py-3 text-malam hover:bg-white">{l}</a>
           ))}
-          <a href="#pesan" onClick={() => setBuka(false)} className="mt-2 rounded-full bg-emas-tua px-4 py-3 text-center font-bold text-white">{t.cekKetersediaan}</a>
+          {pesan && <a href={pesan} {...(pesan.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})} onClick={() => setBuka(false)} className="mt-2 rounded-full bg-emas-tua px-4 py-3 text-center font-bold text-white">{t.cekKetersediaan}</a>}
         </nav>
       )}
     </header>
