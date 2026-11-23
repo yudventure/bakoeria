@@ -16,7 +16,7 @@ import { useEffect, useRef, useState } from "react";
  *
  * Pemutar baru dimuat saat bingkai mendekati layar, dari youtube-nocookie.com.
  */
-export default function VideoLatar({ id, poster, judul }: { id: string; poster: string; judul: string }) {
+export default function VideoLatar({ id, poster, judul, tegak = false, className = "" }: { id: string; poster: string; judul: string; /** Bingkai 9:16 untuk video tegak (Shorts). */ tegak?: boolean; className?: string }) {
   const bingkai = useRef<HTMLDivElement>(null);
   const pemutar = useRef<HTMLIFrameElement>(null);
   const [muat, setMuat] = useState(false);
@@ -51,7 +51,7 @@ export default function VideoLatar({ id, poster, judul }: { id: string; poster: 
 
   const src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&disablekb=1&fs=0&iv_load_policy=3&modestbranding=1&playsinline=1&rel=0&enablejsapi=1`;
   return (
-    <div ref={bingkai} className="muncul relative aspect-video w-full overflow-hidden rounded-[1.4rem] bg-malam" role="img" aria-label={judul}>
+    <div ref={bingkai} className={`relative overflow-hidden rounded-[1.4rem] bg-malam ${tegak ? "size-full" : "muncul aspect-video w-full"} ${className}`} role="img" aria-label={judul}>
       <img src={poster} alt="" className="absolute inset-0 size-full object-cover" />
       {muat && (
         <iframe
@@ -63,7 +63,7 @@ export default function VideoLatar({ id, poster, judul }: { id: string; poster: 
           allow="autoplay; encrypted-media; picture-in-picture"
           referrerPolicy="strict-origin-when-cross-origin"
           /* Lebih besar 200 x 112,5 px dari bingkai dan dipusatkan: judul dan logo jatuh di luar bingkai. */
-          className={`pointer-events-none absolute left-1/2 top-1/2 h-[calc(100%+112.5px)] w-[calc(100%+200px)] max-w-none -translate-x-1/2 -translate-y-1/2 border-0 transition-opacity duration-1000 ${jalan ? "opacity-100" : "opacity-0"}`}
+          className={`pointer-events-none absolute left-1/2 top-1/2 ${tegak ? "h-[140%] w-[140%]" : "h-[calc(100%+112.5px)] w-[calc(100%+200px)]"} max-w-none -translate-x-1/2 -translate-y-1/2 border-0 transition-opacity duration-1000 ${jalan ? "opacity-100" : "opacity-0"}`}
         />
       )}
       {/* Lapisan bening: kursor dan sentuhan tidak pernah sampai ke pemutar. */}

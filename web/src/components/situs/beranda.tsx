@@ -1,6 +1,8 @@
 import { PencatatKunjungan } from "./pencatat";
 import Menginap from "./menginap";
 import HargaSelam from "./harga-selam";
+import Aktivitas from "./aktivitas";
+import Galeri from "./galeri";
 import { pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
@@ -201,6 +203,32 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
             </div>
           </div>
         </section>
+
+        {/* AKTIVITAS LAIN: tiga kartu video tegak dan galeri */}
+        {k.aktivitas.length > 0 && (
+          <section id="aktivitas" className="scroll-mt-24 px-5 pb-20">
+            <div className="mx-auto max-w-6xl">
+              <Aktivitas
+                judul={k.aktivitasJudul}
+                isi={k.aktivitasIsi}
+                tanda={<Bintang className="block text-[26px]" />}
+                kartu={k.aktivitas.slice(0, 3).map((x, i) => ({ ...x, video: idYoutube(k.kontak.aktivitasVideo[i] ?? ""), foto: ["/img/palms.jpg", "/img/lights-path.jpg", "/img/resort-night.jpg"][i], posisi: ["object-[60%_40%]", "object-center", "object-[30%_60%]"][i] }))}
+              />
+              <div className="mt-10">
+                <Galeri
+                  teks={{ buka: t.galeri.buka, tutup: t.galeri.tutup, sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah }}
+                  foto={[
+                    { src: "/img/resort-night.jpg", alt: t.galeri.alt[1], kelas: "col-span-6 aspect-[3/2] lg:col-span-6 lg:row-span-6 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_70%]" },
+                    { src: "/img/palms.jpg", alt: t.galeri.alt[4], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
+                    { src: "/img/lights-path.jpg", alt: t.galeri.alt[2], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
+                    { src: "/img/cottage-left.jpg", alt: t.galeri.alt[0], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
+                    { src: "/img/cottage-right.jpg", alt: t.galeri.alt[3], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
+                  ]}
+                />
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* SEHARI */}
         <section id="sehari" className="scroll-mt-24 px-5 pb-20">

@@ -47,6 +47,10 @@ export interface Konten {
   paketJudul: string;
   paketCatatan: string;
   paket: PaketGrup[];
+  /** Aktivitas lain di luar selam (tiga yang pertama tampil bersama video). */
+  aktivitasJudul: string;
+  aktivitasIsi: string;
+  aktivitas: { judul: string; isi: string }[];
   cottageJudul: string;
   cottageIsi: string;
   cottageFitur: string[];
@@ -54,7 +58,7 @@ export interface Konten {
   galeriJudul: string;
   tanya: Tanya[];
   pesanIsi: string;
-  kontak: { whatsapp: string; email: string; instagram: string; alamat: string; peta: string; facebook: string; tiktok: string; youtube: string; /** Tautan video YouTube untuk bagian Menginap (diputar otomatis, berulang, tanpa suara). */ video: string };
+  kontak: { whatsapp: string; email: string; instagram: string; alamat: string; peta: string; facebook: string; tiktok: string; youtube: string; /** Tautan video YouTube untuk bagian Menginap (diputar otomatis, berulang, tanpa suara). */ video: string; /** Tautan video YouTube (sebaiknya tegak/Shorts) untuk tiga aktivitas pertama. */ aktivitasVideo: string[] };
   /** Paragraf pendek di kolom pertama footer. */
   footerTentang: string;
   pengumuman: string;
@@ -83,6 +87,9 @@ export const KONTEN_BAWAAN: Konten = {
     { judul: "Discover Scuba", isi: "Rasakan menyelam pertama Anda di perairan dangkal, tanpa perlu sertifikat, ditemani instruktur satu per satu.", meta: "Tanpa sertifikat · setengah hari", harga: "" },
     { judul: "Snorkeling", isi: "Untuk keluarga dan tamu yang menunggu di permukaan. Peralatan tersedia dan pemandu ikut di air.", meta: "Semua usia · peralatan tersedia", harga: "" },
   ],
+  aktivitasJudul: "Aktivitas lain",
+  aktivitasIsi: "Hari di luar air juga bagian dari menginap. Tim kami mengaturnya mengikuti pasang surut, cuaca, dan rencana selam Anda.",
+  aktivitas: [{"judul": "Mengamati burung", "isi": "Berjalan sebelum matahari terbit bersama pemandu lokal untuk mencari cenderawasih dan burung hutan lainnya."}, {"judul": "Kayak ke sungai di belakang resort", "isi": "Mendayung pelan menyusuri sungai di belakang resort, di antara pepohonan, dengan tempo Anda sendiri."}, {"judul": "Camping", "isi": "Semalam di bawah bintang dengan api unggun, makanan sederhana, dan suara laut."}],
   paketJudul: "Harga dan paket dive trip",
   paketCatatan: "Harga dalam Rupiah. Titik selam yang jauh bisa dikenai biaya bensin Rp 300.000 sampai 500.000 bila penyelam kurang dari 3.",
   paket: [
@@ -261,7 +268,7 @@ export const KONTEN_BAWAAN: Konten = {
     { t: "Bagaimana cara memesan?", j: "Pilih tanggal di formulir pemesanan. Permintaan Anda langsung masuk ke tim kami, dan kami membalas lewat WhatsApp atau email dengan konfirmasi dan cara pembayaran." },
   ],
   pesanIsi: "Pilih tanggal dan cottage. Kami membalas dengan konfirmasi dan cara pembayaran.",
-  kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "", alamat: "", peta: "", facebook: "", tiktok: "", youtube: "", video: "" },
+  kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "", alamat: "", peta: "", facebook: "", tiktok: "", youtube: "", video: "", aktivitasVideo: ["", "", ""] },
   footerTentang: "Resor selam butik dengan cottage kayu jati di tepi pantai. Menyelam siang bersama pemandu yang mengenal lautnya, bermalam di bawah langit penuh bintang.",
   pengumuman: "",
   tutup: false,
@@ -296,6 +303,9 @@ export const KONTEN_BAWAAN_EN: Konten = {
     { judul: "Discover Scuba", isi: "Try your first dive in shallow water, no certificate needed, one to one with an instructor.", meta: "No certificate · half day", harga: "" },
     { judul: "Snorkelling", isi: "For families and anyone staying on the surface. Gear provided and a guide in the water with you.", meta: "All ages · gear provided", harga: "" },
   ],
+  aktivitasJudul: "Other activities",
+  aktivitasIsi: "Days out of the water are part of the stay. Our team arranges these around the tides, the weather, and your dive plan.",
+  aktivitas: [{"judul": "Bird watching", "isi": "Walk out before sunrise with a local guide to look for birds of paradise and other forest birds."}, {"judul": "Kayaking the river behind the resort", "isi": "Paddle quietly up the river at the back of the resort, through the trees, at your own pace."}, {"judul": "Camping", "isi": "A night out under the stars with a camp fire, simple food, and the sound of the sea."}],
   paketJudul: "Prices and dive trip packages",
   paketCatatan: "Prices in Indonesian Rupiah. Far sites may add a fuel charge of Rp 300.000 to 500.000 with fewer than 3 divers.",
   paket: [
@@ -510,6 +520,9 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     introIsi: s(k.introIsi, b.introIsi),
     programCatatan: s(k.programCatatan, b.programCatatan),
     program: arr(k.program, b.program, (x) => ({ judul: s(x.judul, ""), isi: s(x.isi, ""), meta: s(x.meta, ""), harga: s(x.harga, "") })),
+    aktivitasJudul: s(k.aktivitasJudul, b.aktivitasJudul),
+    aktivitasIsi: s(k.aktivitasIsi, b.aktivitasIsi),
+    aktivitas: arr(k.aktivitas, b.aktivitas, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400) })).filter((x) => x.judul.trim() !== "").slice(0, 6),
     paketJudul: s(k.paketJudul, b.paketJudul),
     paketCatatan: s(k.paketCatatan, b.paketCatatan),
     paket: arr(k.paket, b.paket, (x) => ({
@@ -537,6 +550,7 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
       tiktok: tautan(kontak.tiktok),
       youtube: tautan(kontak.youtube),
       video: tautan(kontak.video),
+      aktivitasVideo: [0, 1, 2].map((i) => tautan(Array.isArray(kontak.aktivitasVideo) ? kontak.aktivitasVideo[i] : "")),
     },
     footerTentang: s(k.footerTentang, b.footerTentang),
     pengumuman: s(k.pengumuman, b.pengumuman),

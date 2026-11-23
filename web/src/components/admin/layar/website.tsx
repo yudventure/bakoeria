@@ -120,6 +120,28 @@ export default function Website() {
         </div>
       )} />
       <Bidang label="Catatan di bawah judul program"><input className={masukan} value={k.programCatatan} onChange={(e) => set("programCatatan", e.target.value)} /></Bidang>
+      <Kartu judul="Aktivitas lain" ket="Tampil di bawah program selam. Tiga aktivitas pertama tampil sebagai kartu tegak; isi tautan video YouTube (sebaiknya video tegak atau Shorts) agar kartunya memutar video polos yang berulang. Tautan video berlaku untuk kedua bahasa.">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Bidang label="Judul bagian"><input className={masukan} value={k.aktivitasJudul} onChange={(e) => set("aktivitasJudul", e.target.value)} /></Bidang>
+          <Bidang label="Pengantar"><input className={masukan} value={k.aktivitasIsi} onChange={(e) => set("aktivitasIsi", e.target.value)} /></Bidang>
+        </div>
+        <div className="mt-4 grid gap-4">
+          {k.aktivitas.map((x, i) => {
+            const ubah = (v: Partial<typeof x>) => set("aktivitas", k.aktivitas.map((y, j) => (j === i ? { ...y, ...v } : y)));
+            return (
+              <div key={i} className="grid gap-3 rounded-2xl bg-panel-latar p-4 sm:grid-cols-2">
+                <Bidang label={`Aktivitas ${i + 1}`}><input className={masukan} value={x.judul} onChange={(e) => ubah({ judul: e.target.value })} /></Bidang>
+                {i < 3 ? (
+                  <Bidang label="Video (tautan YouTube)" ket={k.kontak.aktivitasVideo[i] && !idYoutube(k.kontak.aktivitasVideo[i]) ? "Bukan tautan video YouTube yang dikenali." : undefined}>
+                    <input className={masukan} value={k.kontak.aktivitasVideo[i] ?? ""} placeholder="https://www.youtube.com/shorts/…" onChange={(e) => set("kontak", { ...k.kontak, aktivitasVideo: [0, 1, 2].map((j) => (j === i ? e.target.value : k.kontak.aktivitasVideo[j] ?? "")) })} />
+                  </Bidang>
+                ) : <div />}
+                <Bidang label="Keterangan" className="sm:col-span-2"><textarea rows={2} className={masukan} value={x.isi} onChange={(e) => ubah({ isi: e.target.value })} /></Bidang>
+              </div>
+            );
+          })}
+        </div>
+      </Kartu>
       <Kartu judul="Program selam dan harganya" ket="Tiap kelompok menjadi satu kartu di bagian Program selam; kartu yang ditunjuk kursor membuka dan menampilkan harganya. Baris harga ditulis satu per baris dengan bentuk: nama | keterangan | harga. Keterangan boleh kosong.">
         <div className="grid gap-4 sm:grid-cols-2">
           <Bidang label="Judul bagian"><input className={masukan} value={k.paketJudul} onChange={(e) => set("paketJudul", e.target.value)} /></Bidang>
