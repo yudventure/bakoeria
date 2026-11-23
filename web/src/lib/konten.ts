@@ -87,7 +87,7 @@ export const SEKSI = [
   { id: "keunggulan", label: "Keunggulan", ket: "Panel foto pohon kelapa dengan kartu keunggulan." },
   { id: "menginap", label: "Menginap", ket: "Video, sorotan cottage, dan galeri kamar." },
   { id: "menyelam", label: "Program selam", ket: "Kartu dive program dengan daftar harga." },
-  { id: "aktivitas", label: "Aktivitas lain", ket: "Bird watching, kayaking, trip Piaynemo/Wayag: video dan galeri." },
+  { id: "aktivitas", label: "Aktivitas lain", ket: "Bird watching, kayaking, island trip: video dan galeri." },
   { id: "sehari", label: "Sehari di Bakoeria", ket: "Jadwal harian." },
   { id: "lokasi", label: "Cara menuju ke sini", ket: "Peta rute dan dua jalur alternatif." },
   { id: "tanya", label: "Tanya jawab", ket: "Daftar pertanyaan yang sering diajukan." },
@@ -120,7 +120,7 @@ export const KONTEN_BAWAAN: Konten = {
   caraCatatan: "Jadwal feri dan waktu perjalanan bisa berubah mengikuti cuaca dan operasional setempat. Speedboat privat perlu dipesan lebih dulu. Konfirmasikan rencana Anda dengan tim kami sebelum berangkat.",
   aktivitasJudul: "Aktivitas lain",
   aktivitasIsi: "Hari di luar air juga bagian dari menginap. Tim kami mengaturnya mengikuti pasang surut, cuaca, dan rencana selam Anda.",
-  aktivitas: [{"judul": "Mengamati burung", "isi": "Berjalan sebelum matahari terbit bersama pemandu lokal untuk mencari cenderawasih dan burung hutan lainnya."}, {"judul": "Kayak ke sungai di belakang resort", "isi": "Mendayung pelan menyusuri sungai di belakang resort, di antara pepohonan, dengan tempo Anda sendiri."}, {"judul": "Trip ke Piaynemo dan Wayag", "isi": "Sehari naik perahu ke laguna karst Piaynemo, atau lebih jauh ke gugusan pulau Wayag: naik ke puncak pandang, berenang di laguna biru, lalu makan siang di pantai yang sepi."}],
+  aktivitas: [{"judul": "Mengamati burung", "isi": "Berjalan sebelum matahari terbit bersama pemandu lokal untuk mencari cenderawasih dan burung hutan lainnya."}, {"judul": "Kayak ke sungai di belakang resort", "isi": "Mendayung pelan menyusuri sungai di belakang resort, di antara pepohonan, dengan tempo Anda sendiri."}, {"judul": "Island trip", "isi": "Sehari naik perahu ke pulau-pulau di sekitar resort: laguna karst Piaynemo, Batanta, Kali Biru, dan tempat lain sesuai cuaca. Naik ke puncak pandang, berenang di air jernih, lalu makan siang di pantai yang sepi."}],
   paketJudul: "Harga dan paket dive trip",
   paketCatatan: "Harga dalam Rupiah. Titik selam yang jauh bisa dikenai biaya bensin Rp 300.000 sampai 500.000 bila penyelam kurang dari 3.",
   paket: [
@@ -343,7 +343,7 @@ export const KONTEN_BAWAAN_EN: Konten = {
   caraCatatan: "Ferry schedules and travel times change with weather and local operations. The private speedboat must be booked in advance. Confirm your plans with our team before travelling.",
   aktivitasJudul: "Other activities",
   aktivitasIsi: "Days out of the water are part of the stay. Our team arranges these around the tides, the weather, and your dive plan.",
-  aktivitas: [{"judul": "Bird watching", "isi": "Walk out before sunrise with a local guide to look for birds of paradise and other forest birds."}, {"judul": "Kayaking the river behind the resort", "isi": "Paddle quietly up the river at the back of the resort, through the trees, at your own pace."}, {"judul": "Island trips to Piaynemo and Wayag", "isi": "A day by boat to the karst lagoons of Piaynemo, or further out to the Wayag islands: climb to the viewpoint, swim in the blue lagoon, and have lunch on a quiet beach."}],
+  aktivitas: [{"judul": "Bird watching", "isi": "Walk out before sunrise with a local guide to look for birds of paradise and other forest birds."}, {"judul": "Kayaking the river behind the resort", "isi": "Paddle quietly up the river at the back of the resort, through the trees, at your own pace."}, {"judul": "Island trips", "isi": "A day by boat to the islands around the resort: the karst lagoons of Piaynemo, Batanta, Kali Biru, and more, depending on the weather. Climb to a viewpoint, swim in clear water, and have lunch on a quiet beach."}],
   paketJudul: "Prices and dive trip packages",
   paketCatatan: "Prices in Indonesian Rupiah. Far sites may add a fuel charge of Rp 300.000 to 500.000 with fewer than 3 divers.",
   paket: [
@@ -569,7 +569,7 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     aktivitasJudul: s(k.aktivitasJudul, b.aktivitasJudul),
     aktivitasIsi: s(k.aktivitasIsi, b.aktivitasIsi),
     /* Aktivitas ketiga diganti pemilik: camping menjadi trip ke Piaynemo dan Wayag. Isian camping yang sudah tersimpan ikut diganti. */
-    aktivitas: arr(k.aktivitas, b.aktivitas, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400) })).map((x) => (x.judul.trim().toLowerCase() === "camping" ? { ...b.aktivitas[2] } : x)).filter((x) => x.judul.trim() !== "").slice(0, 6),
+    aktivitas: arr(k.aktivitas, b.aktivitas, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400) })).map((x) => (["camping", "island trips to piaynemo and wayag", "trip ke piaynemo dan wayag"].includes(x.judul.trim().toLowerCase()) ? { ...b.aktivitas[2] } : x)).filter((x) => x.judul.trim() !== "").slice(0, 6),
     paketJudul: s(k.paketJudul, b.paketJudul),
     paketCatatan: s(k.paketCatatan, b.paketCatatan),
     paket: arr(k.paket, b.paket, (x) => ({
@@ -623,6 +623,21 @@ export const tautanInstagram = (v: string) => {
   if (/^https?:\/\//i.test(t)) return t;
   return `https://instagram.com/${t.replace(/^@/, "")}`;
 };
+
+/** Video yang bisa diputar polos: YouTube (termasuk Shorts) atau TikTok. */
+export type SumberVideo = { jenis: "youtube" | "tiktok"; id: string };
+/** Id video TikTok dari tautan lengkap (…/video/123…, player/v1/123…, embed/v2/123…), atau "". Tautan pendek vt.tiktok.com diubah saat disimpan. */
+export function idTiktok(tautan: string): string {
+  const m = /tiktok\.com\/(?:@[^/]+\/video|player\/v1|embed(?:\/v2)?|v)\/(\d{8,25})/.exec(tautan.trim());
+  return m ? m[1] : "";
+}
+export const tautanPendekTiktok = (t: string) => /^https?:\/\/(?:vm|vt)\.tiktok\.com\/\w+|^https?:\/\/(?:www\.)?tiktok\.com\/t\/\w+/i.test(t.trim());
+export function sumberVideo(tautan: string): SumberVideo | null {
+  const y = idYoutube(tautan);
+  if (y) return { jenis: "youtube", id: y };
+  const t = idTiktok(tautan);
+  return t ? { jenis: "tiktok", id: t } : null;
+}
 
 /** Id video dari tautan YouTube (watch?v=, youtu.be/, shorts/, embed/, live/), atau "" bila bukan tautan YouTube. */
 export function idYoutube(tautan: string): string {

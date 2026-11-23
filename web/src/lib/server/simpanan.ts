@@ -1,5 +1,5 @@
 import "server-only";
-import { rapikanKonten, type Konten } from "@/lib/konten";
+import { idTiktok, rapikanKonten, tautanPendekTiktok, type Konten } from "@/lib/konten";
 import type { Bahasa } from "@/lib/kamus";
 import { rapikanPengaturan, type Pengaturan } from "@/lib/pengaturan";
 import { bacaJson, ubahJson } from "./gudang";
@@ -28,8 +28,24 @@ export async function bacaKonten(bahasa: Bahasa = "en"): Promise<Konten> {
   return rapikanKonten(k, bahasa);
 }
 
+/**
+ * Tautan pendek TikTok (vt.tiktok.com/…, tiktok.com/t/…) tidak memuat id video, jadi
+ * diikuti sekali ke tautan lengkapnya saat disimpan. Bila gagal, tautan dibiarkan.
+ */
+async function lengkapiTiktok(t: string): Promise<string> {
+  if (!tautanPendekTiktok(t)) return t;
+  try {
+    const r = await fetch(t, { redirect: "follow", signal: AbortSignal.timeout(8000), headers: { "User-Agent": "Mozilla/5.0 (compatible; BakoeriaSite/1.0)" } });
+    const id = idTiktok(r.url);
+    return id ? r.url.split("?")[0] : t;
+  } catch {
+    return t;
+  }
+}
+
 export async function simpanKonten(bahasa: Bahasa, isi: unknown): Promise<Konten> {
   const baru = rapikanKonten(isi as Partial<Konten>, bahasa);
+  baru.kontak.aktivitasVideo = await Promise.all(baru.kontak.aktivitasVideo.map(lengkapiTiktok));
   await ubahJson<Simpanan | null>(
     "konten.json",
     null,

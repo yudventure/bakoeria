@@ -7,7 +7,7 @@ import Galeri from "./galeri";
 import { KAMAR_DEMO, pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
-import { tautanPeta, idYoutube, nomorWa, titikResort } from "@/lib/konten";
+import { tautanPeta, idYoutube, nomorWa, sumberVideo, titikResort } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
@@ -211,7 +211,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 judul={k.aktivitasJudul}
                 isi={k.aktivitasIsi}
                 tanda={<Bintang className="block text-[26px]" />}
-                kartu={k.aktivitas.slice(0, 3).map((x, i) => ({ ...x, video: idYoutube(k.kontak.aktivitasVideo[i] ?? ""), foto: g((["aktivitas1", "aktivitas2", "aktivitas3"] as const)[i]), posisi: ["object-[60%_40%]", "object-center", "object-[30%_60%]"][i] }))}
+                kartu={k.aktivitas.slice(0, 3).map((x, i) => ({ ...x, video: sumberVideo(k.kontak.aktivitasVideo[i] ?? ""), foto: g((["aktivitas1", "aktivitas2", "aktivitas3"] as const)[i]), posisi: ["object-[60%_40%]", "object-center", "object-[30%_60%]"][i] }))}
               />
               <div className="mt-10">
                 {/* Lima foto pertama galeri aktivitas mengisi mosaik; selebihnya tampil setelah "Show more". */}

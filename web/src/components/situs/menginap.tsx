@@ -62,7 +62,7 @@ export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, pos
           <p className="max-w-xl text-[15.5px] leading-relaxed text-malam/65 lg:justify-self-end">{isi}</p>
         </div>
 
-        {video && <div className="mt-10"><VideoLatar id={video} poster={poster} sizes="(min-width: 1152px) 1152px, 100vw" judul={g.video} /></div>}
+        {video && <div className="mt-10"><VideoLatar video={{ jenis: "youtube", id: video }} poster={poster} sizes="(min-width: 1152px) 1152px, 100vw" judul={g.video} /></div>}
 
         <div className={video ? "mt-4" : "mt-10"}>
           <Galeri foto={foto} mosaik={TATA.length} tetap={4} teks={{ buka: g.buka, tutup: g.tutup, sebelum: g.sebelum, sesudah: g.sesudah, lebih: g.lebih, kurang: g.kurang }}>

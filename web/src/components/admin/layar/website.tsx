@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { bacaTitik, idYoutube, IKON_KEUNGGULAN, KOORDINAT, SEKSI, tautanPeta, type Konten } from "@/lib/konten";
+import { bacaTitik, idYoutube, sumberVideo, tautanPendekTiktok, IKON_KEUNGGULAN, KOORDINAT, SEKSI, tautanPeta, type Konten } from "@/lib/konten";
 import { api } from "../api";
 import { Bidang, Galat, Kartu, masukan, Memuat, Tab, Tombol, useToast } from "../ui";
 import type { Bahasa } from "@/lib/kamus";
@@ -245,7 +245,7 @@ export default function Website() {
       )}
       {bagian === "aktivitas" && (
         <>
-        <Kartu judul="Aktivitas lain" ket="Tampil di bawah program selam. Tiga aktivitas pertama tampil sebagai kartu tegak; isi tautan video YouTube (sebaiknya video tegak atau Shorts) agar kartunya memutar video polos yang berulang. Tautan video berlaku untuk kedua bahasa.">
+        <Kartu judul="Aktivitas lain" ket="Tampil di bawah program selam. Tiga aktivitas pertama tampil sebagai kartu tegak; isi tautan video tegak dari TikTok atau YouTube Shorts agar kartunya memutar video polos yang berulang. Tautan video berlaku untuk kedua bahasa.">
           <div className="grid gap-4 sm:grid-cols-2">
             <Bidang label="Judul bagian"><input className={masukan} value={k.aktivitasJudul} onChange={(e) => set("aktivitasJudul", e.target.value)} /></Bidang>
             <Bidang label="Pengantar"><input className={masukan} value={k.aktivitasIsi} onChange={(e) => set("aktivitasIsi", e.target.value)} /></Bidang>
@@ -257,8 +257,8 @@ export default function Website() {
                 <div key={i} className="grid gap-3 rounded-2xl bg-panel-latar p-4 sm:grid-cols-2">
                   <Bidang label={`Aktivitas ${i + 1}`}><input className={masukan} value={x.judul} onChange={(e) => ubah({ judul: e.target.value })} /></Bidang>
                   {i < 3 ? (
-                    <Bidang label="Video (tautan YouTube)" ket={k.kontak.aktivitasVideo[i] && !idYoutube(k.kontak.aktivitasVideo[i]) ? "Bukan tautan video YouTube yang dikenali." : undefined}>
-                      <input className={masukan} value={k.kontak.aktivitasVideo[i] ?? ""} placeholder="https://www.youtube.com/shorts/…" onChange={(e) => set("kontak", { ...k.kontak, aktivitasVideo: [0, 1, 2].map((j) => (j === i ? e.target.value : k.kontak.aktivitasVideo[j] ?? "")) })} />
+                    <Bidang label="Video (YouTube Shorts atau TikTok)" ket={!k.kontak.aktivitasVideo[i] ? "Tempel tautan video tegak. Diputar polos: tanpa tombol, tanpa suara, berulang." : sumberVideo(k.kontak.aktivitasVideo[i]) ? `Terbaca: video ${sumberVideo(k.kontak.aktivitasVideo[i])!.jenis === "tiktok" ? "TikTok" : "YouTube"}.` : tautanPendekTiktok(k.kontak.aktivitasVideo[i]) ? "Tautan pendek TikTok: diubah ke tautan lengkap saat disimpan." : "Bukan tautan video YouTube atau TikTok yang dikenali."}>
+                      <input className={masukan} value={k.kontak.aktivitasVideo[i] ?? ""} placeholder="https://www.tiktok.com/@akun/video/… atau youtube.com/shorts/…" onChange={(e) => set("kontak", { ...k.kontak, aktivitasVideo: [0, 1, 2].map((j) => (j === i ? e.target.value : k.kontak.aktivitasVideo[j] ?? "")) })} />
                     </Bidang>
                   ) : <div />}
                   <Bidang label="Keterangan" className="sm:col-span-2"><textarea rows={2} className={masukan} value={x.isi} onChange={(e) => ubah({ isi: e.target.value })} /></Bidang>
