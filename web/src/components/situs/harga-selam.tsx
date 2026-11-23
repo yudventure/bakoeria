@@ -52,8 +52,10 @@ export default function HargaSelam({ paket, teks, foto, tautan = "#pesan" }: { p
             >
               <span className={`grid size-12 shrink-0 place-items-center rounded-full transition-colors ${terbuka ? "bg-emas-tua text-white" : "bg-white/15 text-white ring-1 ring-white/40 backdrop-blur-sm"}`}><Ikon nama={ikon(g.judul)} className="size-6" /></span>
               <span className="min-w-0 flex-1 lg:flex-none">
-                <span className={`block font-display leading-tight ${terbuka ? "text-[24px] text-malam" : "text-[22px] text-white [text-shadow:0_1px_10px_rgba(10,36,64,.7)] lg:text-[17px]"}`}>{g.judul}</span>
-                {!terbuka && Number.isFinite(termurah) && <span className="mt-1 block text-[12.5px] text-white/75">{teks.mulai} <b className="whitespace-nowrap font-bold text-white lg:block">Rp {termurah.toLocaleString("id-ID")}</b></span>}
+                {/* Saat tertutup di layar lebar, judul mendapat kotak setinggi tiga baris dengan teks di tengahnya, sehingga ikon, harga, dan tombol semua kartu sejajar walau panjang judulnya berbeda. */}
+                <span className={`block font-display leading-tight [text-wrap:balance] ${terbuka ? "text-[24px] text-malam" : "text-[22px] text-white [text-shadow:0_1px_10px_rgba(10,36,64,.7)] lg:mt-4 lg:flex lg:h-[3.75em] lg:items-center lg:justify-center lg:text-[17px]"}`}>{g.judul}</span>
+                {!terbuka && Number.isFinite(termurah) && <span className="mt-1 block text-[12.5px] text-white/75 lg:mt-2 lg:leading-snug">{teks.mulai} <b className="whitespace-nowrap font-bold text-white lg:block">Rp {termurah.toLocaleString("id-ID")}</b></span>}
+                {!terbuka && !Number.isFinite(termurah) && <span aria-hidden="true" className="invisible hidden text-[12.5px] lg:mt-2 lg:block lg:leading-snug">&nbsp;<b className="block">&nbsp;</b></span>}
               </span>
               {!terbuka && <span className="shrink-0 rounded-full bg-white/15 px-3 py-1 text-[12px] font-bold text-white ring-1 ring-white/35 lg:mt-2">{teks.lihat} <span aria-hidden="true">→</span></span>}
             </button>
