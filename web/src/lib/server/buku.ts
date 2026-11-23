@@ -224,6 +224,9 @@ export interface DataBooking {
   source?: "MANUAL" | "ICAL" | "WEBSITE";
   externalUid?: string | null;
   conflictGroup?: string | null;
+  /** Kupon diskon dari website dan potongannya (totalAmount sudah dikurangi potongan). */
+  couponCode?: string | null;
+  discountAmount?: number | null;
 }
 
 async function catatAudit(k: K, entityId: string, action: string, actor: string | null, diff: unknown) {
@@ -249,9 +252,10 @@ const tanggalWaktu = (s: string | null | undefined) => (s ? new Date(s) : null);
  * yang menabrak tidak ditolak tetapi disimpan berstatus CONFLICT, karena
  * pesanan itu sudah terjadi di OTA dan membuangnya berarti kehilangan data.
  */
-export async function buatBooking(d: DataBooking, aktor: string | null, opsi: { bentrokJadiKonflik?: boolean } = {}): Promise<Pesanan> {
+export async function buatBooking(d: DataBooking, aktor: string | null, opsi: { bentrokJadiKonflik?: boolean; /** Pemeriksaan tambahan di dalam transaksi yang sama, misalnya batas pemakaian kupon. */ sebelumSimpan?: (k: K) => Promise<void> } = {}): Promise<Pesanan> {
   return transaksi(async (k) => {
     await kunciKamar(k, d.roomId);
+    if (opsi.sebelumSimpan) await opsi.sebelumSimpan(k);
     let status = d.status;
     let conflictGroup = d.conflictGroup ?? null;
     if (MENEMPATI.includes(status)) {
@@ -267,9 +271,9 @@ export async function buatBooking(d: DataBooking, aktor: string | null, opsi: { 
     for (let i = 0; i < 5 && (await kueri("SELECT 1 FROM bookings WHERE code = ?", [code], k)).length; i++) code = kodeBooking();
     const id = idBaru();
     await jalankan(
-      `INSERT INTO bookings (id, code, room_id, guest_id, check_in, check_out, channel, status, source, external_uid, pax, pax_child, pax_infant, dives, total_amount, ota_commission_est, notes, hold_expires_at, conflict_group, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, d.externalUid ? "IC-" + code.slice(3) : code, d.roomId, guestId, d.checkIn, d.checkOut, d.channel, status, d.source ?? "MANUAL", d.externalUid ?? null, d.pax ?? null, d.paxChild ?? null, d.paxInfant ?? null, d.dives ?? null, d.totalAmount ?? null, d.otaCommissionEst ?? null, d.notes?.trim() || null, tanggalWaktu(d.holdExpiresAt), conflictGroup, aktor],
+      `INSERT INTO bookings (id, code, room_id, guest_id, check_in, check_out, channel, status, source, external_uid, pax, pax_child, pax_infant, dives, total_amount, ota_commission_est, notes, hold_expires_at, conflict_group, created_by, coupon_code, discount_amount)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, d.externalUid ? "IC-" + code.slice(3) : code, d.roomId, guestId, d.checkIn, d.checkOut, d.channel, status, d.source ?? "MANUAL", d.externalUid ?? null, d.pax ?? null, d.paxChild ?? null, d.paxInfant ?? null, d.dives ?? null, d.totalAmount ?? null, d.otaCommissionEst ?? null, d.notes?.trim() || null, tanggalWaktu(d.holdExpiresAt), conflictGroup, aktor, d.couponCode ?? null, d.discountAmount ?? null],
       k,
     );
     await catatAudit(k, id, "buat", aktor, d);
@@ -469,6 +473,38 @@ export async function tambahMusim(m: { roomId: string; dateFrom: string; dateTo:
     if (tumpang.length) throw new MusimTumpangError();
     await jalankan("INSERT INTO seasonal_rates (id, room_id, date_from, date_to, rate, label) VALUES (?, ?, ?, ?, ?, ?)", [idBaru(), m.roomId, m.dateFrom, m.dateTo, m.rate, m.label], k);
   });
+}
+
+/** Ubah tarif dasar dan/atau harga normal banyak kamar sekaligus, dalam satu transaksi. */
+export async function ubahTarifMassal(daftar: { id: string; baseRate: number; normalRate: number | null }[]) {
+  await transaksi(async (k) => {
+    for (const x of daftar) await jalankan("UPDATE rooms SET base_rate = ?, normal_rate = ? WHERE id = ?", [x.baseRate, x.normalRate, x.id], k);
+  });
+}
+
+/**
+ * Pasang satu musim (misalnya musim ramai) ke banyak kamar sekaligus. Bila ada kamar
+ * yang sudah punya tarif musiman di tanggal yang sama, semuanya dibatalkan dan nama
+ * kamarnya dikembalikan, kecuali `timpa` (tarif lama yang tumpang tindih dihapus dulu).
+ */
+export async function tambahMusimMassal(m: { dateFrom: string; dateTo: string; label: string | null; tarif: { roomId: string; rate: number }[]; timpa: boolean }): Promise<{ bentrok: string[] }> {
+  return transaksi(async (k) => {
+    const bentrok: string[] = [];
+    for (const t of m.tarif) {
+      await kunciKamar(k, t.roomId);
+      const lama = await kueri<{ id: string; name: string }>("SELECT s.id, r.name FROM seasonal_rates s JOIN rooms r ON r.id = s.room_id WHERE s.room_id = ? AND s.date_from <= ? AND s.date_to >= ?", [t.roomId, m.dateTo, m.dateFrom], k);
+      if (lama.length && !m.timpa) bentrok.push(lama[0].name);
+      if (lama.length && m.timpa) await jalankan("DELETE FROM seasonal_rates WHERE id IN (?)", [lama.map((x) => x.id)], k);
+    }
+    if (bentrok.length) return { bentrok };
+    for (const t of m.tarif) await jalankan("INSERT INTO seasonal_rates (id, room_id, date_from, date_to, rate, label) VALUES (?, ?, ?, ?, ?, ?)", [idBaru(), t.roomId, m.dateFrom, m.dateTo, t.rate, m.label], k);
+    return { bentrok: [] };
+  });
+}
+
+/** Hapus satu musim dari semua kamar: semua tarif musiman dengan nama dan rentang yang sama. */
+export async function hapusMusimGrup(label: string, dateFrom: string, dateTo: string) {
+  await jalankan("DELETE FROM seasonal_rates WHERE COALESCE(label, '') = ? AND date_from = ? AND date_to = ?", [label, dateFrom, dateTo]);
 }
 
 export async function hapusMusim(id: string) {

@@ -8,6 +8,9 @@ import { MENEMPATI, tumpang } from "@/lib/booking";
 import { alamatSaja, kirimEmail, pengirim } from "@/lib/server/email";
 import { badan, gagal, ok } from "@/lib/server/rute";
 import { bacaPengaturan } from "@/lib/server/simpanan";
+import { hitungKupon, rapikanKode, teksKupon } from "@/lib/tarif";
+import { KAMUS } from "@/lib/kamus";
+import { kuponDenganKode, KuponHabisError, pastikanKuotaKupon } from "@/lib/server/kupon";
 
 /** Pembatas sederhana: lima permintaan per alamat IP per jam. */
 const jejak = new Map<string, number[]>();
@@ -61,6 +64,19 @@ export async function POST(req: Request) {
     return gagal(m(`Cottage ini untuk paling banyak ${kamarDipilih.capAdult} dewasa dan ${kamarDipilih.capChild} anak dengan extra bed.`, `This cottage sleeps up to ${kamarDipilih.capAdult} adults and ${kamarDipilih.capChild} children on extra beds.`));
   /* Anak 5 tahun ke atas: 50% harga kamar per malam (extra bed). Balita gratis. Dihitung di server. */
   const harga = totalDenganAnak(hargaKamar.total, anak);
+  /* Kupon diperiksa ulang di server; potongan dari browser tidak pernah dipercaya. */
+  const kode = rapikanKode(o.kupon);
+  let potongan = 0;
+  const kupon = kode ? await kuponDenganKode(kode) : null;
+  if (kode) {
+    const hk = hitungKupon(kupon, { masuk, malam: jumlahMalam(masuk, keluar), tipe: kamarDipilih.roomType, total: harga.total, hariIni: hariIniWit() });
+    if (!hk.ok) {
+      const tolak = KAMUS[en ? "en" : "id"].form.kuponTolak[hk.alasan];
+      return gagal(typeof tolak === "function" ? tolak(hk.batas ?? "") : tolak, 400, { kupon: hk.alasan });
+    }
+    potongan = hk.potongan;
+  }
+  const bayar = harga.total - potongan;
   const kamarId = o.kamar;
   const terisi = (await bookingDalam(masuk, keluar)).some((b) => b.roomId === kamarId && (MENEMPATI.includes(b.status) || b.status === "TENTATIVE") && tumpang(b.checkIn, b.checkOut, masuk, keluar));
   if (terisi) return gagal(m("Cottage itu baru saja terisi untuk tanggal tersebut. Pilih cottage lain.", "That cottage has just been booked for those dates. Please choose another."), 409);
@@ -77,24 +93,28 @@ export async function POST(req: Request) {
         pax: tamu,
         paxChild: anak,
         paxInfant: balita,
-        totalAmount: harga.total,
-        notes: [`Tamu: ${dewasa} dewasa${anak ? `, ${anak} anak 5 tahun ke atas (50%, extra bed)` : ""}${balita ? `, ${balita} balita di bawah 5 tahun (gratis)` : ""}`, anak ? `Harga: kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)}` : "", jamTiba && `Perkiraan tiba: ${jamTiba}`, minat && `Minat: ${minat}`, `Bahasa situs: ${en ? "Inggris" : "Indonesia"}`, catatan].filter(Boolean).join("\n") || null,
+        totalAmount: bayar,
+        couponCode: potongan || kode ? kode : null,
+        discountAmount: kode ? potongan : null,
+        notes: [`Tamu: ${dewasa} dewasa${anak ? `, ${anak} anak 5 tahun ke atas (50%, extra bed)` : ""}${balita ? `, ${balita} balita di bawah 5 tahun (gratis)` : ""}`, anak ? `Harga: kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)}` : "", kode && kupon ? `Kupon ${kode} (${teksKupon(kupon)}): potongan ${rupiah(potongan)} dari ${rupiah(harga.total)}` : "", jamTiba && `Perkiraan tiba: ${jamTiba}`, minat && `Minat: ${minat}`, `Bahasa situs: ${en ? "Inggris" : "Indonesia"}`, catatan].filter(Boolean).join("\n") || null,
         holdExpiresAt: new Date(kini + set.jamTahanan * 3600000).toISOString(),
         guest: { name: nama, phone: telepon || null, email: email || null, origin: asal || null, diveCert: sertifikat || null },
       },
       "Situs web",
+      kode ? { sebelumSimpan: (k) => pastikanKuotaKupon(k, kode) } : {},
     );
-    const ringkas = `${p.code}\n${nama} (${dewasa} dewasa${anak ? `, ${anak} anak 5+` : ""}${balita ? `, ${balita} balita` : ""})\n${p.roomName}, ${tglPanjang(masuk)} sampai ${tglPanjang(keluar)} (${jumlahMalam(masuk, keluar)} malam)\nPerkiraan ${rupiah(harga.total)}${anak ? ` (kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)})` : ""}\nAsal: ${asal || "-"} · Sertifikat: ${sertifikat || "-"}${jamTiba ? ` · Tiba: ${jamTiba}` : ""}\nWhatsApp: ${telepon || "-"}\nEmail: ${email || "-"}\n${minat ? "Minat: " + minat + "\n" : ""}${catatan ? "Catatan: " + catatan + "\n" : ""}\nTahanan berlaku ${set.jamTahanan} jam. Konfirmasi di dashboard /kelola.`;
+    const ringkas = `${p.code}\n${nama} (${dewasa} dewasa${anak ? `, ${anak} anak 5+` : ""}${balita ? `, ${balita} balita` : ""})\n${p.roomName}, ${tglPanjang(masuk)} sampai ${tglPanjang(keluar)} (${jumlahMalam(masuk, keluar)} malam)\nPerkiraan ${rupiah(bayar)}${anak ? ` (kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)})` : ""}${kode ? `\nKupon ${kode}: potongan ${rupiah(potongan)}` : ""}\nAsal: ${asal || "-"} · Sertifikat: ${sertifikat || "-"}${jamTiba ? ` · Tiba: ${jamTiba}` : ""}\nWhatsApp: ${telepon || "-"}\nEmail: ${email || "-"}\n${minat ? "Minat: " + minat + "\n" : ""}${catatan ? "Catatan: " + catatan + "\n" : ""}\nTahanan berlaku ${set.jamTahanan} jam. Konfirmasi di dashboard /kelola.`;
     await kirimEmail(set.emailNotifikasi || alamatSaja(pengirim()), `Pesanan baru ${p.code} dari website`, ringkas, email || undefined);
     if (email) {
       const tb = (d: string) => tglBahasa(d, en ? "en" : "id");
       if (en)
-        await kirimEmail(email, `Booking request ${p.code} received`, `Hello ${nama},\n\nThank you. We have received your request:\n${p.roomName}, ${tb(masuk)} to ${tb(keluar)}\nEstimated total ${rupiah(harga.total)}\n\nWe will reply with a confirmation and payment details. Your booking code is ${p.code}.\n\nWarm regards,\n${set.namaResort}`);
+        await kirimEmail(email, `Booking request ${p.code} received`, `Hello ${nama},\n\nThank you. We have received your request:\n${p.roomName}, ${tb(masuk)} to ${tb(keluar)}\nEstimated total ${rupiah(bayar)}${kode ? ` (coupon ${kode}: -${rupiah(potongan)})` : ""}\n\nWe will reply with a confirmation and payment details. Your booking code is ${p.code}.\n\nWarm regards,\n${set.namaResort}`);
       else
-        await kirimEmail(email, `Permintaan pemesanan ${p.code} diterima`, `Halo ${nama},\n\nTerima kasih. Permintaan Anda sudah kami terima:\n${p.roomName}, ${tb(masuk)} sampai ${tb(keluar)}\nPerkiraan ${rupiah(harga.total)}\n\nKami akan membalas dengan konfirmasi dan cara pembayaran. Kode pesanan Anda: ${p.code}.\n\nSalam hangat,\n${set.namaResort}`);
+        await kirimEmail(email, `Permintaan pemesanan ${p.code} diterima`, `Halo ${nama},\n\nTerima kasih. Permintaan Anda sudah kami terima:\n${p.roomName}, ${tb(masuk)} sampai ${tb(keluar)}\nPerkiraan ${rupiah(bayar)}${kode ? ` (kupon ${kode}: -${rupiah(potongan)})` : ""}\n\nKami akan membalas dengan konfirmasi dan cara pembayaran. Kode pesanan Anda: ${p.code}.\n\nSalam hangat,\n${set.namaResort}`);
     }
-    return ok({ kode: p.code, total: harga.total, jamTahanan: set.jamTahanan, persenDp: set.persenDp }, 201);
+    return ok({ kode: p.code, total: bayar, potongan, jamTahanan: set.jamTahanan, persenDp: set.persenDp }, 201);
   } catch (e) {
+    if (e instanceof KuponHabisError) return gagal(KAMUS[en ? "en" : "id"].form.kuponTolak.habis, 409, { kupon: "habis" });
     if (e instanceof BentrokError) return gagal(m("Cottage itu baru saja terisi untuk tanggal tersebut. Pilih cottage lain.", "That cottage has just been booked for those dates. Please choose another."), 409);
     console.error(e);
     return gagal(m("Permintaan belum tersimpan. Coba lagi atau hubungi kami lewat WhatsApp.", "Your request was not saved. Please try again or contact us on WhatsApp."), 500);

@@ -17,7 +17,12 @@ interface Opsi {
   tambahanAnak: number;
   total: number;
   normal: number | null;
+  /** Potongan kupon untuk cottage ini (0 bila kupon tidak berlaku untuknya). */
+  potongan: number;
+  /** Nama musim bila ada malam bertarif musiman. */
+  musim: string | null;
 }
+type HasilKupon = { kode: string; ok: true } | { kode: string; ok: false; alasan: keyof (typeof KAMUS)["en"]["form"]["kuponTolak"]; batas: number | string | null } | null;
 /** Cottage dengan jenis yang sama ditawarkan sebagai satu pilihan; unitnya dipilihkan yang kosong. */
 interface Jenis { kunci: string; nama: string; ket: string | null; unit: Opsi[]; kosong: Opsi[]; contoh: Opsi }
 
@@ -63,11 +68,27 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
   const [galat, setGalat] = useState("");
   const [sibuk, setSibuk] = useState(false);
   const [selesai, setSelesai] = useState<{ kode: string; total: number; jamTahanan: number; persenDp: number } | null>(null);
+  const [isianKupon, setIsianKupon] = useState("");
+  const [kupon, setKupon] = useState<HasilKupon>(null);
+  const [sibukKupon, setSibukKupon] = useState(false);
+  const pesanKupon = (h: HasilKupon) => {
+    if (!h) return "";
+    if (h.ok) return t.kuponDipakai(h.kode);
+    const x = t.kuponTolak[h.alasan];
+    return typeof x === "function" ? x(h.batas ?? "") : x;
+  };
 
   /* Mengubah tanggal atau tamu membuat hasil cek lama tidak berlaku. */
   const ubahTgl = (x: Partial<typeof tgl>) => { setTgl({ ...tgl, ...x }); setOpsi(null); };
   const ubahTamu = (x: Partial<typeof tamu>) => { setTamu({ ...tamu, ...x }); setOpsi(null); };
 
+  /** Ambil cottage yang kosong beserta harganya; dengan kode kupon, harga sudah dipotong. */
+  async function ambil(kode: string) {
+    const r = await fetch(`/api/publik/ketersediaan?masuk=${tgl.masuk}&keluar=${tgl.keluar}&anak=${tamu.anak}&bahasa=${bahasa}${kode ? `&kupon=${encodeURIComponent(kode)}` : ""}`);
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.galat ?? t.galatCek);
+    return d as { kamar: Opsi[]; malam: number; kupon: HasilKupon };
+  }
   async function cek(e: React.FormEvent) {
     e.preventDefault();
     setGalat("");
@@ -75,18 +96,32 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
     setPilih("");
     setSibuk(true);
     try {
-      const r = await fetch(`/api/publik/ketersediaan?masuk=${tgl.masuk}&keluar=${tgl.keluar}&anak=${tamu.anak}&bahasa=${bahasa}`);
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.galat ?? t.galatCek);
+      const d = await ambil(kupon?.ok ? kupon.kode : "");
       setOpsi(d.kamar);
       setMalam(d.malam);
+      setKupon(d.kupon?.ok ? d.kupon : null);
       const muat = (k: Opsi) => k.tersedia && k.dewasa >= tamu.dewasa && k.anak >= tamu.anak;
-      const pertama = (d.kamar as Opsi[]).find(muat) ?? (d.kamar as Opsi[]).find((k) => k.tersedia);
+      const pertama = d.kamar.find(muat) ?? d.kamar.find((k) => k.tersedia);
       if (pertama) setPilih(pertama.tipe ?? pertama.nama);
     } catch (err) {
       setGalat(err instanceof Error ? err.message : "Gagal.");
     } finally {
       setSibuk(false);
+    }
+  }
+  /** Pakai atau lepas kupon tanpa mengubah cottage yang sudah dipilih. */
+  async function aturKupon(kode: string) {
+    setSibukKupon(true);
+    try {
+      const d = await ambil(kode);
+      setOpsi(d.kamar);
+      setMalam(d.malam);
+      setKupon(d.kupon);
+      if (!kode) setIsianKupon("");
+    } catch (err) {
+      setGalat(err instanceof Error ? err.message : "Gagal.");
+    } finally {
+      setSibukKupon(false);
     }
   }
 
@@ -112,7 +147,7 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
     setGalat("");
     setSibuk(true);
     try {
-      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, kamar: k.id, bahasa }) });
+      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "" }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.galat ?? t.galatKirim);
       setSelesai(d);
@@ -184,7 +219,7 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
                       <span className="min-w-0">
                         <span className="block font-display text-xl text-malam">{x.nama}</span>
                         {x.ket && <span className="mt-0.5 block text-[13px] leading-snug text-malam/60">{x.ket}</span>}
-                        <span className="mt-1 block text-xs font-bold text-emas-tua">{ada ? t.tersisa(x.kosong.length) : t.terisi}</span>
+                        <span className="mt-1 block text-xs font-bold text-emas-tua">{ada ? t.tersisa(x.kosong.length) : t.terisi}{ada && c.musim ? <span className="ml-2 rounded-full bg-busa px-2 py-0.5 font-bold text-malam/70">{c.musim}</span> : null}</span>
                       </span>
                     </span>
                     {ada && (
@@ -210,8 +245,26 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
                   <div className="flex justify-between gap-3"><dt>{t.hargaKamar}</dt><dd className="angka">{rupiah(k.hargaKamar)}</dd></div>
                   {tamu.anak > 0 && <div className="flex justify-between gap-3"><dt>{t.tambahanAnak(tamu.anak)}</dt><dd className="angka">{rupiah(k.tambahanAnak)}</dd></div>}
                   {tamu.balita > 0 && <div className="flex justify-between gap-3"><dt>{t.balitaGratis(tamu.balita)}</dt><dd>{t.gratis}</dd></div>}
+                  {k.potongan > 0 && kupon?.ok && <div data-potongan className="flex justify-between gap-3 font-bold text-[#1E7A4C]"><dt>{t.potongan(kupon.kode)}</dt><dd className="angka">−{rupiah(k.potongan)}</dd></div>}
                   <div className="flex justify-between gap-3 border-t border-malam/10 pt-2 text-base font-bold text-malam"><dt>{t.total}</dt><dd className="angka">{rupiah(k.total)}</dd></div>
                 </dl>
+                <div className="mt-3 border-t border-malam/10 pt-3">
+                  {kupon?.ok ? (
+                    <p className="flex flex-wrap items-center justify-between gap-2 text-sm text-[#1E7A4C]">
+                      <span>{k.potongan > 0 ? pesanKupon(kupon) : t.kuponTolak.kamar}</span>
+                      <button type="button" onClick={() => aturKupon("")} disabled={sibukKupon} className="font-bold text-malam/60 underline hover:text-malam">{t.hapusKupon}</button>
+                    </p>
+                  ) : (
+                    <div className="grid gap-1.5">
+                      <label htmlFor="kode-kupon" className={kelasLabel}>{t.punyaKupon}</label>
+                      <div className="flex gap-2">
+                        <input id="kode-kupon" className={`${kelasMasukan} uppercase`} value={isianKupon} autoComplete="off" placeholder={t.kupon} onChange={(e) => setIsianKupon(e.target.value.toUpperCase())} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); if (isianKupon.trim()) aturKupon(isianKupon.trim()); } }} />
+                        <button type="button" disabled={sibukKupon || !isianKupon.trim()} onClick={() => aturKupon(isianKupon.trim())} className="shrink-0 rounded-full bg-malam px-5 text-sm font-bold text-white transition hover:brightness-125 disabled:opacity-40">{t.pakaiKupon}</button>
+                      </div>
+                      {kupon && !kupon.ok && <p role="alert" className="text-sm text-[#B03826]">{pesanKupon(kupon)}</p>}
+                    </div>
+                  )}
+                </div>
               </div>
               <p className="font-display text-xl text-malam sm:col-span-2">{t.dataTamu}</p>
               <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.nama}</span><input className={kelasMasukan} required autoComplete="name" value={f.nama} onChange={(e) => setF({ ...f, nama: e.target.value })} /></label>

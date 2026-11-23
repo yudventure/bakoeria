@@ -82,6 +82,7 @@ export function Bidang({ label, ket, children, className }: { label: string; ket
 }
 
 export function Modal({ judul, buka, tutup, children, lebar = "max-w-xl", kaki }: { judul: ReactNode; buka: boolean; tutup: () => void; children: ReactNode; lebar?: string; kaki?: ReactNode }) {
+  const idJudul = useId();
   useEffect(() => {
     if (!buka) return;
     const k = (e: KeyboardEvent) => e.key === "Escape" && tutup();
@@ -91,9 +92,9 @@ export function Modal({ judul, buka, tutup, children, lebar = "max-w-xl", kaki }
   if (!buka) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-panel-utama/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && tutup()}>
-      <div role="dialog" aria-modal="true" className={cx("flex max-h-[92svh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-angkat sm:rounded-3xl", lebar)}>
+      <div role="dialog" aria-modal="true" aria-labelledby={idJudul} className={cx("flex max-h-[92svh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-angkat sm:rounded-3xl", lebar)}>
         <div className="flex items-center justify-between gap-3 border-b border-panel-garis px-5 py-4 sm:px-6">
-          <h2 className="text-lg font-bold text-panel-tinta">{judul}</h2>
+          <h2 id={idJudul} className="text-lg font-bold text-panel-tinta">{judul}</h2>
           <button onClick={tutup} aria-label="Tutup" className="grid size-9 place-items-center rounded-full text-xl text-panel-redup hover:bg-panel-lembut">×</button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">{children}</div>

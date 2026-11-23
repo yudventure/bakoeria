@@ -8,6 +8,8 @@ import { api } from "../api";
 import { useData } from "../data";
 import type { Kamar } from "../tipe";
 import { Bidang, Kartu, Kosong, masukan, Modal, Pil, Tombol, useToast } from "../ui";
+import { DaftarMusim, HargaMassal, MusimMassal } from "../tarif-massal";
+import KuponDiskon from "../kupon";
 
 const KOSONG = { id: "", name: "", roomType: "", capAdult: 2, capChild: 0, baseRate: 0, isActive: true, inactiveReason: "", sortOrder: 0, normalRate: "" as number | "", sizeM2: "" as number | "", descEn: "", descId: "", featuresEn: "", featuresId: "" };
 const keForm = (k: Kamar): typeof KOSONG => ({ ...k, roomType: k.roomType ?? "", inactiveReason: k.inactiveReason ?? "", sizeM2: k.sizeM2 ?? "", normalRate: k.normalRate ?? "", featuresEn: k.featuresEn.join("\n"), featuresId: k.featuresId.join("\n") });
@@ -19,6 +21,9 @@ export default function LayarKamar() {
   const rp = lihatRupiah(akun.peran);
   const [f, setF] = useState<typeof KOSONG | null>(null);
   const [musim, setMusim] = useState<{ roomId: string; dateFrom: string; dateTo: string; rate: string; label: string } | null>(null);
+  /* Kunci baru tiap kali modal dibuka supaya isiannya mulai dari awal. */
+  const [massal, setMassal] = useState(0);
+  const [musimBaru, setMusimBaru] = useState(0);
 
   async function simpan() {
     if (!f) return;
@@ -64,7 +69,11 @@ export default function LayarKamar() {
           <h1 className="text-2xl font-bold">Kamar & tarif</h1>
           <p className="mt-1 text-sm text-panel-redup">Tarif dasar dipakai otomatis saat pesanan dicatat. Tarif musiman menimpanya pada tanggal yang dicakup.</p>
         </div>
-        {ubahBoleh && <Tombol onClick={() => setF({ ...KOSONG, sortOrder: kamar.length + 1 })}>+ Kamar</Tombol>}
+        <div className="flex flex-wrap gap-2">
+          {ubahBoleh && rp && kamar.length > 0 && <Tombol varian="garis" onClick={() => setMassal(Date.now())}>Ubah harga massal</Tombol>}
+          {ubahBoleh && rp && kamar.length > 0 && <Tombol varian="garis" onClick={() => setMusimBaru(Date.now())}>+ Musim ramai</Tombol>}
+          {ubahBoleh && <Tombol onClick={() => setF({ ...KOSONG, sortOrder: kamar.length + 1 })}>+ Kamar</Tombol>}
+        </div>
       </div>
       {kamar.length === 0 ? (
         <Kosong judul="Belum ada kamar" isi="Tambahkan cottage pertama untuk mulai mencatat pesanan." aksi={ubahBoleh && <Tombol onClick={() => setF({ ...KOSONG })}>+ Kamar</Tombol>} />
@@ -115,6 +124,15 @@ export default function LayarKamar() {
           ))}
         </div>
       )}
+
+      {rp && kamar.length > 0 && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          <DaftarMusim kamar={kamar} ubahBoleh={ubahBoleh} tambah={() => setMusimBaru(Date.now())} selesai={muat} />
+          {ubahBoleh && <KuponDiskon tipeKamar={[...new Set(kamar.map((k) => k.roomType).filter((x): x is string => Boolean(x)))]} />}
+        </div>
+      )}
+      {massal > 0 && <HargaMassal key={massal} kamar={kamar} buka tutup={() => setMassal(0)} selesai={() => { setMassal(0); muat(); }} />}
+      {musimBaru > 0 && <MusimMassal key={musimBaru} kamar={kamar} buka tutup={() => setMusimBaru(0)} selesai={() => { setMusimBaru(0); muat(); }} />}
 
       <Modal judul={f?.id ? `Ubah ${f.name}` : "Kamar baru"} buka={!!f} tutup={() => setF(null)} kaki={<><Tombol varian="garis" onClick={() => setF(null)}>Batal</Tombol><Tombol onClick={simpan}>Simpan</Tombol></>}>
         {f && (

@@ -127,6 +127,24 @@ export const SKEMA: string[] = [
     KEY sync_feed (feed_id, started_at),
     CONSTRAINT sync_feed_fk FOREIGN KEY (feed_id) REFERENCES ical_feeds(id) ON DELETE CASCADE
   ) ${T}`,
+  /* Kupon diskon untuk pemesanan dari website. Pemakaian dihitung dari bookings.coupon_code. */
+  `CREATE TABLE IF NOT EXISTS coupons (
+    id VARCHAR(32) NOT NULL PRIMARY KEY,
+    code VARCHAR(24) NOT NULL,
+    kind VARCHAR(10) NOT NULL,
+    value DECIMAL(14,2) NOT NULL,
+    max_discount DECIMAL(14,2) NULL,
+    min_nights SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+    valid_until DATE NULL,
+    arrive_from DATE NULL,
+    arrive_to DATE NULL,
+    room_types VARCHAR(400) NULL,
+    max_uses INT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    note VARCHAR(200) NULL,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    UNIQUE KEY coupons_code (code)
+  ) ${T}`,
   `CREATE TABLE IF NOT EXISTS audit_log (
     id VARCHAR(32) NOT NULL PRIMARY KEY,
     entity VARCHAR(30) NOT NULL,
@@ -156,4 +174,7 @@ export const KOLOM_TAMBAHAN: [tabel: string, kolom: string, definisi: string][] 
   /* Rincian tamu: anak 5 tahun ke atas (50% harga kamar, extra bed) dan balita di bawah 5 tahun (gratis). pax = jumlah semua tamu. */
   ["bookings", "pax_child", "TINYINT UNSIGNED NULL"],
   ["bookings", "pax_infant", "TINYINT UNSIGNED NULL"],
+  /* Kupon yang dipakai pesanan website dan besar potongannya (total_amount sudah dikurangi). */
+  ["bookings", "coupon_code", "VARCHAR(24) NULL"],
+  ["bookings", "discount_amount", "DECIMAL(14,2) NULL"],
 ];

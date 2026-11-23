@@ -1,6 +1,7 @@
 import { tanggalSah } from "@/lib/booking";
+import { bacaCara, terapkan } from "@/lib/tarif";
 import { wajib } from "@/lib/server/akses";
-import { ambilKamar, buatKamar, hapusKamar, hapusMusim, jumlahPesananKamar, kamarDenganNama, MusimTumpangError, tambahMusim, ubahKamar } from "@/lib/server/buku";
+import { ambilKamar, buatKamar, hapusKamar, hapusMusim, hapusMusimGrup, jumlahPesananKamar, tambahMusimMassal, ubahTarifMassal, kamarDenganNama, MusimTumpangError, tambahMusim, ubahKamar } from "@/lib/server/buku";
 import { badan, gagal, ok, tanpaDb } from "@/lib/server/rute";
 
 const UBAH = ["developer", "pemilik", "manajer"];
@@ -51,6 +52,25 @@ export async function POST(req: Request) {
   const t = tanpaDb();
   if (t) return t;
   const o = await badan(req);
+  /* Satu musim (misalnya musim ramai) untuk banyak kamar sekaligus. */
+  if (o.musimMassal && typeof o.musimMassal === "object") {
+    const m = o.musimMassal as Record<string, unknown>;
+    if (!tanggalSah(m.dateFrom) || !tanggalSah(m.dateTo) || m.dateTo < m.dateFrom) return gagal("Isi rentang tanggal yang benar.");
+    const cara = bacaCara(m.cara);
+    if (!cara) return gagal("Isi harga musim ini.");
+    const ids = Array.isArray(m.roomIds) ? m.roomIds.map(String) : [];
+    const kamar = (await ambilKamar()).filter((k) => ids.includes(k.id));
+    if (!kamar.length) return gagal("Pilih minimal satu kamar.");
+    const r = await tambahMusimMassal({
+      dateFrom: m.dateFrom,
+      dateTo: m.dateTo,
+      label: typeof m.label === "string" && m.label.trim() ? m.label.trim().slice(0, 60) : null,
+      tarif: kamar.map((k) => ({ roomId: k.id, rate: terapkan(k.baseRate, cara) })),
+      timpa: m.timpa === true,
+    });
+    if (r.bentrok.length) return gagal(`Sudah ada tarif musiman di tanggal itu untuk: ${r.bentrok.join(", ")}. Centang "Timpa" untuk menggantinya.`, 409, { bentrok: r.bentrok });
+    return ok({ kamar: await ambilKamar() }, 201);
+  }
   if (o.musim && typeof o.musim === "object") {
     const m = o.musim as Record<string, unknown>;
     if (typeof m.roomId !== "string") return gagal("Pilih kamar.");
@@ -79,6 +99,24 @@ export async function PATCH(req: Request) {
   const t = tanpaDb();
   if (t) return t;
   const o = await badan(req);
+  /* Ubah harga banyak kamar sekaligus: { massal: { roomIds, tarif?: cara, normal?: cara | "hapus" } }. */
+  if (o.massal && typeof o.massal === "object") {
+    const m = o.massal as Record<string, unknown>;
+    const ids = Array.isArray(m.roomIds) ? m.roomIds.map(String) : [];
+    const tarif = m.tarif == null ? null : bacaCara(m.tarif);
+    const normal = m.normal === "hapus" ? "hapus" : m.normal == null ? null : bacaCara(m.normal);
+    if (m.tarif != null && !tarif) return gagal("Isi perubahan tarif yang benar.");
+    if (m.normal != null && !normal) return gagal("Isi perubahan harga normal yang benar.");
+    if (!tarif && !normal) return gagal("Tidak ada harga yang diubah.");
+    const kamar = (await ambilKamar()).filter((k) => ids.includes(k.id));
+    if (!kamar.length) return gagal("Pilih minimal satu kamar.");
+    await ubahTarifMassal(kamar.map((k) => {
+      const baseRate = tarif ? terapkan(k.baseRate, tarif) : k.baseRate;
+      const n = normal === "hapus" ? null : normal ? terapkan(k.normalRate ?? k.baseRate, normal) : k.normalRate;
+      return { id: k.id, baseRate, normalRate: n && n > 0 ? n : null };
+    }));
+    return ok({ kamar: await ambilKamar() });
+  }
   if (typeof o.id !== "string") return gagal("Kamar tidak disebut.");
   const r = bacaKamar(o);
   if ("galat" in r) return gagal(r.galat!);
@@ -96,6 +134,18 @@ export async function DELETE(req: Request) {
   const t = tanpaDb();
   if (t) return t;
   const u = new URL(req.url).searchParams;
+  const grup = u.get("musimGrup");
+  if (grup) {
+    let label = "", dari = "", sampai = "";
+    try {
+      [label, dari, sampai] = JSON.parse(grup) as [string, string, string];
+    } catch {
+      return gagal("Musim tidak dikenal.");
+    }
+    if (!tanggalSah(dari) || !tanggalSah(sampai)) return gagal("Musim tidak dikenal.");
+    await hapusMusimGrup(String(label ?? ""), dari, sampai);
+    return ok({ kamar: await ambilKamar() });
+  }
   const musim = u.get("musim");
   if (musim) {
     await hapusMusim(musim);
