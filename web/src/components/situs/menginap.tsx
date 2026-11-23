@@ -4,6 +4,7 @@ import type { Kamar } from "@/lib/server/buku";
 import Galeri, { type FotoGaleri } from "./galeri";
 import VideoLatar from "./video";
 import type { Gambar } from "@/lib/foto";
+import { cariLabel, ikonFasilitas, type Fasilitas } from "@/lib/fasilitas";
 
 /**
  * Bagian "Menginap": sorotan dan galeri, bukan daftar kartu kamar.
@@ -27,7 +28,7 @@ const Ikon = ({ d, className = "" }: { d: string; className?: string }) => (
   <svg viewBox="0 0 24 24" className={`size-5 shrink-0 ${className}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
 );
 
-export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, poster, pesan = "#pesan" }: { /** Foto galeri menginap, berurutan; jumlahnya bebas. */ galeri: Gambar[]; poster: Gambar; jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "" (tombol disembunyikan). */ pesan?: string; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
+export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, poster, pesan = "#pesan", katalog = [] }: { /** Katalog fasilitas kamar: ikon pilihan pemilik untuk tiap fasilitas. */ katalog?: Fasilitas[]; /** Foto galeri menginap, berurutan; jumlahnya bebas. */ galeri: Gambar[]; poster: Gambar; jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "" (tombol disembunyikan). */ pesan?: string; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
   const t = KAMUS[bahasa];
   const g = t.galeri;
   const fitur = (r: Kamar) => (bahasa === "id" ? (r.featuresId.length ? r.featuresId : r.featuresEn) : r.featuresEn.length ? r.featuresEn : r.featuresId);
@@ -111,7 +112,7 @@ export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, pos
             <ul className="grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
               {bersama.map((x, i) => (
                 <li key={x} className="muncul flex items-center gap-3 text-[14.5px] text-malam/80" style={{ "--tunda": i % 3 } as React.CSSProperties}>
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white text-emas-tua ring-1 ring-malam/8"><Ikon d={jalurIkon(x)} /></span>
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white text-emas-tua ring-1 ring-malam/8"><Ikon d={(() => { const c = cariLabel(katalog, x); return c ? ikonFasilitas(c.ikon) : jalurIkon(x); })()} /></span>
                   {x}
                 </li>
               ))}

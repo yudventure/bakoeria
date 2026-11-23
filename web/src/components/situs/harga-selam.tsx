@@ -24,7 +24,7 @@ const angka = (h: string) => Number(h.replace(/\D/g, "")) || 0;
  * kartu lain menyempit. Kartu pertama terbuka sejak awal. Di layar sempit kartu
  * ditumpuk dan dibuka dengan ketukan.
  */
-export default function HargaSelam({ paket, teks, foto, tautan = "#pesan" }: { paket: PaketGrup[]; foto: Gambar[]; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "". */ tautan?: string; teks: { mulai: string; lihat: string; pesan: string } }) {
+export default function HargaSelam({ paket, teks, foto, tautan = "#pesan", termasuk = [] }: { paket: PaketGrup[]; /** Fasilitas "termasuk" tiap kelompok, sudah diterjemahkan: ikon dan label. */ termasuk?: { d: string; label: string }[][]; foto: Gambar[]; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "". */ tautan?: string; teks: { mulai: string; lihat: string; pesan: string } }) {
   const [buka, setBuka] = useState(0);
   const lebar = () => window.matchMedia("(min-width: 1024px) and (hover: hover)").matches;
   return (
@@ -64,6 +64,16 @@ export default function HargaSelam({ paket, teks, foto, tautan = "#pesan" }: { p
               <div className="min-h-0 overflow-hidden lg:overflow-y-auto">
                 <div className="px-5 pb-5 lg:min-w-[22rem]">
                   {g.catatan && <p className="text-[13px] leading-relaxed text-malam/55">{g.catatan}</p>}
+                  {(termasuk[i]?.length ?? 0) > 0 && (
+                    <ul data-termasuk className="mt-3 flex flex-wrap gap-1.5">
+                      {termasuk[i].map((x) => (
+                        <li key={x.label} className="flex items-center gap-1.5 rounded-full bg-busa/70 py-1 pl-2 pr-3 text-[12px] text-malam/80">
+                          <svg viewBox="0 0 24 24" className="size-4 shrink-0 text-emas-tua" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={x.d} /></svg>
+                          {x.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   <ul className="mt-3 divide-y divide-malam/8 border-t border-malam/8">
                     {g.isi.map((x, j) => (
                       <li key={x.nama + j} className="flex items-baseline justify-between gap-4 py-2.5">

@@ -32,6 +32,8 @@ export interface PaketGrup {
   judul: string;
   catatan: string;
   isi: { nama: string; ket: string; harga: string }[];
+  /** Kunci fasilitas selam yang termasuk (katalog "selam"); sama untuk kedua bahasa. */
+  termasuk?: string[];
 }
 export interface Konten {
   tagline: string;
@@ -58,7 +60,7 @@ export interface Konten {
   /** Aktivitas lain di luar selam (tiga yang pertama tampil bersama video). */
   aktivitasJudul: string;
   aktivitasIsi: string;
-  aktivitas: { judul: string; isi: string }[];
+  aktivitas: { judul: string; isi: string; /** Kunci fasilitas trip yang termasuk (katalog "trip"); sama untuk kedua bahasa. */ termasuk?: string[] }[];
   cottageJudul: string;
   cottageIsi: string;
   cottageFitur: string[];
@@ -544,6 +546,8 @@ export const bawaanKonten = (b: "en" | "id") => (b === "en" ? KONTEN_BAWAAN_EN :
 /** Hanya tautan http(s) yang diterima untuk peta dan media sosial. */
 const tautan = (v: unknown) => (typeof v === "string" && /^https?:\/\/\S+$/i.test(v.trim()) ? v.trim().slice(0, 300) : "");
 
+const kunciFasilitas = (v: unknown) => (Array.isArray(v) ? [...new Set(v.filter((x): x is string => typeof x === "string").map((x) => x.slice(0, 40)))].slice(0, 30) : []);
+
 /** Gabungkan isi tersimpan dengan bawaan, supaya kolom baru tidak pernah kosong. */
 export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en" | "id" = "id"): Konten {
   const b = bawaanKonten(bahasa);
@@ -569,12 +573,13 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     aktivitasJudul: s(k.aktivitasJudul, b.aktivitasJudul),
     aktivitasIsi: s(k.aktivitasIsi, b.aktivitasIsi),
     /* Aktivitas ketiga diganti pemilik: camping menjadi trip ke Piaynemo dan Wayag. Isian camping yang sudah tersimpan ikut diganti. */
-    aktivitas: arr(k.aktivitas, b.aktivitas, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400) })).map((x) => (["camping", "island trips to piaynemo and wayag", "trip ke piaynemo dan wayag"].includes(x.judul.trim().toLowerCase()) ? { ...b.aktivitas[2] } : x)).filter((x) => x.judul.trim() !== "").slice(0, 6),
+    aktivitas: arr(k.aktivitas, b.aktivitas, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400), termasuk: kunciFasilitas(x.termasuk) })).map((x) => (["camping", "island trips to piaynemo and wayag", "trip ke piaynemo dan wayag"].includes(x.judul.trim().toLowerCase()) ? { ...b.aktivitas[2] } : x)).filter((x) => x.judul.trim() !== "").slice(0, 6),
     paketJudul: s(k.paketJudul, b.paketJudul),
     paketCatatan: s(k.paketCatatan, b.paketCatatan),
     paket: arr(k.paket, b.paket, (x) => ({
       judul: s(x.judul, "").slice(0, 80),
       catatan: s(x.catatan, "").slice(0, 300),
+      termasuk: kunciFasilitas(x.termasuk),
       isi: (Array.isArray(x.isi) ? x.isi : []).slice(0, 30).map((y) => {
         const r = (y ?? {}) as Record<string, unknown>;
         return { nama: s(r.nama, "").slice(0, 120), ket: s(r.ket, "").slice(0, 200), harga: s(r.harga, "").slice(0, 40) };

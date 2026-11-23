@@ -10,6 +10,8 @@ import type { Kamar } from "../tipe";
 import { Bidang, Kartu, Kosong, masukan, Modal, Pil, Tombol, useToast } from "../ui";
 import { DaftarMusim, HargaMassal, MusimMassal } from "../tarif-massal";
 import KuponDiskon from "../kupon";
+import PilihFasilitas, { IkonGaris, useKatalog } from "../fasilitas";
+import { cariLabel } from "@/lib/fasilitas";
 
 const KOSONG = { id: "", name: "", roomType: "", capAdult: 2, capChild: 0, baseRate: 0, isActive: true, inactiveReason: "", sortOrder: 0, normalRate: "" as number | "", sizeM2: "" as number | "", descEn: "", descId: "", featuresEn: "", featuresId: "" };
 const keForm = (k: Kamar): typeof KOSONG => ({ ...k, roomType: k.roomType ?? "", inactiveReason: k.inactiveReason ?? "", sizeM2: k.sizeM2 ?? "", normalRate: k.normalRate ?? "", featuresEn: k.featuresEn.join("\n"), featuresId: k.featuresId.join("\n") });
@@ -23,6 +25,7 @@ export default function LayarKamar() {
   const [musim, setMusim] = useState<{ roomId: string; dateFrom: string; dateTo: string; rate: string; label: string } | null>(null);
   /* Kunci baru tiap kali modal dibuka supaya isiannya mulai dari awal. */
   const [massal, setMassal] = useState(0);
+  const [katalog] = useKatalog();
   const [musimBaru, setMusimBaru] = useState(0);
 
   async function simpan() {
@@ -94,7 +97,7 @@ export default function LayarKamar() {
               {!k.isActive && k.inactiveReason && <p className="mb-3 text-sm text-panel-kuning">{k.inactiveReason}</p>}
               {(k.descId || k.descEn) && <p className="mb-3 text-sm text-panel-redup">{k.descId || k.descEn}</p>}
               {(k.featuresId.length > 0 || k.featuresEn.length > 0) && (
-                <ul className="mb-4 flex flex-wrap gap-1.5">{(k.featuresId.length ? k.featuresId : k.featuresEn).map((x) => <li key={x} className="rounded-full bg-panel-latar px-2.5 py-1 text-xs">{x}</li>)}</ul>
+                <ul className="mb-4 flex flex-wrap gap-1.5">{(k.featuresId.length ? k.featuresId : k.featuresEn).map((x) => { const c = katalog && cariLabel(katalog.kamar, x); return <li key={x} className="flex items-center gap-1.5 rounded-full bg-panel-latar px-2.5 py-1 text-xs">{c && <IkonGaris nama={c.ikon} className="size-3.5 text-panel-utama" />}{x}</li>; })}</ul>
               )}
               {rp && (
                 <>
@@ -149,8 +152,36 @@ export default function LayarKamar() {
             <p className="text-sm font-bold sm:col-span-2">Untuk website <span className="font-normal text-panel-redup">— ditampilkan di kartu kamar sesuai bahasa pengunjung</span></p>
             <Bidang label="Deskripsi (Inggris)"><textarea className={masukan} rows={3} value={f.descEn} onChange={(e) => setF({ ...f, descEn: e.target.value })} placeholder="A teak cottage on stilts, steps from the sand." /></Bidang>
             <Bidang label="Deskripsi (Indonesia)"><textarea className={masukan} rows={3} value={f.descId} onChange={(e) => setF({ ...f, descId: e.target.value })} placeholder="Cottage jati panggung, beberapa langkah dari pasir." /></Bidang>
-            <Bidang label="Fasilitas (Inggris)" ket="Satu per baris."><textarea className={masukan} rows={4} value={f.featuresEn} onChange={(e) => setF({ ...f, featuresEn: e.target.value })} placeholder={"Queen bed\nPrivate terrace"} /></Bidang>
-            <Bidang label="Fasilitas (Indonesia)" ket="Satu per baris."><textarea className={masukan} rows={4} value={f.featuresId} onChange={(e) => setF({ ...f, featuresId: e.target.value })} placeholder={"Kasur queen\nTeras pribadi"} /></Bidang>
+            {/* Fasilitas dicentang dari katalog bersama; label Inggris dan Indonesia terisi sendiri. */}
+            {katalog && (() => {
+              const en = f.featuresEn.split("\n").map((x) => x.trim()).filter(Boolean);
+              const id = f.featuresId.split("\n").map((x) => x.trim()).filter(Boolean);
+              const kat = katalog.kamar;
+              const terpilih = kat.filter((x) => [...en, ...id].some((l) => cariLabel([x], l))).map((x) => x.kunci);
+              const lainEn = en.filter((l) => !cariLabel(kat, l)), lainId = id.filter((l) => !cariLabel(kat, l));
+              const setel = (kunci: string[], le = lainEn, li = lainId) => {
+                const dipilih = kat.filter((x) => kunci.includes(x.kunci));
+                setF({ ...f, featuresEn: [...dipilih.map((x) => x.en), ...le].join("\n"), featuresId: [...dipilih.map((x) => x.id), ...li].join("\n") });
+              };
+              return (
+                <div className="grid gap-3 sm:col-span-2">
+                  <PilihFasilitas jenis="kamar" terpilih={terpilih} ubah={(k) => setel(k)} judul="Fasilitas yang didapat" />
+                  {(lainEn.length > 0 || lainId.length > 0) && (
+                    <div className="grid gap-1.5">
+                      <span className="text-xs text-panel-redup">Lainnya (belum ada di daftar; hapus, atau tambahkan lewat “Atur daftar”)</span>
+                      <ul className="flex flex-wrap gap-1.5">
+                        {[...lainEn.map((l, i) => ({ l, i, b: "en" as const })), ...lainId.map((l, i) => ({ l, i, b: "id" as const }))].map((x) => (
+                          <li key={x.b + x.l} className="flex items-center gap-1 rounded-full bg-panel-latar py-1 pl-3 pr-1 text-xs">
+                            {x.l} <span className="text-panel-redup">({x.b.toUpperCase()})</span>
+                            <button type="button" aria-label={`Hapus ${x.l}`} onClick={() => setel(terpilih, x.b === "en" ? lainEn.filter((_, j) => j !== x.i) : lainEn, x.b === "id" ? lainId.filter((_, j) => j !== x.i) : lainId)} className="grid size-5 place-items-center rounded-full hover:bg-panel-merah/10 hover:text-panel-merah">×</button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             <label className="flex items-center gap-2 text-sm font-bold sm:col-span-2"><input type="checkbox" checked={f.isActive} onChange={(e) => setF({ ...f, isActive: e.target.checked })} className="size-4" /> Aktif dan bisa dipesan</label>
             {!f.isActive && <Bidang label="Alasan nonaktif" className="sm:col-span-2"><input className={masukan} value={f.inactiveReason ?? ""} onChange={(e) => setF({ ...f, inactiveReason: e.target.value })} placeholder="Renovasi sampai Januari" /></Bidang>}
           </div>

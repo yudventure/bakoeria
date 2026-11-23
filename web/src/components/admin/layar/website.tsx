@@ -6,6 +6,7 @@ import { api } from "../api";
 import { Bidang, Galat, Kartu, masukan, Memuat, Tab, Tombol, useToast } from "../ui";
 import type { Bahasa } from "@/lib/kamus";
 import FotoSitus from "../foto-situs";
+import PilihFasilitas from "../fasilitas";
 
 const BAGIAN = [
   { id: "umum", label: "Umum" },
@@ -204,7 +205,7 @@ export default function Website() {
       )}
       {bagian === "selam" && (
         <>
-        <Kartu judul="Program selam dan harganya" ket="Tiap kelompok menjadi satu kartu di bagian Program selam; kartu yang ditunjuk kursor membuka dan menampilkan harganya. Baris harga ditulis satu per baris dengan bentuk: nama | keterangan | harga. Keterangan boleh kosong.">
+        <Kartu judul="Program selam dan harganya" ket="Tiap kelompok menjadi satu kartu di bagian Program selam; kartu yang ditunjuk kursor membuka dan menampilkan harganya serta apa saja yang termasuk.">
           <div className="grid gap-4 sm:grid-cols-2">
             <Bidang label="Judul bagian"><input className={masukan} value={k.paketJudul} onChange={(e) => set("paketJudul", e.target.value)} /></Bidang>
             <Bidang label="Catatan di samping judul"><input className={masukan} value={k.paketCatatan} onChange={(e) => set("paketCatatan", e.target.value)} /></Bidang>
@@ -213,17 +214,30 @@ export default function Website() {
             {k.paket.map((grup, i) => {
               const ubah = (v: Partial<typeof grup>) => set("paket", k.paket.map((x, j) => (j === i ? { ...x, ...v } : x)));
               return (
-                <div key={`${i}-${k.paket.length}`} className="grid gap-3 rounded-2xl bg-panel-latar p-4 sm:grid-cols-2">
+                <div key={i} className="grid gap-3 rounded-2xl bg-panel-latar p-4 sm:grid-cols-2">
                   <Bidang label={`Kelompok ${i + 1}`}><input className={masukan} value={grup.judul} onChange={(e) => ubah({ judul: e.target.value })} /></Bidang>
                   <Bidang label="Catatan kelompok"><input className={masukan} value={grup.catatan} onChange={(e) => ubah({ catatan: e.target.value })} /></Bidang>
-                  <Bidang label="Baris harga" ket="nama | keterangan | harga" className="sm:col-span-2">
-                    <textarea
-                      className={masukan + " font-mono text-[13px]"}
-                      rows={Math.max(3, grup.isi.length + 1)}
-                      defaultValue={grup.isi.map((x) => [x.nama, x.ket, x.harga].join(" | ")).join("\n")}
-                      onBlur={(e) => ubah({ isi: e.target.value.split("\n").map((b) => b.split("|").map((x) => x.trim())).filter((b) => b[0]).map((b) => ({ nama: b[0], ket: b.length > 2 ? b[1] : "", harga: b.length > 2 ? b.slice(2).join(" | ") : b[1] ?? "" })) })}
-                    />
-                  </Bidang>
+                  {/* Baris harga: satu baris satu paket, langsung diisi tanpa format khusus. */}
+                  <div className="grid gap-2 sm:col-span-2">
+                    <span className="text-[13px] font-bold text-panel-tinta">Daftar harga</span>
+                    <div className="hidden grid-cols-[1.3fr_1.3fr_9rem_auto] gap-2 px-1 text-xs text-panel-redup sm:grid"><span>Nama paket</span><span>Keterangan (boleh kosong)</span><span>Harga</span><span className="w-[4.5rem]" /></div>
+                    {grup.isi.map((x, r) => {
+                      const ubahBaris = (v: Partial<typeof x>) => ubah({ isi: grup.isi.map((y, q) => (q === r ? { ...y, ...v } : y)) });
+                      return (
+                        <div key={r} data-baris-harga={r} className="grid grid-cols-[1fr_auto] gap-2 rounded-xl bg-white p-2 ring-1 ring-panel-garis sm:grid-cols-[1.3fr_1.3fr_9rem_auto] sm:bg-transparent sm:p-0 sm:ring-0">
+                          <input aria-label="Nama paket" className={masukan} placeholder="Nama paket" value={x.nama} onChange={(e) => ubahBaris({ nama: e.target.value })} />
+                          <input aria-label="Keterangan" className={`${masukan} col-start-1 sm:col-start-auto`} placeholder="Keterangan" value={x.ket} onChange={(e) => ubahBaris({ ket: e.target.value })} />
+                          <input aria-label="Harga" className={`${masukan} col-start-1 sm:col-start-auto`} placeholder="Rp 900.000" value={x.harga} onChange={(e) => ubahBaris({ harga: e.target.value })} />
+                          <span className="col-start-2 row-span-3 row-start-1 flex flex-col items-center justify-center gap-1 sm:col-start-auto sm:row-span-1 sm:row-start-auto sm:flex-row">
+                            <button type="button" aria-label={`Naikkan baris ${r + 1}`} disabled={r === 0} onClick={() => { const n = [...grup.isi]; [n[r - 1], n[r]] = [n[r], n[r - 1]]; ubah({ isi: n }); }} className="grid size-8 place-items-center rounded-full text-panel-redup hover:bg-panel-latar disabled:opacity-30">↑</button>
+                            <button type="button" aria-label={`Hapus baris ${r + 1}`} onClick={() => ubah({ isi: grup.isi.filter((_, q) => q !== r) })} className="grid size-8 place-items-center rounded-full text-lg text-panel-redup hover:bg-panel-merah/10 hover:text-panel-merah">×</button>
+                          </span>
+                        </div>
+                      );
+                    })}
+                    <button type="button" className="justify-self-start text-sm font-bold text-panel-utama underline" onClick={() => ubah({ isi: [...grup.isi, { nama: "", ket: "", harga: "" }] })}>+ Tambah baris harga</button>
+                  </div>
+                  <div className="sm:col-span-2"><PilihFasilitas jenis="selam" terpilih={grup.termasuk ?? []} ubah={(v) => ubah({ termasuk: v })} judul="Termasuk dalam harga" /></div>
                   <button type="button" className="justify-self-start text-sm font-bold text-panel-merah underline" onClick={() => set("paket", k.paket.filter((_, j) => j !== i))}>Hapus kelompok</button>
                 </div>
               );
@@ -262,6 +276,7 @@ export default function Website() {
                     </Bidang>
                   ) : <div />}
                   <Bidang label="Keterangan" className="sm:col-span-2"><textarea rows={2} className={masukan} value={x.isi} onChange={(e) => ubah({ isi: e.target.value })} /></Bidang>
+                  <div className="sm:col-span-2"><PilihFasilitas jenis="trip" terpilih={x.termasuk ?? []} ubah={(v) => ubah({ termasuk: v })} judul="Termasuk" /></div>
                 </div>
               );
             })}

@@ -12,6 +12,8 @@ import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
 import { bacaGaleri, bacaPetaFoto } from "@/lib/server/foto";
+import { bacaKatalog } from "@/lib/server/fasilitas";
+import { ikonFasilitas, type Fasilitas } from "@/lib/fasilitas";
 import { atribut, gambar, gambarItem, type SlotFoto } from "@/lib/foto";
 import { Ikon } from "@/components/situs/ikon";
 import { Nav } from "@/components/situs/interaksi";
@@ -74,6 +76,9 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
   /* Foto unggahan dari dashboard (WebP beberapa ukuran), atau foto bawaan bila slotnya belum diisi. */
   const g = (slot: SlotFoto) => gambar(petaFoto, slot);
   const galeri = await bacaGaleri(petaFoto);
+  /* Fasilitas berikon dari katalog yang diatur pemilik, diterjemahkan sesuai bahasa halaman. */
+  const katalog = await bacaKatalog();
+  const terjemah = (daftar: Fasilitas[], kunci: string[] = []) => kunci.map((x) => daftar.find((d) => d.kunci === x)).filter((x): x is Fasilitas => Boolean(x)).map((x) => ({ d: ikonFasilitas(x.ikon), label: bahasa === "id" ? x.id : x.en }));
   const wa = nomorWa(k.kontak.whatsapp);
   /* Saklar seksi dari menu Website. Bila Pemesanan dimatikan, semua tombol pesan mengarah ke WhatsApp. */
   const on = k.seksi;
@@ -184,7 +189,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
 
         {/* MENGINAP: sorotan dan galeri; tanpa kamar di database memakai isi dari menu Website */}
         {on.menginap && (
-          <Menginap galeri={galeri.menginap.map(gambarItem)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
+          <Menginap katalog={katalog.kamar} galeri={galeri.menginap.map(gambarItem)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
         )}
 
         {/* PROGRAM SELAM: kartu yang membuka dan menampilkan harganya saat ditunjuk kursor */}
@@ -198,7 +203,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               <p className="max-w-xl text-[14.5px] leading-relaxed text-malam/65 lg:justify-self-end">{[k.programCatatan, k.paketCatatan].filter(Boolean).join(" ")}</p>
             </div>
             <div className="muncul mt-8">
-              <HargaSelam foto={(["selam1", "selam2", "selam3", "selam4", "selam5", "selam6"] as const).map(g)} paket={k.paket} tautan={tautanPesan} teks={{ mulai: t.mulai, lihat: t.lihatHarga, pesan: t.cekKetersediaan }} />
+              <HargaSelam termasuk={k.paket.map((x) => terjemah(katalog.selam, x.termasuk))} foto={(["selam1", "selam2", "selam3", "selam4", "selam5", "selam6"] as const).map(g)} paket={k.paket} tautan={tautanPesan} teks={{ mulai: t.mulai, lihat: t.lihatHarga, pesan: t.cekKetersediaan }} />
             </div>
           </div>
         </section>}
@@ -211,7 +216,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 judul={k.aktivitasJudul}
                 isi={k.aktivitasIsi}
                 tanda={<Bintang className="block text-[26px]" />}
-                kartu={k.aktivitas.slice(0, 3).map((x, i) => ({ ...x, video: sumberVideo(k.kontak.aktivitasVideo[i] ?? ""), foto: g((["aktivitas1", "aktivitas2", "aktivitas3"] as const)[i]), posisi: ["object-[60%_40%]", "object-center", "object-[30%_60%]"][i] }))}
+                kartu={k.aktivitas.slice(0, 3).map((x, i) => ({ ...x, termasuk: terjemah(katalog.trip, x.termasuk), video: sumberVideo(k.kontak.aktivitasVideo[i] ?? ""), foto: g((["aktivitas1", "aktivitas2", "aktivitas3"] as const)[i]), posisi: ["object-[60%_40%]", "object-center", "object-[30%_60%]"][i] }))}
               />
               <div className="mt-10">
                 {/* Lima foto pertama galeri aktivitas mengisi mosaik; selebihnya tampil setelah "Show more". */}

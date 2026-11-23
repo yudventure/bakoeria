@@ -25,7 +25,13 @@ export async function bacaKonten(bahasa: Bahasa = "en"): Promise<Konten> {
   const lain = (bahasa === "en" ? id : en) ?? {};
   const k = { ...milik } as Partial<Konten>;
   for (const kunci of BERSAMA) if (k[kunci] === undefined && lain[kunci] !== undefined) (k as Record<string, unknown>)[kunci] = lain[kunci];
-  return rapikanKonten(k, bahasa);
+  const hasil = rapikanKonten(k, bahasa);
+  /* Centang "termasuk" berlaku untuk kedua bahasa: bila bahasa ini belum menyimpannya, ambil dari bahasa lain (per urutan). */
+  const dari = <T extends { termasuk?: unknown }>(milikku: T[] | undefined, punyaLain: T[] | undefined, i: number) =>
+    milikku?.[i]?.termasuk !== undefined ? null : Array.isArray(punyaLain?.[i]?.termasuk) ? (punyaLain![i].termasuk as string[]) : null;
+  hasil.paket = hasil.paket.map((g, i) => ({ ...g, termasuk: dari(milik.paket, lain.paket, i) ?? g.termasuk }));
+  hasil.aktivitas = hasil.aktivitas.map((a, i) => ({ ...a, termasuk: dari(milik.aktivitas, lain.aktivitas, i) ?? a.termasuk }));
+  return hasil;
 }
 
 /**
@@ -54,6 +60,11 @@ export async function simpanKonten(bahasa: Bahasa, isi: unknown): Promise<Konten
       const lain = bahasa === "en" ? "id" : "en";
       const sisi = p[lain] ? { ...p[lain] } : undefined;
       if (sisi) for (const kunci of BERSAMA) (sisi as Record<string, unknown>)[kunci] = baru[kunci];
+      /* Centang "termasuk" pada kelompok harga selam dan aktivitas berlaku untuk kedua bahasa (dicocokkan per urutan). */
+      if (sisi) {
+        if (Array.isArray(sisi.paket)) sisi.paket = sisi.paket.map((g, i) => ({ ...g, termasuk: baru.paket[i]?.termasuk ?? g.termasuk ?? [] }));
+        if (Array.isArray(sisi.aktivitas)) sisi.aktivitas = sisi.aktivitas.map((a, i) => ({ ...a, termasuk: baru.aktivitas[i]?.termasuk ?? a.termasuk ?? [] }));
+      }
       return { [bahasa]: baru, ...(sisi ? { [lain]: sisi } : {}) } as Simpanan;
     },
     0o644,

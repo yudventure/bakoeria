@@ -5,7 +5,7 @@ import VideoLatar from "./video";
 import { atribut, type Gambar } from "@/lib/foto";
 import type { SumberVideo } from "@/lib/konten";
 
-export interface KartuAktivitas { judul: string; isi: string; video: SumberVideo | null; foto: Gambar; posisi?: string }
+export interface KartuAktivitas { judul: string; isi: string; video: SumberVideo | null; foto: Gambar; posisi?: string; /** Yang termasuk, sudah diterjemahkan: ikon dan label. */ termasuk?: { d: string; label: string }[] }
 
 /** Isi satu kartu: video polos (YouTube/TikTok) bila ada, selain itu foto, dengan judul di bawah. */
 function IsiKartu({ k, i }: { k: KartuAktivitas; i: number }) {
@@ -117,6 +117,16 @@ export default function Aktivitas({ kartu, judul, isi, tanda }: { kartu: KartuAk
                 <span className="min-w-0">
                   <span className="block font-display text-[21px] leading-tight text-malam">{k.judul}</span>
                   <span className={`mt-1 block text-[13.5px] leading-relaxed text-malam/65 ${aktif === i ? "" : "lg:line-clamp-1"}`}>{k.isi}</span>
+                  {aktif === i && (k.termasuk?.length ?? 0) > 0 && (
+                    <span data-termasuk className="mt-2.5 flex flex-wrap gap-1.5">
+                      {k.termasuk!.map((x) => (
+                        <span key={x.label} className="flex items-center gap-1.5 rounded-full bg-busa/70 py-1 pl-2 pr-3 text-[12px] text-malam/80">
+                          <svg viewBox="0 0 24 24" className="size-4 shrink-0 text-emas-tua" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={x.d} /></svg>
+                          {x.label}
+                        </span>
+                      ))}
+                    </span>
+                  )}
                 </span>
               </button>
             </li>
