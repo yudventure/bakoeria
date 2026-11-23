@@ -3,6 +3,7 @@ import { KAMUS, type Bahasa } from "@/lib/kamus";
 import type { Kamar } from "@/lib/server/buku";
 import Galeri, { type FotoGaleri } from "./galeri";
 import VideoLatar from "./video";
+import type { Gambar } from "@/lib/foto";
 
 /**
  * Bagian "Menginap": sorotan dan galeri, bukan daftar kartu kamar.
@@ -26,7 +27,7 @@ const Ikon = ({ d, className = "" }: { d: string; className?: string }) => (
   <svg viewBox="0 0 24 24" className={`size-5 shrink-0 ${className}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
 );
 
-export default function Menginap({ jenis, isi, bahasa, tanda, video, pesan = "#pesan" }: { jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "" (tombol disembunyikan). */ pesan?: string; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
+export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, poster, pesan = "#pesan" }: { /** Foto slot kamar1-kamar5. */ galeri: Gambar[]; poster: Gambar; jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "" (tombol disembunyikan). */ pesan?: string; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
   const t = KAMUS[bahasa];
   const g = t.galeri;
   const fitur = (r: Kamar) => (bahasa === "id" ? (r.featuresId.length ? r.featuresId : r.featuresEn) : r.featuresEn.length ? r.featuresEn : r.featuresId);
@@ -40,11 +41,11 @@ export default function Menginap({ jenis, isi, bahasa, tanda, video, pesan = "#p
 
   /* Mosaik 12 kolom x 6 baris dengan ukuran ubin berbeda-beda; semua sudutnya membulat kecil, sama dengan bingkai video. */
   const foto: FotoGaleri[] = [
-    { src: "/img/cottage-left.jpg", alt: g.alt[0], kelas: "col-span-3 row-span-2 aspect-[3/4] lg:col-span-3 lg:col-start-1 lg:row-span-4 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[35%_50%]" },
-    { src: "/img/resort-night.jpg", alt: g.alt[1], kelas: "col-span-3 aspect-[3/2] lg:col-span-6 lg:col-start-4 lg:row-span-3 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_78%]" },
-    { src: "/img/lights-path.jpg", alt: g.alt[2], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-10 lg:row-span-3 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[55%_50%]" },
-    { src: "/img/cottage-right.jpg", alt: g.alt[3], kelas: "col-span-3 aspect-[3/2] lg:col-span-4 lg:col-start-4 lg:row-span-3 lg:row-start-4 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[60%_55%]" },
-    { src: "/img/palms.jpg", alt: g.alt[4], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-5 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_30%]" },
+    { ...galeri[0], alt: g.alt[0], kelas: "col-span-3 row-span-2 aspect-[3/4] lg:col-span-3 lg:col-start-1 lg:row-span-4 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[35%_50%]" },
+    { ...galeri[1], alt: g.alt[1], kelas: "col-span-3 aspect-[3/2] lg:col-span-6 lg:col-start-4 lg:row-span-3 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_78%]" },
+    { ...galeri[2], alt: g.alt[2], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-10 lg:row-span-3 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[55%_50%]" },
+    { ...galeri[3], alt: g.alt[3], kelas: "col-span-3 aspect-[3/2] lg:col-span-4 lg:col-start-4 lg:row-span-3 lg:row-start-4 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[60%_55%]" },
+    { ...galeri[4], alt: g.alt[4], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-5 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_30%]" },
   ];
 
   return (
@@ -58,7 +59,7 @@ export default function Menginap({ jenis, isi, bahasa, tanda, video, pesan = "#p
           <p className="max-w-xl text-[15.5px] leading-relaxed text-malam/65 lg:justify-self-end">{isi}</p>
         </div>
 
-        {video && <div className="mt-10"><VideoLatar id={video} poster="/img/resort-night.jpg" judul={g.video} /></div>}
+        {video && <div className="mt-10"><VideoLatar id={video} poster={poster} sizes="(min-width: 1152px) 1152px, 100vw" judul={g.video} /></div>}
 
         <div className={video ? "mt-4" : "mt-10"}>
           <Galeri foto={foto} teks={{ buka: g.buka, tutup: g.tutup, sebelum: g.sebelum, sesudah: g.sesudah }}>

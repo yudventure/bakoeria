@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import VideoLatar from "./video";
+import { atribut, type Gambar } from "@/lib/foto";
 
-export interface KartuAktivitas { judul: string; isi: string; video: string; foto: string; posisi?: string }
+export interface KartuAktivitas { judul: string; isi: string; video: string; foto: Gambar; posisi?: string }
 
 /**
  * Tiga kartu tegak 9:16 untuk aktivitas lain (pola dari situs Mambetron): kartu
@@ -61,9 +62,9 @@ export default function Aktivitas({ kartu, judul, isi, tanda }: { kartu: KartuAk
               className={`order-[var(--o)] lg:order-[var(--ol)] relative aspect-[9/16] w-[min(62vw,16rem)] shrink-0 snap-center overflow-hidden rounded-[1.4rem] bg-malam transition-all duration-500 ease-out lg:w-auto lg:min-w-0 lg:shrink ${besar ? "lg:h-full lg:shadow-[0_24px_60px_rgba(10,36,64,.25)]" : "lg:h-[78%] lg:opacity-90"}`}
             >
               {k.video ? (
-                <VideoLatar id={k.video} poster={k.foto} judul={k.judul} tegak className="rounded-none" />
+                <VideoLatar id={k.video} poster={k.foto} sizes="(min-width: 1024px) 33vw, 100vw" judul={k.judul} tegak className="rounded-none" />
               ) : (
-                <img src={k.foto} alt="" loading="lazy" className={`absolute inset-0 size-full object-cover ${k.posisi ?? ""}`} />
+                <img {...atribut(k.foto, "(min-width: 1024px) 33vw, 100vw")} alt="" loading="lazy" className={`absolute inset-0 size-full object-cover ${k.posisi ?? ""}`} />
               )}
               <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(10,36,64,0)_45%,rgba(10,36,64,.78))]" />
               <span className="pointer-events-none absolute inset-x-0 bottom-0 p-4 text-white">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { atribut, type Gambar } from "@/lib/foto";
 
 /**
  * Video latar dari YouTube: 16:9, diputar otomatis, berulang, tanpa suara, dan
@@ -16,7 +17,7 @@ import { useEffect, useRef, useState } from "react";
  *
  * Pemutar baru dimuat saat bingkai mendekati layar, dari youtube-nocookie.com.
  */
-export default function VideoLatar({ id, poster, judul, tegak = false, className = "" }: { id: string; poster: string; judul: string; /** Bingkai 9:16 untuk video tegak (Shorts). */ tegak?: boolean; className?: string }) {
+export default function VideoLatar({ id, poster, judul, tegak = false, className = "", sizes = "100vw" }: { id: string; poster: Gambar; sizes?: string; judul: string; /** Bingkai 9:16 untuk video tegak (Shorts). */ tegak?: boolean; className?: string }) {
   const bingkai = useRef<HTMLDivElement>(null);
   const pemutar = useRef<HTMLIFrameElement>(null);
   const [muat, setMuat] = useState(false);
@@ -52,7 +53,7 @@ export default function VideoLatar({ id, poster, judul, tegak = false, className
   const src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&disablekb=1&fs=0&iv_load_policy=3&modestbranding=1&playsinline=1&rel=0&enablejsapi=1`;
   return (
     <div ref={bingkai} className={`relative overflow-hidden rounded-[1.4rem] bg-malam ${tegak ? "size-full" : "muncul aspect-video w-full"} ${className}`} role="img" aria-label={judul}>
-      <img src={poster} alt="" className="absolute inset-0 size-full object-cover" />
+      <img {...atribut(poster, sizes)} alt="" className="absolute inset-0 size-full object-cover" />
       {muat && (
         <iframe
           ref={pemutar}

@@ -11,6 +11,8 @@ import { tautanPeta, idYoutube, nomorWa } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
+import { bacaPetaFoto } from "@/lib/server/foto";
+import { atribut, gambar, type SlotFoto } from "@/lib/foto";
 import { Ikon } from "@/components/situs/ikon";
 import { Nav } from "@/components/situs/interaksi";
 import { Gerak, JudulHero } from "@/components/situs/gerak";
@@ -22,7 +24,6 @@ const ALT = {
   id: { hero: "Cottage kayu jati Bakoeria dengan lampu hangat di malam hari", foto: ["Cottage kayu jati dengan jendela menyala", "Teras cottage di malam hari", "Jalan berpasir dengan lampu gantung"], cottage: "Cottage kayu jati" },
 };
 
-const FOTO = ["/img/cottage-left.jpg", "/img/cottage-right.jpg", "/img/lights-path.jpg", "/img/resort-night.jpg"];
 
 /** Kalimat dengan *kata* beraksen emas. */
 function Aksen({ teks }: { teks: string }) {
@@ -62,7 +63,9 @@ async function kamarPublik(): Promise<Kamar[]> {
 export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
   const t = KAMUS[bahasa];
   const alt = ALT[bahasa];
-  const [k, set, kamar] = await Promise.all([bacaKonten(bahasa), bacaPengaturan(), kamarPublik()]);
+  const [k, set, kamar, petaFoto] = await Promise.all([bacaKonten(bahasa), bacaPengaturan(), kamarPublik(), bacaPetaFoto()]);
+  /* Foto unggahan dari dashboard (WebP beberapa ukuran), atau foto bawaan bila slotnya belum diisi. */
+  const g = (slot: SlotFoto) => gambar(petaFoto, slot);
   const wa = nomorWa(k.kontak.whatsapp);
   /* Saklar seksi dari menu Website. Bila Pemesanan dimatikan, semua tombol pesan mengarah ke WhatsApp. */
   const on = k.seksi;
@@ -99,7 +102,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         <section id="atas" className="relative scroll-mt-24 px-2 sm:px-3">
           <div className="relative flex min-h-[560px] flex-col overflow-hidden rounded-[2rem] rounded-b-[2.5rem] sm:min-h-[600px] lg:h-[min(78svh,700px)]">
             <div className="hero-masuk absolute inset-0">
-              <img data-hero-foto src="/img/resort-night.jpg" alt={alt.hero} className="h-full w-full object-cover object-[58%_70%] will-change-transform" />
+              <img data-hero-foto {...atribut(g("hero"), "100vw")} fetchPriority="high" alt={alt.hero} className="h-full w-full object-cover object-[58%_70%] will-change-transform" />
             </div>
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,36,64,.6)_0%,rgba(10,36,64,.2)_40%,rgba(10,36,64,.05)_62%,rgba(10,36,64,.5)_100%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_22%_52%,rgba(10,36,64,.62)_0%,rgba(10,36,64,0)_58%)]" />
@@ -127,16 +130,16 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 <p className="pr-8 text-[clamp(18px,2.1vw,25px)] font-normal uppercase leading-[1.35] tracking-[0.02em] text-malam">
                   <Aksen teks={k.pernyataan} />
                   <span className="ml-2 inline-block h-[0.9em] w-[3.2em] translate-y-[0.12em] overflow-hidden rounded-full align-baseline">
-                    <img src="/img/lights-path.jpg" alt="" className="h-full w-full object-cover" />
+                    <img {...atribut(g("aksen"), "80px")} alt="" className="h-full w-full object-cover" />
                   </span>
                 </p>
                 <p className="mt-4 text-right font-display text-xl tracking-[0.3em] text-emas-tua/70" aria-hidden="true">///</p>
               </div>
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_0.85fr] lg:items-center">
-              {FOTO.slice(0, 3).map((f, i) => (
+              {(["tentang1", "tentang2", "tentang3"] as const).map((f, i) => (
                 <figure key={f} className="muncul-foto m-0 aspect-[4/3] overflow-hidden rounded-[1.4rem]" style={{ "--tunda": i } as React.CSSProperties}>
-                  <img src={f} alt={alt.foto[i]} loading="lazy" className="h-full w-full object-cover" />
+                  <img {...atribut(g(f), "(min-width: 1024px) 26vw, (min-width: 640px) 50vw, 100vw")} alt={alt.foto[i]} loading="lazy" className="h-full w-full object-cover" />
                 </figure>
               ))}
               <div className="muncul text-[14px] leading-relaxed text-malam/65 sm:col-span-2 lg:col-span-1 lg:pl-4" style={{ "--tunda": 3 } as React.CSSProperties}>
@@ -150,7 +153,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         {/* KEUNGGULAN */}
         {on.keunggulan && k.keunggulan.length > 0 && (
           <section className="relative overflow-hidden">
-            <img data-parallax="0.6" src="/img/palms.jpg" alt="" className="absolute inset-0 h-full w-full object-cover will-change-transform" loading="lazy" />
+            <img data-parallax="0.6" {...atribut(g("keunggulan"), "100vw")} alt="" className="absolute inset-0 h-full w-full object-cover will-change-transform" loading="lazy" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,36,64,.82)_0%,rgba(10,36,64,.55)_45%,rgba(10,36,64,.35)_100%)]" />
             <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <h2 className="muncul font-display text-[clamp(40px,5.2vw,64px)] font-normal leading-[0.98] tracking-[-0.02em] text-white">
@@ -173,7 +176,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
 
         {/* MENGINAP: sorotan dan galeri; tanpa kamar di database memakai isi dari menu Website */}
         {!on.menginap ? null : jenis.length > 0 ? (
-          <Menginap jenis={jenis} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
+          <Menginap galeri={(["kamar1", "kamar2", "kamar3", "kamar4", "kamar5"] as const).map(g)} poster={g("video")} jenis={jenis} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
         ) : (
           <section id="menginap" className="scroll-mt-24 px-5 py-20">
             <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
@@ -183,7 +186,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 <p className="mt-4 text-[14px] text-malam/60">{k.cottageIsi}</p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <img src="/img/cottage-left.jpg" alt={alt.cottage} className="muncul aspect-[16/10] w-full rounded-[1.4rem] object-cover" />
+                <img {...atribut(g("kamar1"), "(min-width: 640px) 45vw, 100vw")} alt={alt.cottage} className="muncul aspect-[16/10] w-full rounded-[1.4rem] object-cover" />
                 <div className="muncul rounded-[1.4rem] bg-white p-6 shadow-[0_10px_30px_rgba(10,36,64,.07)] ring-1 ring-malam/5">
                   <h3 className="font-display text-2xl">{k.cottageJudul}</h3>
                   <ul className="mt-4 grid gap-2 text-[14px] text-malam/70">
@@ -206,7 +209,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               <p className="max-w-xl text-[14.5px] leading-relaxed text-malam/65 lg:justify-self-end">{[k.programCatatan, k.paketCatatan].filter(Boolean).join(" ")}</p>
             </div>
             <div className="muncul mt-8">
-              <HargaSelam paket={k.paket} tautan={tautanPesan} teks={{ mulai: t.mulai, lihat: t.lihatHarga, pesan: t.cekKetersediaan }} />
+              <HargaSelam foto={(["selam1", "selam2", "selam3", "selam4", "selam5", "selam6"] as const).map(g)} paket={k.paket} tautan={tautanPesan} teks={{ mulai: t.mulai, lihat: t.lihatHarga, pesan: t.cekKetersediaan }} />
             </div>
           </div>
         </section>}
@@ -219,17 +222,17 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 judul={k.aktivitasJudul}
                 isi={k.aktivitasIsi}
                 tanda={<Bintang className="block text-[26px]" />}
-                kartu={k.aktivitas.slice(0, 3).map((x, i) => ({ ...x, video: idYoutube(k.kontak.aktivitasVideo[i] ?? ""), foto: ["/img/palms.jpg", "/img/lights-path.jpg", "/img/resort-night.jpg"][i], posisi: ["object-[60%_40%]", "object-center", "object-[30%_60%]"][i] }))}
+                kartu={k.aktivitas.slice(0, 3).map((x, i) => ({ ...x, video: idYoutube(k.kontak.aktivitasVideo[i] ?? ""), foto: g((["aktivitas1", "aktivitas2", "aktivitas3"] as const)[i]), posisi: ["object-[60%_40%]", "object-center", "object-[30%_60%]"][i] }))}
               />
               <div className="mt-10">
                 <Galeri
                   teks={{ buka: t.galeri.buka, tutup: t.galeri.tutup, sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah }}
                   foto={[
-                    { src: "/img/resort-night.jpg", alt: t.galeri.alt[1], kelas: "col-span-6 aspect-[3/2] lg:col-span-6 lg:row-span-6 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_70%]" },
-                    { src: "/img/palms.jpg", alt: t.galeri.alt[4], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
-                    { src: "/img/lights-path.jpg", alt: t.galeri.alt[2], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
-                    { src: "/img/cottage-left.jpg", alt: t.galeri.alt[0], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
-                    { src: "/img/cottage-right.jpg", alt: t.galeri.alt[3], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
+                    { ...g("galeri1"), alt: t.galeri.alt[1], kelas: "col-span-6 aspect-[3/2] lg:col-span-6 lg:row-span-6 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_70%]" },
+                    { ...g("galeri2"), alt: t.galeri.alt[4], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
+                    { ...g("galeri3"), alt: t.galeri.alt[2], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
+                    { ...g("galeri4"), alt: t.galeri.alt[0], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
+                    { ...g("galeri5"), alt: t.galeri.alt[3], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
                   ]}
                 />
               </div>
@@ -327,7 +330,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
 
         {/* PESAN */}
         {on.pesan && <section id="pesan" className="relative scroll-mt-24 overflow-hidden px-5 pb-56 pt-20 sm:pb-64">
-          <img src="/img/resort-night.jpg" alt="" loading="lazy" className="absolute inset-x-0 bottom-0 h-[46%] w-full object-cover object-[50%_80%] [mask-image:linear-gradient(180deg,transparent,#000_40%)]" />
+          <img {...atribut(g("pesan"), "100vw")} alt="" loading="lazy" className="absolute inset-x-0 bottom-0 h-[46%] w-full object-cover object-[50%_80%] [mask-image:linear-gradient(180deg,transparent,#000_40%)]" />
           <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
             <div className="muncul">
               <h2 className="font-display text-[clamp(40px,5vw,58px)] font-normal leading-[0.98] tracking-[-0.02em]">{t.rencanakan}</h2>

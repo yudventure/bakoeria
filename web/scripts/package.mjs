@@ -36,9 +36,15 @@ if (!commit) {
 }
 writeFileSync(join(standalone, "public", "version.json"), JSON.stringify({ commit, short: commit.slice(0, 7), builtAt: new Date().toISOString() }, null, 2) + "\n");
 
-/* Tidak ada next/image di aplikasi ini (images.unoptimized), jadi biner sharp
-   yang ikut tertelusur tidak pernah dipanggil. Dibuang supaya arsip kecil. */
-for (const dead of ["@img", "sharp"]) rmSync(join(standalone, "node_modules", dead), { recursive: true, force: true });
+/* sharp dipakai /api/foto untuk mengubah foto unggahan menjadi WebP, jadi
+   tetap dikemas, dengan biner Linux x64 glibc (sistem Hostinger). Varian musl
+   (Alpine) dibuang supaya arsip tidak membengkak; bila suatu saat sharp gagal
+   dimuat, dashboard mengubah foto di browser. */
+if (!existsSync(join(standalone, "node_modules", "sharp"))) {
+  console.error("Gagal: node_modules/sharp tidak ikut dikemas; unggah foto tidak akan bisa mengubah ukuran di server.");
+  process.exit(1);
+}
+for (const musl of ["sharp-linuxmusl-x64", "sharp-libvips-linuxmusl-x64"]) rmSync(join(standalone, "node_modules", "@img", musl), { recursive: true, force: true });
 
 /* package.json yang jujur tentang isi folder ini: dependensi runtime dengan
    versi persis, `start` menjalankan server, dan `build` yang tidak membangun

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { PaketGrup } from "@/lib/konten";
+import { atribut, type Gambar } from "@/lib/foto";
 import { Ikon } from "./ikon";
 
 const IKON: [RegExp, string][] = [
@@ -13,8 +14,7 @@ const IKON: [RegExp, string][] = [
   [/dive|selam/i, "selam"],
 ];
 const ikon = (judul: string) => IKON.find(([r]) => r.test(judul))?.[1] ?? "gelembung";
-/* Foto latar kartu yang belum terbuka. Sementara memakai foto resort yang ada; ganti dengan foto selam bila tersedia. */
-const FOTO = ["/img/resort-night.jpg", "/img/palms.jpg", "/img/cottage-right.jpg", "/img/lights-path.jpg", "/img/cottage-left.jpg", "/img/resort-night.jpg"];
+/* Foto latar kartu yang belum terbuka datang dari slot selam1-selam6 (menu Website, kotak Foto). */
 const POSISI = ["object-[20%_60%]", "object-center", "object-[60%_50%]", "object-center", "object-[35%_50%]", "object-[80%_70%]"];
 const angka = (h: string) => Number(h.replace(/\D/g, "")) || 0;
 
@@ -24,7 +24,7 @@ const angka = (h: string) => Number(h.replace(/\D/g, "")) || 0;
  * kartu lain menyempit. Kartu pertama terbuka sejak awal. Di layar sempit kartu
  * ditumpuk dan dibuka dengan ketukan.
  */
-export default function HargaSelam({ paket, teks, tautan = "#pesan" }: { paket: PaketGrup[]; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "". */ tautan?: string; teks: { mulai: string; lihat: string; pesan: string } }) {
+export default function HargaSelam({ paket, teks, foto, tautan = "#pesan" }: { paket: PaketGrup[]; foto: Gambar[]; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "". */ tautan?: string; teks: { mulai: string; lihat: string; pesan: string } }) {
   const [buka, setBuka] = useState(0);
   const lebar = () => window.matchMedia("(min-width: 1024px) and (hover: hover)").matches;
   return (
@@ -41,7 +41,7 @@ export default function HargaSelam({ paket, teks, tautan = "#pesan" }: { paket: 
           >
             {/* Foto latar yang digelapkan; memudar saat kartu terbuka. */}
             <span aria-hidden="true" className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ${terbuka ? "opacity-0" : "opacity-100"}`}>
-              <img src={FOTO[i % FOTO.length]} alt="" loading="lazy" className={`size-full object-cover ${POSISI[i % POSISI.length]}`} />
+              <img {...atribut(foto[i % foto.length], "(min-width: 1024px) 34vw, 100vw")} alt="" loading="lazy" className={`size-full object-cover ${POSISI[i % POSISI.length]}`} />
               <span className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,36,64,.30),rgba(10,36,64,.55))]" />
             </span>
             <button

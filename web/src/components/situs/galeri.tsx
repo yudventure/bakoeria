@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export interface FotoGaleri { src: string; alt: string; kelas: string; bentuk: string; posisi?: string }
+export interface FotoGaleri { src: string; srcSet?: string; style?: React.CSSProperties; alt: string; kelas: string; bentuk: string; posisi?: string }
 
 /**
  * Galeri mosaik: tiap foto punya ukuran sendiri, dengan sudut membulat kecil.
@@ -32,7 +32,7 @@ export default function Galeri({ foto, teks, children }: { foto: FotoGaleri[]; t
             style={{ "--tunda": i } as React.CSSProperties}
             className={`muncul-foto group relative overflow-hidden outline-none ring-emas-tua ring-offset-2 ring-offset-[#F6F4EF] focus-visible:ring-2 ${x.bentuk} ${x.kelas}`}
           >
-            <img src={x.src} alt={x.alt} loading="lazy" className={`size-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.07] ${x.posisi ?? ""}`} />
+            <img src={x.src} srcSet={x.srcSet} sizes={x.srcSet ? "(min-width: 1024px) 45vw, 50vw" : undefined} style={x.style} alt={x.alt} loading="lazy" className={`size-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.07] ${x.posisi ?? ""}`} />
             <span aria-hidden="true" className="pointer-events-none absolute bottom-3 right-3 grid size-9 place-items-center rounded-full bg-white/85 text-malam opacity-0 shadow transition group-hover:opacity-100 group-focus-visible:opacity-100">
               <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M15 4h5v5M9 20H4v-5M20 4l-6 6M4 20l6-6" /></svg>
             </span>
@@ -53,7 +53,7 @@ export default function Galeri({ foto, teks, children }: { foto: FotoGaleri[]; t
       >
         {f && (
           <figure className="relative">
-            <img src={f.src} alt={f.alt} className="max-h-[80svh] w-auto max-w-full rounded-[1.4rem] object-contain shadow-2xl" />
+            <img src={f.src} srcSet={f.srcSet} sizes={f.srcSet ? "94vw" : undefined} alt={f.alt} className="max-h-[80svh] w-auto max-w-full rounded-[1.4rem] object-contain shadow-2xl" />
             <figcaption className="mt-3 flex items-center justify-between gap-4 text-sm text-white/85">
               <span>{f.alt}</span>
               <span className="angka shrink-0">{buka! + 1} / {foto.length}</span>

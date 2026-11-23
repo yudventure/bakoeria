@@ -5,6 +5,7 @@ import { idYoutube, IKON_KEUNGGULAN, SEKSI, type Konten } from "@/lib/konten";
 import { api } from "../api";
 import { Bidang, Galat, Kartu, masukan, Memuat, Tab, Tombol, useToast } from "../ui";
 import type { Bahasa } from "@/lib/kamus";
+import FotoSitus from "../foto-situs";
 
 export default function Website() {
   const toast = useToast();
@@ -95,6 +96,7 @@ export default function Website() {
           })}
         </ul>
       </Kartu>
+      <FotoSitus />
       <Kartu judul="Kontak">
         <div className="grid gap-4 sm:grid-cols-2">
           <Bidang label="WhatsApp"><input className={masukan} value={k.kontak.whatsapp} onChange={(e) => set("kontak", { ...k.kontak, whatsapp: e.target.value })} /></Bidang>
