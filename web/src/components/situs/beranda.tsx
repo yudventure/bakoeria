@@ -7,7 +7,7 @@ import Galeri from "./galeri";
 import { pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
-import { tautanPeta, idYoutube, nomorWa } from "@/lib/konten";
+import { tautanPeta, idYoutube, nomorWa, titikResort } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
@@ -276,7 +276,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               {/* Dua kolom sama tinggi: peta mengisi kolomnya, tombol menempel di dasar sejajar tepi bawah peta. */}
               <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-stretch">
                 <div className="muncul min-h-[22rem]">
-                  <PetaRute id={`peta-${bahasa}`} teks={{ ...t.peta, feri: [t.peta.feri, k.caraWaktuFeri].filter(Boolean).join(" · "), perahu: [t.peta.perahu, k.caraWaktuPerahu].filter(Boolean).join(" · "), speedboat: [t.peta.speedboat, k.cara[1]?.waktu].filter(Boolean).join(" · ") }} />
+                  <PetaRute titik={titikResort(k)} id={`peta-${bahasa}`} teks={{ ...t.peta, feri: [t.peta.feri, k.caraWaktuFeri].filter(Boolean).join(" · "), perahu: [t.peta.perahu, k.caraWaktuPerahu].filter(Boolean).join(" · "), speedboat: [t.peta.speedboat, k.cara[1]?.waktu].filter(Boolean).join(" · ") }} />
                 </div>
                 <div className="flex flex-col">
                   {/* Langkah pertama sama untuk semua; sisanya jalur alternatif A dan B. */}
@@ -297,7 +297,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                   </ol>
                   {k.caraCatatan && <p className="muncul mt-5 text-[13.5px] leading-relaxed text-malam/60">{k.caraCatatan}</p>}
                   <div className="muncul mt-5 grid gap-3 sm:grid-cols-2 lg:mt-auto lg:pt-5">
-                    <a href={tautanPeta()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-emas-tua px-4 py-3 text-center text-sm font-bold text-white transition hover:brightness-110"><Ikon nama="pin" className="size-4 shrink-0" />{t.peta.buka}</a>
+                    <a href={tautanPeta(titikResort(k))} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-emas-tua px-4 py-3 text-center text-sm font-bold text-white transition hover:brightness-110"><Ikon nama="pin" className="size-4 shrink-0" />{t.peta.buka}</a>
                     {wa && <a href={`https://wa.me/${wa}?text=${encodeURIComponent(t.peta.pesanWa)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-4 py-3 text-center text-sm font-bold text-malam ring-1 ring-malam/15 transition hover:bg-busa"><Ikon nama="wa" className="size-4 shrink-0" />{t.peta.tanya}</a>}
                   </div>
                 </div>

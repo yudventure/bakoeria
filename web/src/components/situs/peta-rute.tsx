@@ -1,4 +1,4 @@
-import { KOORDINAT } from "@/lib/konten";
+import { KOORDINAT, type Titik } from "@/lib/konten";
 
 /**
  * Peta rute bergambar (pola dari situs Fantasea): pesawat mendarat di Sorong, lalu
@@ -11,7 +11,6 @@ const xy = (lat: number, lon: number): [number, number] => [Math.round((lon - 13
 const SORONG = xy(-0.878, 131.248);   // pelabuhan Sorong
 const BANDARA = xy(-0.894, 131.287);  // Bandara Domine Eduard Osok
 const WAISAI = xy(-0.432, 130.822);   // pelabuhan Waisai
-const RESORT = xy(KOORDINAT.lat, KOORDINAT.lon);
 /* Bagian peta yang ditampilkan: dari Teluk Kabui dan Waisai di utara sampai Sorong di tenggara. */
 const KOTAK = { x: 345, y: 215, l: 915, t: 895 };
 
@@ -44,7 +43,10 @@ const Label = ({ x, y, teks, warna, jangkar = "start" }: { x: number; y: number;
   <text x={x} y={y} textAnchor={jangkar} fontSize="14" fontWeight="700" fill={warna} stroke="#FFFFFF" strokeWidth="4" paintOrder="stroke" strokeLinejoin="round">{teks}</text>
 );
 
-export default function PetaRute({ teks, id }: { teks: TeksPeta; id: string }) {
+export default function PetaRute({ teks, id, titik = KOORDINAT }: { teks: TeksPeta; id: string; /** Titik resort dari menu Website. */ titik?: Titik }) {
+  /* Titik di luar bingkai peta (salah ketik) tidak menyeret penanda keluar; dipakai titik bawaan. */
+  const p = xy(titik.lat, titik.lon);
+  const RESORT = p[0] > KOTAK.x + 40 && p[0] < KOTAK.x + KOTAK.l - 40 && p[1] > KOTAK.y + 110 && p[1] < KOTAK.y + KOTAK.t - 40 ? p : xy(KOORDINAT.lat, KOORDINAT.lon);
   const [sx, sy] = SORONG, [wx, wy] = WAISAI, [rx, ry] = RESORT, [bx, by] = BANDARA;
   const jalurA = [[sx, sy], [sx - 230, sy - 20], [rx + 200, ry + 210], [rx + 6, ry + 4]];
   const jalurB = [[sx, sy], [sx - 90, sy - 150], [wx + 130, wy + 150], [wx, wy + 6]];
@@ -109,7 +111,7 @@ export default function PetaRute({ teks, id }: { teks: TeksPeta; id: string }) {
         </g>
         <text x={rx - 52} y={ry - 52} textAnchor="end" fontSize="17" fontWeight="700" letterSpacing="1.5" fill="#133250" stroke="#F1E9DA" strokeWidth="5" paintOrder="stroke">BAKOERIA</text>
       </svg>
-      <figcaption className="px-5 py-3 text-xs text-malam/60">{teks.ket} · <span className="angka">{KOORDINAT.lat}, {KOORDINAT.lon}</span> · © OpenStreetMap contributors, GSHHG</figcaption>
+      <figcaption className="px-5 py-3 text-xs text-malam/60">{teks.ket} · <span className="angka">{titik.lat}, {titik.lon}</span> · © OpenStreetMap contributors, GSHHG</figcaption>
     </figure>
   );
 }

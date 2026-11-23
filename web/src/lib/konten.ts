@@ -66,7 +66,7 @@ export interface Konten {
   galeriJudul: string;
   tanya: Tanya[];
   pesanIsi: string;
-  kontak: { whatsapp: string; email: string; instagram: string; alamat: string; peta: string; facebook: string; tiktok: string; youtube: string; /** Tautan video YouTube untuk bagian Menginap (diputar otomatis, berulang, tanpa suara). */ video: string; /** Tautan video YouTube (sebaiknya tegak/Shorts) untuk tiga aktivitas pertama. */ aktivitasVideo: string[] };
+  kontak: { whatsapp: string; email: string; instagram: string; alamat: string; /** Titik resort di peta, "lintang, bujur" (disalin dari Google Maps). */ peta: string; facebook: string; tiktok: string; youtube: string; /** Tautan video YouTube untuk bagian Menginap (diputar otomatis, berulang, tanpa suara). */ video: string; /** Tautan video YouTube (sebaiknya tegak/Shorts) untuk tiga aktivitas pertama. */ aktivitasVideo: string[] };
   /** Paragraf pendek di kolom pertama footer. */
   footerTentang: string;
   pengumuman: string;
@@ -591,7 +591,7 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
       email: s(kontak.email, b.kontak.email),
       instagram: s(kontak.instagram, b.kontak.instagram),
       alamat: s(kontak.alamat, b.kontak.alamat),
-      peta: tautan(kontak.peta),
+      peta: rapikanTitik(kontak.peta),
       facebook: tautan(kontak.facebook),
       tiktok: tautan(kontak.tiktok),
       youtube: tautan(kontak.youtube),
@@ -631,4 +631,41 @@ export function idYoutube(tautan: string): string {
 
 /** Titik resort di peta (lintang, bujur), dipakai peta "Cara menuju ke sini" dan tautan Google Maps. */
 export const KOORDINAT = { lat: -0.460074, lon: 130.691116 } as const;
-export const tautanPeta = () => `https://www.google.com/maps/search/?api=1&query=${KOORDINAT.lat},${KOORDINAT.lon}`;
+export type Titik = { lat: number; lon: number };
+export const tautanPeta = (t: Titik = KOORDINAT) => `https://www.google.com/maps/search/?api=1&query=${t.lat},${t.lon}`;
+
+/**
+ * Baca titik koordinat dari apa pun yang disalin dari Google Maps:
+ *  - angka desimal: "-0.460074, 130.691116" (klik kanan titik di Google Maps, klik angkanya)
+ *  - derajat-menit-detik: 0°27'36.3"S 130°41'28.0"E
+ *  - tautan panjang yang memuat koordinat (@lat,lon, !3d..!4d.., ?q=lat,lon).
+ * Tautan pendek maps.app.goo.gl tidak memuat koordinat, jadi tidak bisa dibaca.
+ */
+export function bacaTitik(v: unknown): Titik | null {
+  if (typeof v !== "string") return null;
+  const s = decodeURIComponent(v.replace(/%(?![0-9a-f]{2})/gi, "%25")).trim();
+  if (!s) return null;
+  const sah = (a: number, b: number): Titik | null =>
+    Number.isFinite(a) && Number.isFinite(b) && Math.abs(a) <= 90 && Math.abs(b) <= 180 && !(a === 0 && b === 0) ? { lat: Math.round(a * 1e6) / 1e6, lon: Math.round(b * 1e6) / 1e6 } : null;
+  const angka = "(-?\\d{1,3}(?:[.,]\\d+)?)";
+  const n = (x: string) => Number(x.replace(",", "."));
+  for (const r of [/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/, /[?&](?:q|query|ll|destination|center)=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/, /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/]) {
+    const m = r.exec(s);
+    if (m) return sah(Number(m[1]), Number(m[2]));
+  }
+  const dms = /(\d{1,3})\s*°\s*(\d{1,2})\s*['′’]\s*(\d{1,2}(?:[.,]\d+)?)\s*(?:["″”]|'')?\s*([NSUL])[\s,;]+(\d{1,3})\s*°\s*(\d{1,2})\s*['′’]\s*(\d{1,2}(?:[.,]\d+)?)\s*(?:["″”]|'')?\s*([EWTB])/i.exec(s);
+  if (dms) {
+    const derajat = (d: string, m: string, dt: string, arah: string) => (Number(d) + Number(m) / 60 + n(dt) / 3600) * (/[SWB]/i.test(arah) ? -1 : 1);
+    return sah(derajat(dms[1], dms[2], dms[3], dms[4]), derajat(dms[5], dms[6], dms[7], dms[8]));
+  }
+  const des = new RegExp(`^\\(?\\s*${angka}\\s*[,;\\s]\\s*${angka}\\s*\\)?$`).exec(s.replace(/,\s+/, "; ").replace(/\s*;\s*/, ";"));
+  if (des) return sah(n(des[1]), n(des[2]));
+  return null;
+}
+/** Simpanan titik: "lintang, bujur", atau "" bila tidak terbaca (situs lalu memakai KOORDINAT). */
+export const rapikanTitik = (v: unknown) => {
+  const t = bacaTitik(v);
+  return t ? `${t.lat}, ${t.lon}` : "";
+};
+/** Titik resort yang dipakai situs. */
+export const titikResort = (k: Pick<Konten, "kontak">): Titik => bacaTitik(k.kontak.peta) ?? KOORDINAT;

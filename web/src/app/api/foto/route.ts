@@ -1,56 +1,38 @@
 import { adaSlot } from "@/lib/foto";
 import { wajib } from "@/lib/server/akses";
-import { aturSlot, bacaPetaFoto, MAKS_ASLI, muatSharp, olahFoto, simpanHasilKlien } from "@/lib/server/foto";
+import { aturSlot, bacaPetaFoto, ID_SAH, resmikan } from "@/lib/server/foto";
 import { badan, gagal, ok } from "@/lib/server/rute";
 
 export const dynamic = "force-dynamic";
 
-/** Foto situs per slot, dan apakah server bisa mengubah foto sendiri. */
+/** Foto situs per slot. */
 export async function GET() {
   const a = await wajib("website");
   if (a instanceof Response) return a;
-  return ok({ foto: await bacaPetaFoto(), sharp: Boolean(await muatSharp()) });
+  return ok({ foto: await bacaPetaFoto() });
 }
 
 /**
- * Unggah foto untuk satu slot (multipart).
- *  - `slot` + `berkas`: foto asli, diubah di server.
- *  - `slot` + `klien=1` + `h` + `kbAsli` + `v<lebar>`: hasil yang sudah diubah browser.
- * Langsung tayang; foto lama di slot itu dihapus.
+ * Pasang foto ke slot setelah semua ukurannya terunggah lewat /api/foto/bagian:
+ * { slot, id, lebar: number[], w, h, jenis, kbAsli }. Langsung tayang.
+ * Bila ada ukuran yang belum sampai, dibalas 409 dengan daftar `kurang` supaya dashboard mengirim ulang.
  */
 export async function POST(req: Request) {
   const a = await wajib("website");
   if (a instanceof Response) return a;
-  let form: FormData;
+  const o = await badan(req);
+  if (!adaSlot(o.slot)) return gagal("Slot foto tidak dikenal.");
+  const lebar = Array.isArray(o.lebar) ? o.lebar.map(Number).filter((w) => Number.isInteger(w) && w >= 64 && w <= 4096) : [];
+  if (typeof o.id !== "string" || !ID_SAH.test(o.id) || !lebar.length || lebar.length > 6) return gagal("Data foto tidak lengkap.");
+  const n = (v: unknown) => Math.max(0, Math.round(Number(v) || 0));
+  const urut = [...new Set(lebar)].sort((x, y) => x - y);
   try {
-    form = await req.formData();
-  } catch {
-    return gagal("Unggahan tidak terbaca. Coba lagi.");
-  }
-  const slot = form.get("slot");
-  if (!adaSlot(slot)) return gagal("Slot foto tidak dikenal.");
-  try {
-    let hasil;
-    if (form.get("klien") === "1") {
-      const berkas: { w: number; isi: Buffer }[] = [];
-      for (const [k, v] of form.entries()) {
-        const m = /^v(\d{2,4})$/.exec(k);
-        if (m && typeof v !== "string") berkas.push({ w: Number(m[1]), isi: Buffer.from(await v.arrayBuffer()) });
-      }
-      hasil = await simpanHasilKlien(berkas, Number(form.get("h")) || 1, Number(form.get("kbAsli")) || 0);
-    } else {
-      const f = form.get("berkas");
-      if (!f || typeof f === "string") return gagal("Pilih foto dulu.");
-      if (f.size > MAKS_ASLI) return gagal("Foto terlalu besar (lebih dari 40 MB).");
-      hasil = await olahFoto(Buffer.from(await f.arrayBuffer()));
-    }
-    const foto = await aturSlot(slot, () => ({ ...hasil, fokus: [50, 50] }));
-    return ok({ foto });
+    const r = await resmikan(o.slot, { id: o.id, lebar: urut, w: urut[urut.length - 1], h: n(o.h) || 1, jenis: o.jenis === "jpg" ? "jpg" : "webp", kbAsli: n(o.kbAsli) });
+    if ("kurang" in r) return gagal("Sebagian ukuran foto belum sampai.", 409, { kurang: r.kurang });
+    return ok(r);
   } catch (e) {
-    const pesan = e instanceof Error ? e.message : String(e);
-    if (pesan === "tanpa-sharp") return gagal("Server tidak bisa mengubah foto; ubah di browser.", 503, { kode: "tanpa-sharp" });
-    console.error("[foto] gagal mengolah", e);
-    return gagal(/foto|berkas|hasil|ukuran/i.test(pesan) ? pesan : "Foto tidak bisa diolah. Pakai JPG, PNG, WebP, atau AVIF.");
+    console.error("[foto] gagal meresmikan", e);
+    return gagal("Penyimpanan di server gagal. Mengulang…", 500);
   }
 }
 

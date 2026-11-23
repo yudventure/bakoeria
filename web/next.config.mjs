@@ -18,9 +18,8 @@ const config = {
   poweredByHeader: false,
   /* Basis data IP ke negara untuk statistik pengunjung: dimuat apa adanya dari
      node_modules (berkas datanya dibaca saat jalan), dan ikut dikemas di build standalone. */
-  serverExternalPackages: ["geoip-country", "sharp"],
-  /* sharp (libvips) mengubah foto unggahan menjadi WebP; biner Linux-nya ikut dikemas. */
-  outputFileTracingIncludes: { "/api/kunjungan": ["./node_modules/geoip-country/**"], "/api/foto": ["./node_modules/sharp/**", "./node_modules/@img/**", "./node_modules/detect-libc/**", "./node_modules/semver/**"] },
+  serverExternalPackages: ["geoip-country"],
+  outputFileTracingIncludes: { "/api/kunjungan": ["./node_modules/geoip-country/**"] },
   images: { unoptimized: true },
 };
 

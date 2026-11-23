@@ -1,25 +1,24 @@
 import "server-only";
-import { randomBytes } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { daftarLebar, rapikanPetaFoto, type Foto, type PetaFoto, type SlotFoto } from "@/lib/foto";
+import { rapikanPetaFoto, type Foto, type PetaFoto, type SlotFoto } from "@/lib/foto";
 import { bacaJson, dirData, ubahJson } from "./gudang";
 
 /**
- * Penyimpanan dan konversi foto situs.
+ * Penyimpanan foto situs.
  *
- * Konversi memakai sharp (libvips): orientasi kamera dibetulkan, warna diubah
- * ke sRGB, data EXIF (termasuk lokasi GPS) dibuang, lalu dibuat WebP kualitas
- * 82 dalam beberapa lebar. Kualitas 82 dengan subsampling warna cerdas tidak
- * terbedakan mata dari aslinya, tetapi berkasnya biasanya 10-20 kali lebih kecil
- * daripada JPEG kamera. Pengecilan memakai filter Lanczos sehingga tetap tajam.
- *
- * Bila sharp tidak bisa dimuat di server, dashboard mengubah foto di browser
- * dan mengirim hasil jadinya (lihat simpanHasilKlien).
+ * Server sengaja tidak mengolah foto: di hosting bersama, mengompres foto
+ * kamera berukuran puluhan megapiksel memakan CPU dan memori, lambat, dan bisa
+ * dihentikan di tengah jalan. Dashboard yang mengubah foto di perangkat
+ * pengguna menjadi WebP beberapa lebar, lalu mengunggah tiap ukuran sebagai
+ * berkas kecil tersendiri (diulang otomatis bila koneksi putus). Server hanya
+ * memeriksa dan menyimpannya, lalu "meresmikan" foto ke slot setelah semua
+ * ukurannya lengkap.
  */
 
-export const MAKS_ASLI = 40 * 1024 * 1024;
-const NAMA = /^([a-z0-9-]{6,60})-(\d{2,4})\.(webp|jpg)$/;
+export const MAKS_BAGIAN = 6 * 1024 * 1024;
+const NAMA = /^([a-z0-9]{6,14}-[a-f0-9]{8})-(\d{2,4})\.(webp|jpg)$/;
+export const ID_SAH = /^[a-z0-9]{6,14}-[a-f0-9]{8}$/;
 
 export async function dirFoto() {
   const d = path.join(/*turbopackIgnore: true*/ await dirData(), "foto");
@@ -29,68 +28,35 @@ export async function dirFoto() {
 
 export const bacaPetaFoto = async (): Promise<PetaFoto> => rapikanPetaFoto(await bacaJson<unknown>("foto.json", {}));
 
-type Sharp = typeof import("sharp");
-let sharpCache: Sharp | null | undefined;
-export async function muatSharp(): Promise<Sharp | null> {
-  if (sharpCache !== undefined) return sharpCache;
-  /* Untuk menguji jalur cadangan (konversi di browser) tanpa membongkar node_modules. */
-  if (process.env.BAKOERIA_TANPA_SHARP === "1") return (sharpCache = null);
-  try {
-    const m = (await import("sharp")) as unknown as { default?: Sharp } & Sharp;
-    sharpCache = m.default ?? m;
-    sharpCache.cache(false);
-    sharpCache.concurrency(1);
-  } catch (e) {
-    console.error("[foto] sharp tidak bisa dimuat; konversi dilakukan di browser", e);
-    sharpCache = null;
-  }
-  return sharpCache;
+const webp = (b: Buffer) => b.length > 12 && b.subarray(0, 4).toString("latin1") === "RIFF" && b.subarray(8, 12).toString("latin1") === "WEBP";
+const jpg = (b: Buffer) => b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff;
+
+/** Simpan satu ukuran foto. Aman diulang: unggahan yang sama menimpa dirinya sendiri secara atomik. */
+export async function simpanBagian(id: string, w: number, jenis: "webp" | "jpg", isi: Buffer) {
+  if (!ID_SAH.test(id)) throw new Error("Nama foto tidak sah.");
+  if (!Number.isInteger(w) || w < 64 || w > 4096) throw new Error("Lebar foto tidak wajar.");
+  if (!isi.length || isi.length > MAKS_BAGIAN) throw new Error("Ukuran berkas tidak wajar.");
+  if (!(jenis === "webp" ? webp(isi) : jpg(isi))) throw new Error("Berkas bukan WebP atau JPG.");
+  const dir = await dirFoto();
+  const tujuan = path.join(dir, `${id}-${w}.${jenis}`);
+  const sementara = `${tujuan}.${process.pid}.${Date.now()}.tmp`;
+  await fs.writeFile(/*turbopackIgnore: true*/ sementara, isi, { mode: 0o644 });
+  await fs.rename(/*turbopackIgnore: true*/ sementara, tujuan);
 }
 
-const idBaru = () => `${Date.now().toString(36)}-${randomBytes(4).toString("hex")}`;
-
-
-/** Ubah satu foto asli menjadi beberapa WebP. */
-export async function olahFoto(asli: Buffer): Promise<Omit<Foto, "fokus">> {
-  const sharp = await muatSharp();
-  if (!sharp) throw new Error("tanpa-sharp");
-  const meta = await sharp(asli, { failOn: "none", limitInputPixels: 120_000_000 }).metadata();
-  if (!meta.width || !meta.height) throw new Error("Berkas ini bukan foto yang bisa dibaca. Pakai JPG, PNG, WebP, atau AVIF.");
-  const tegak = (meta.orientation ?? 1) >= 5;
-  const W = tegak ? meta.height : meta.width;
-  const H = tegak ? meta.width : meta.height;
-  const lebar = daftarLebar(W, H);
-  const id = idBaru();
+/** Periksa semua ukuran sudah ada di server, lalu pasang foto itu ke slot. Mengembalikan ukuran yang belum ada bila belum lengkap. */
+export async function resmikan(slot: SlotFoto, f: Omit<Foto, "fokus" | "kb">): Promise<{ foto: PetaFoto } | { kurang: number[] }> {
+  if (!ID_SAH.test(f.id)) throw new Error("Nama foto tidak sah.");
   const dir = await dirFoto();
+  const kurang: number[] = [];
   let kb = 0;
-  for (const w of lebar) {
-    const isi = await sharp(asli, { failOn: "none", limitInputPixels: 120_000_000 })
-      .rotate()
-      .resize({ width: w, withoutEnlargement: true, kernel: "lanczos3" })
-      .toColourspace("srgb")
-      .webp({ quality: 82, effort: 5, smartSubsample: true })
-      .toBuffer();
-    await fs.writeFile(/*turbopackIgnore: true*/ path.join(dir, `${id}-${w}.webp`), isi, { mode: 0o644 });
-    kb = Math.round(isi.length / 1024);
+  for (const w of f.lebar) {
+    const st = await fs.stat(/*turbopackIgnore: true*/ path.join(dir, `${f.id}-${w}.${f.jenis}`)).catch(() => null);
+    if (!st) kurang.push(w);
+    else kb = Math.round(st.size / 1024);
   }
-  const maks = lebar[lebar.length - 1];
-  return { id, w: maks, h: Math.round((maks * H) / W), lebar, jenis: "webp", kb, kbAsli: Math.round(asli.length / 1024) };
-}
-
-/** Hasil yang sudah diubah browser (bila sharp tidak ada): periksa jenis berkas lalu simpan apa adanya. */
-export async function simpanHasilKlien(berkas: { w: number; isi: Buffer }[], h: number, kbAsli: number): Promise<Omit<Foto, "fokus">> {
-  const webp = (b: Buffer) => b.subarray(0, 4).toString("latin1") === "RIFF" && b.subarray(8, 12).toString("latin1") === "WEBP";
-  const jpg = (b: Buffer) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff;
-  if (!berkas.length || berkas.length > 6) throw new Error("Hasil konversi tidak lengkap.");
-  const jenis = berkas.every((b) => webp(b.isi)) ? "webp" : berkas.every((b) => jpg(b.isi)) ? "jpg" : null;
-  if (!jenis) throw new Error("Hasil konversi bukan WebP atau JPG.");
-  const urut = [...berkas].sort((a, b) => a.w - b.w);
-  if (urut.some((b) => !Number.isInteger(b.w) || b.w < 64 || b.w > 2560 || b.isi.length > 8 * 1024 * 1024)) throw new Error("Ukuran hasil konversi tidak wajar.");
-  const id = idBaru();
-  const dir = await dirFoto();
-  for (const b of urut) await fs.writeFile(/*turbopackIgnore: true*/ path.join(dir, `${id}-${b.w}.${jenis}`), b.isi, { mode: 0o644 });
-  const maks = urut[urut.length - 1];
-  return { id, w: maks.w, h: Math.max(1, Math.round(h)), lebar: urut.map((b) => b.w), jenis, kb: Math.round(maks.isi.length / 1024), kbAsli };
+  if (kurang.length) return { kurang };
+  return { foto: await aturSlot(slot, (lama) => ({ ...f, kb, fokus: lama?.id === f.id ? lama.fokus : [50, 50] })) };
 }
 
 /** Ubah isi satu slot (null = kembali ke foto bawaan), lalu hapus berkas yang tidak dipakai lagi. */
@@ -108,13 +74,15 @@ export async function aturSlot(slot: SlotFoto, ubah: (lama: Foto | undefined) =>
   return peta;
 }
 
+/** Hapus berkas yang tidak dipakai slot mana pun. Yang berumur di bawah 30 menit dibiarkan: bisa jadi unggahan yang sedang berjalan. */
 async function bersihkan(peta: PetaFoto) {
   const dipakai = new Set(Object.values(peta).map((f) => f!.id));
   const dir = await dirFoto();
-  const batas = Date.now() - 10 * 60 * 1000; // berkas yang baru dibuat bisa jadi sedang menunggu disimpan
+  const batas = Date.now() - 30 * 60 * 1000;
   for (const nama of await fs.readdir(/*turbopackIgnore: true*/ dir)) {
     const m = NAMA.exec(nama);
-    if (!m || dipakai.has(m[1])) continue;
+    const sisa = nama.endsWith(".tmp");
+    if (!sisa && (!m || dipakai.has(m[1]))) continue;
     const st = await fs.stat(/*turbopackIgnore: true*/ path.join(dir, nama)).catch(() => null);
     if (st && st.mtimeMs < batas) await fs.unlink(/*turbopackIgnore: true*/ path.join(dir, nama)).catch(() => undefined);
   }

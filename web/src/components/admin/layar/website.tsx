@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { idYoutube, IKON_KEUNGGULAN, SEKSI, type Konten } from "@/lib/konten";
+import { bacaTitik, idYoutube, IKON_KEUNGGULAN, KOORDINAT, SEKSI, tautanPeta, type Konten } from "@/lib/konten";
 import { api } from "../api";
 import { Bidang, Galat, Kartu, masukan, Memuat, Tab, Tombol, useToast } from "../ui";
 import type { Bahasa } from "@/lib/kamus";
@@ -28,6 +28,10 @@ export default function Website() {
 
   const set = <K extends keyof Konten>(kunci: K, v: Konten[K]) => setK({ ...k, [kunci]: v });
   async function simpan() {
+    if (k!.kontak.peta.trim() && !bacaTitik(k!.kontak.peta)) {
+      toast("Titik peta belum terbaca. Tempel koordinat dari Google Maps, misalnya -0.460074, 130.691116.", "galat");
+      return;
+    }
     setSibuk(true);
     try {
       const r = await api<{ konten: Konten }>("/api/konten", { method: "PUT", body: { konten: k, bahasa } });
@@ -103,7 +107,17 @@ export default function Website() {
           <Bidang label="Email"><input className={masukan} value={k.kontak.email} onChange={(e) => set("kontak", { ...k.kontak, email: e.target.value })} /></Bidang>
           <Bidang label="Instagram"><input className={masukan} value={k.kontak.instagram} onChange={(e) => set("kontak", { ...k.kontak, instagram: e.target.value })} /></Bidang>
           <Bidang label="Alamat atau lokasi"><input className={masukan} value={k.kontak.alamat} onChange={(e) => set("kontak", { ...k.kontak, alamat: e.target.value })} /></Bidang>
-          <Bidang label="Tautan peta" ket="Contoh tautan Google Maps. Alamat di footer menjadi tautan ke sini."><input className={masukan} value={k.kontak.peta} placeholder="https://maps.app.goo.gl/…" onChange={(e) => set("kontak", { ...k.kontak, peta: e.target.value })} /></Bidang>
+          <Bidang
+            label="Titik peta (koordinat Google Maps)"
+            ket={(() => {
+              const t = bacaTitik(k.kontak.peta);
+              if (!k.kontak.peta.trim()) return `Kosong: memakai titik bawaan ${KOORDINAT.lat}, ${KOORDINAT.lon}. Di Google Maps, klik kanan titik resort lalu klik angka koordinat paling atas untuk menyalinnya, dan tempel di sini.`;
+              if (!t) return <span className="font-bold text-panel-merah">Koordinat tidak terbaca. Tempel angkanya, misalnya -0.460074, 130.691116 (tautan pendek maps.app.goo.gl tidak berisi koordinat).</span>;
+              return <span>Terbaca: <b className="text-panel-hijau">{t.lat}, {t.lon}</b> · <a href={tautanPeta(t)} target="_blank" rel="noopener noreferrer" className="font-bold underline">cek di Google Maps</a>. Dipakai untuk penanda di peta rute, tombol buka peta, dan alamat di footer.</span>;
+            })()}
+          >
+            <input className={masukan} value={k.kontak.peta} placeholder={`${KOORDINAT.lat}, ${KOORDINAT.lon}`} inputMode="text" onChange={(e) => set("kontak", { ...k.kontak, peta: e.target.value })} />
+          </Bidang>
           <Bidang label="Facebook" ket="Alamat lengkap, diawali https://. Kosongkan bila tidak ada."><input className={masukan} value={k.kontak.facebook} onChange={(e) => set("kontak", { ...k.kontak, facebook: e.target.value })} /></Bidang>
           <Bidang label="TikTok"><input className={masukan} value={k.kontak.tiktok} placeholder="https://www.tiktok.com/@…" onChange={(e) => set("kontak", { ...k.kontak, tiktok: e.target.value })} /></Bidang>
           <Bidang label="YouTube"><input className={masukan} value={k.kontak.youtube} placeholder="https://www.youtube.com/@…" onChange={(e) => set("kontak", { ...k.kontak, youtube: e.target.value })} /></Bidang>
