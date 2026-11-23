@@ -29,7 +29,7 @@ export default function DataDemo({ ringkas = false, selesai }: { ringkas?: boole
     try {
       const r = await api<{ status: Status; kamar?: number; pesanan?: number; catatan?: number; tertinggal?: string[] }>("/api/demo", { method: metode });
       setS(r.status);
-      toast(metode === "POST" ? `Data demo terpasang: ${r.kamar} kamar, ${r.pesanan} pesanan, ${r.catatan} catatan` : r.tertinggal?.length ? `Data demo dihapus. Kamar yang masih punya pesanan asli dibiarkan: ${r.tertinggal.join(", ")}` : "Data demo dihapus");
+      toast(metode === "POST" ? `Data demo terpasang: ${r.kamar} kamar, ${r.pesanan} pesanan, ${r.catatan} catatan` : r.tertinggal?.length ? `Data demo dihapus. Kamar yang masih punya pesanan asli dibiarkan: ${r.tertinggal.join(", ")}` : "Data demo dihapus. Keempat cottage tetap ada.");
       muat();
       selesai?.();
     } catch (e) {
@@ -47,7 +47,7 @@ export default function DataDemo({ ringkas = false, selesai }: { ringkas?: boole
     >
       <p className="text-sm text-panel-redup">
         {s.aktif
-          ? "Semua yang dibuat oleh tombol ini tercatat, jadi tombol hapus hanya menghapus data demo. Kamar, tamu, dan catatan yang Anda tambahkan sendiri tetap aman."
+          ? "Tombol hapus hanya menghapus tamu, pesanan, dan catatan contoh. Keempat cottage tetap ada karena itu kamar Bakoeria yang sebenarnya (ubah di Kamar & tarif). Data yang Anda tambahkan sendiri tetap aman."
           : "Memasang 4 cottage (2 Cottage Double dan 2 Cottage Single, harga promo Rp 1.450.000 dari Rp 1.980.000), 9 tamu dan 10 pesanan contoh di kalender beserta pembayarannya, serta contoh catatan keuangan, aset, pegawai, absensi, dan stok gudang. Hanya bisa dipasang saat belum ada kamar."}
       </p>
     </Kartu>

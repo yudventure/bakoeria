@@ -11,8 +11,9 @@ import { hapusRekaman, simpanRekaman } from "./modul";
  * keuangan, SDM, dan gudang.
  *
  * Semua id yang dibuat dicatat di `demo.json`, jadi "Hapus data demo" hanya
- * menghapus yang dibuat di sini. Kamar yang sudah dipakai pesanan asli tidak
- * ikut dihapus.
+ * menghapus yang dibuat di sini. Kamarnya tidak ikut dihapus: keempat cottage
+ * itu kamar Bakoeria yang sebenarnya, dan tanpa kamar bagian Menginap di situs
+ * kosong. Yang dihapus hanya tamu, pesanan, dan catatan contoh.
  */
 const BERKAS = "demo.json";
 const OLEH = "Data demo";
@@ -198,12 +199,9 @@ export async function hapusDemo(): Promise<{ dihapus: number; tertinggal: string
   await transaksi(async (k) => {
     await k.query("DELETE FROM bookings WHERE created_by = ?", [OLEH]);
     if (c.tamu.length) await k.query("DELETE FROM guests WHERE id IN (?) AND NOT EXISTS (SELECT 1 FROM bookings b WHERE b.guest_id = guests.id)", [c.tamu]);
-    for (const id of c.kamar) {
-      const [[n]] = (await k.query("SELECT COUNT(*) AS n, (SELECT name FROM rooms WHERE id = ?) AS nama FROM bookings WHERE room_id = ?", [id, id])) as unknown as [{ n: number; nama: string }[]];
-      if (Number(n.n) > 0) tertinggal.push(n.nama);
-      else await k.query("DELETE FROM rooms WHERE id = ?", [id]);
-    }
   });
+  /* Kamar dibiarkan dan tidak lagi dianggap demo; tandanya disimpan supaya tidak dipasang ulang otomatis. */
+  await ubahJson<{ dipasang?: string } | null>(KAMAR_RESORT_BERKAS, null, (l) => l ?? { dipasang: new Date().toISOString() });
   /* Anak lebih dulu (absensi, mutasi), baru induknya (pegawai, barang). */
   let dihapus = 0;
   for (const x of [...c.modul].reverse()) {
@@ -242,6 +240,30 @@ async function perbaruiKamarDemo(c: Catatan) {
   console.log("[demo] kamar demo diperbarui ke Cottage Double dan Cottage Single");
 }
 
+/**
+ * Pengaman: bila database tidak punya kamar sama sekali padahal data demo sudah
+ * dihapus (versi lama tombol hapus ikut menghapus kamar), keempat cottage
+ * Bakoeria dipasang lagi tanpa tamu dan pesanan contoh. Hanya sekali; kalau
+ * pemilik sengaja menghapus semua kamar setelah itu, tidak dipasang ulang.
+ */
+const KAMAR_RESORT_BERKAS = "kamar-resort.json";
+async function pastikanKamarResort() {
+  const tanda = await bacaJson<{ dipasang?: string } | null>(KAMAR_RESORT_BERKAS, null);
+  if (tanda?.dipasang) return;
+  const n = Number((await kueri<{ n: number }>("SELECT COUNT(*) AS n FROM rooms"))[0]?.n ?? 0);
+  if (n === 0) {
+    await transaksi(async (k) => {
+      for (const [i, r] of KAMAR_DEMO.entries())
+        await k.query(
+          "INSERT INTO rooms (id, name, room_type, cap_adult, cap_child, base_rate, normal_rate, is_active, sort_order, size_m2, desc_en, desc_id, features_en, features_id) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)",
+          [idBaru(), r.name, r.roomType, r.capAdult, r.capChild, r.baseRate, r.normalRate, i + 1, r.sizeM2, r.descEn, r.descId, r.featuresEn.join("\n"), r.featuresId.join("\n")],
+        );
+    });
+    console.log("[demo] kamar Bakoeria dipasang kembali karena database tidak punya kamar");
+  }
+  await ubahJson<{ dipasang?: string } | null>(KAMAR_RESORT_BERKAS, null, () => ({ dipasang: new Date().toISOString() }));
+}
+
 let otomatis: Promise<void> | undefined;
 export function pastikanDemo(): Promise<void> {
   if (process.env.BAKOERIA_DEMO?.trim() === "0") return Promise.resolve();
@@ -250,6 +272,7 @@ export function pastikanDemo(): Promise<void> {
     if (c) {
       // Data demo versi lama yang masih terpasang: kamar contohnya diperbarui ke kamar yang sebenarnya.
       if (!c.dihapus && (c.versi ?? 1) < 2) await perbaruiKamarDemo(c);
+      if (c.dihapus) await pastikanKamarResort();
       return;
     }
     const n = Number((await kueri<{ n: number }>("SELECT COUNT(*) AS n FROM rooms"))[0]?.n ?? 0);

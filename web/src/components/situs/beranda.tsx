@@ -4,7 +4,7 @@ import HargaSelam from "./harga-selam";
 import Aktivitas from "./aktivitas";
 import PetaRute from "./peta-rute";
 import Galeri from "./galeri";
-import { pastikanDemo } from "@/lib/server/demo";
+import { KAMAR_DEMO, pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
 import { tautanPeta, idYoutube, nomorWa, titikResort } from "@/lib/konten";
@@ -47,6 +47,13 @@ function Bintang({ className = "", terang = false }: { className?: string; teran
 
 /** Tautan WhatsApp dibuka di tab baru; tautan ke bagian halaman tidak. */
 const luar = (h: string) => (h.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {});
+
+/* Bila database tidak bisa dibaca atau belum punya kamar, bagian Menginap tetap tampil
+   dengan desain yang sama memakai data cottage Bakoeria yang sebenarnya. */
+const JENIS_CADANGAN: { r: Kamar; unit: number }[] = [0, 2].map((i) => ({
+  r: { ...KAMAR_DEMO[i], id: `cadangan-${i}`, isActive: true, inactiveReason: null, sortOrder: i, musim: [] },
+  unit: 2,
+}));
 
 async function kamarPublik(): Promise<Kamar[]> {
   if (!databaseReady()) return [];
@@ -175,27 +182,8 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         )}
 
         {/* MENGINAP: sorotan dan galeri; tanpa kamar di database memakai isi dari menu Website */}
-        {!on.menginap ? null : jenis.length > 0 ? (
-          <Menginap galeri={(["kamar1", "kamar2", "kamar3", "kamar4", "kamar5"] as const).map(g)} poster={g("video")} jenis={jenis} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
-        ) : (
-          <section id="menginap" className="scroll-mt-24 px-5 py-20">
-            <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">
-              <div className="muncul">
-                <h2 className="font-display text-[34px] font-normal leading-tight">{t.pilihanMenginap}</h2>
-                <Bintang className="mt-3 block text-[26px]" />
-                <p className="mt-4 text-[14px] text-malam/60">{k.cottageIsi}</p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <img {...atribut(g("kamar1"), "(min-width: 640px) 45vw, 100vw")} alt={alt.cottage} className="muncul aspect-[16/10] w-full rounded-[1.4rem] object-cover" />
-                <div className="muncul rounded-[1.4rem] bg-white p-6 shadow-[0_10px_30px_rgba(10,36,64,.07)] ring-1 ring-malam/5">
-                  <h3 className="font-display text-2xl">{k.cottageJudul}</h3>
-                  <ul className="mt-4 grid gap-2 text-[14px] text-malam/70">
-                    {k.cottageFitur.filter(Boolean).map((f) => <li key={f} className="flex gap-2"><span className="text-emas-tua">—</span>{f}</li>)}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </section>
+        {on.menginap && (
+          <Menginap galeri={(["kamar1", "kamar2", "kamar3", "kamar4", "kamar5"] as const).map(g)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
         )}
 
         {/* PROGRAM SELAM: kartu yang membuka dan menampilkan harganya saat ditunjuk kursor */}
