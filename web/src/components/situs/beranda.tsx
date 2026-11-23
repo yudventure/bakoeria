@@ -2,11 +2,12 @@ import { PencatatKunjungan } from "./pencatat";
 import Menginap from "./menginap";
 import HargaSelam from "./harga-selam";
 import Aktivitas from "./aktivitas";
+import PetaRute from "./peta-rute";
 import Galeri from "./galeri";
 import { pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
-import { idYoutube, nomorWa } from "@/lib/konten";
+import { tautanPeta, idYoutube, nomorWa } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
@@ -252,6 +253,43 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         </section>
 
         {/* TANYA JAWAB */}
+        {/* CARA MENUJU KE SINI: peta rute dan tiga langkah */}
+        {k.cara.length > 0 && (
+          <section id="lokasi" className="scroll-mt-24 px-5 pb-20">
+            <div className="mx-auto max-w-6xl">
+              <div className="muncul grid gap-4 lg:grid-cols-[1fr_1.1fr] lg:items-end">
+                <div>
+                  <h2 className="font-display text-[clamp(30px,4vw,44px)] font-normal leading-[1.05]">{k.caraJudul}</h2>
+                  <Bintang className="mt-3 block text-[26px]" />
+                </div>
+                {k.caraIsi && <p className="max-w-xl text-[14.5px] leading-relaxed text-malam/65 lg:justify-self-end">{k.caraIsi}</p>}
+              </div>
+              <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+                <div className="muncul"><PetaRute teks={t.peta} id={`peta-${bahasa}`} /></div>
+                <div>
+                  {/* Langkah pertama sama untuk semua; sisanya jalur alternatif A dan B. */}
+                  <ol className="grid gap-3">
+                    {k.cara.map((x, i) => (
+                      <li key={x.judul + i} style={{ "--tunda": i } as React.CSSProperties} className="muncul">
+                        {i === 1 && <p className="mb-3 mt-2 text-[11px] font-bold uppercase tracking-[0.16em] text-emas-tua">{t.peta.pilih}</p>}
+                        <div className={`flex gap-4 rounded-[1.2rem] bg-white p-5 ring-1 ${i === 1 ? "ring-2 ring-karang/50" : "ring-malam/8"}`}>
+                          <span className={`angka grid size-9 shrink-0 place-items-center rounded-full text-sm font-bold text-white ${i === 1 ? "bg-karang" : i === 0 ? "bg-emas-tua" : "bg-malam"}`}>{i === 0 ? "1" : String.fromCharCode(64 + i)}</span>
+                          <div><h3 className="font-display text-[22px] leading-tight">{x.judul}</h3><p className="mt-1.5 text-[14px] leading-relaxed text-malam/65">{x.isi}</p></div>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                  {k.caraCatatan && <p className="muncul mt-5 text-[13.5px] leading-relaxed text-malam/60">{k.caraCatatan}</p>}
+                  <div className="muncul mt-5 flex flex-wrap gap-3">
+                    <a href={tautanPeta()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-emas-tua px-5 py-3 text-sm font-bold text-white transition hover:brightness-110"><Ikon nama="pin" className="size-4" />{t.peta.buka}</a>
+                    {wa && <a href={`https://wa.me/${wa}?text=${encodeURIComponent(t.peta.pesanWa)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-malam ring-1 ring-malam/15 transition hover:bg-busa"><Ikon nama="wa" className="size-4" />{t.peta.tanya}</a>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         <section id="tanya" className="relative scroll-mt-24 overflow-hidden px-5 pb-20">
           {/* Pola khas: satu ukiran besar yang samar di sudut. */}
           <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-cermin-pasir.svg" loading="lazy" className="pointer-events-none absolute -bottom-10 -left-44 w-[760px] max-w-none opacity-[0.1]" />

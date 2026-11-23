@@ -47,6 +47,11 @@ export interface Konten {
   paketJudul: string;
   paketCatatan: string;
   paket: PaketGrup[];
+  /** Cara menuju resort: langkah pertama (terbang ke Sorong), lalu dua jalur alternatif A dan B. */
+  caraJudul: string;
+  caraIsi: string;
+  cara: { judul: string; isi: string }[];
+  caraCatatan: string;
   /** Aktivitas lain di luar selam (tiga yang pertama tampil bersama video). */
   aktivitasJudul: string;
   aktivitasIsi: string;
@@ -87,6 +92,10 @@ export const KONTEN_BAWAAN: Konten = {
     { judul: "Discover Scuba", isi: "Rasakan menyelam pertama Anda di perairan dangkal, tanpa perlu sertifikat, ditemani instruktur satu per satu.", meta: "Tanpa sertifikat · setengah hari", harga: "" },
     { judul: "Snorkeling", isi: "Untuk keluarga dan tamu yang menunggu di permukaan. Peralatan tersedia dan pemandu ikut di air.", meta: "Semua usia · peralatan tersedia", harga: "" },
   ],
+  caraJudul: "Cara menuju ke sini",
+  caraIsi: "Bakoeria berada di pesisir Raja Ampat, di sebelah barat Waisai. Terbang ke Sorong, lalu pilih satu dari dua jalur: speedboat privat langsung ke resort, atau feri ke Waisai dan lanjut dengan perahu kami.",
+  cara: [{"judul": "Terbang ke Sorong", "isi": "Tiba di Bandara Domine Eduard Osok (SOQ). Dari sini ada dua pilihan jalur ke resort."}, {"judul": "Speedboat privat langsung dari Sorong", "isi": "Layanan antar jemput privat kami. Tim menjemput Anda di Sorong dan speedboat membawa Anda langsung ke resort, tanpa pindah kapal."}, {"judul": "Feri ke Waisai, lalu perahu resort", "isi": "Naik feri Sorong ke Waisai melintasi Selat Dampier, lalu tim kami menjemput di pelabuhan Waisai untuk perjalanan perahu ke resort."}],
+  caraCatatan: "Jadwal feri dan waktu perjalanan bisa berubah mengikuti cuaca dan operasional setempat. Speedboat privat perlu dipesan lebih dulu. Konfirmasikan rencana Anda dengan tim kami sebelum berangkat.",
   aktivitasJudul: "Aktivitas lain",
   aktivitasIsi: "Hari di luar air juga bagian dari menginap. Tim kami mengaturnya mengikuti pasang surut, cuaca, dan rencana selam Anda.",
   aktivitas: [{"judul": "Mengamati burung", "isi": "Berjalan sebelum matahari terbit bersama pemandu lokal untuk mencari cenderawasih dan burung hutan lainnya."}, {"judul": "Kayak ke sungai di belakang resort", "isi": "Mendayung pelan menyusuri sungai di belakang resort, di antara pepohonan, dengan tempo Anda sendiri."}, {"judul": "Camping", "isi": "Semalam di bawah bintang dengan api unggun, makanan sederhana, dan suara laut."}],
@@ -303,6 +312,10 @@ export const KONTEN_BAWAAN_EN: Konten = {
     { judul: "Discover Scuba", isi: "Try your first dive in shallow water, no certificate needed, one to one with an instructor.", meta: "No certificate · half day", harga: "" },
     { judul: "Snorkelling", isi: "For families and anyone staying on the surface. Gear provided and a guide in the water with you.", meta: "All ages · gear provided", harga: "" },
   ],
+  caraJudul: "How to get here",
+  caraIsi: "Bakoeria is on the Raja Ampat coast west of Waisai. Fly to Sorong, then choose one of two routes: a private speedboat straight to the resort, or the ferry to Waisai and our boat from there.",
+  cara: [{"judul": "Fly to Sorong", "isi": "Arrive at Domine Eduard Osok Airport (SOQ). From here there are two ways to reach the resort."}, {"judul": "Private speedboat direct from Sorong", "isi": "Our private transfer service. The team meets you in Sorong and the speedboat takes you straight to the resort, with no change of boat."}, {"judul": "Ferry to Waisai, then the resort boat", "isi": "Take the Sorong to Waisai ferry across the Dampier Strait, then our team meets you at Waisai harbour for the boat ride to the resort."}],
+  caraCatatan: "Ferry schedules and travel times change with weather and local operations. The private speedboat must be booked in advance. Confirm your plans with our team before travelling.",
   aktivitasJudul: "Other activities",
   aktivitasIsi: "Days out of the water are part of the stay. Our team arranges these around the tides, the weather, and your dive plan.",
   aktivitas: [{"judul": "Bird watching", "isi": "Walk out before sunrise with a local guide to look for birds of paradise and other forest birds."}, {"judul": "Kayaking the river behind the resort", "isi": "Paddle quietly up the river at the back of the resort, through the trees, at your own pace."}, {"judul": "Camping", "isi": "A night out under the stars with a camp fire, simple food, and the sound of the sea."}],
@@ -520,6 +533,10 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     introIsi: s(k.introIsi, b.introIsi),
     programCatatan: s(k.programCatatan, b.programCatatan),
     program: arr(k.program, b.program, (x) => ({ judul: s(x.judul, ""), isi: s(x.isi, ""), meta: s(x.meta, ""), harga: s(x.harga, "") })),
+    caraJudul: s(k.caraJudul, b.caraJudul),
+    caraIsi: s(k.caraIsi, b.caraIsi),
+    cara: arr(k.cara, b.cara, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400) })).filter((x) => x.judul.trim() !== "").slice(0, 4),
+    caraCatatan: s(k.caraCatatan, b.caraCatatan),
     aktivitasJudul: s(k.aktivitasJudul, b.aktivitasJudul),
     aktivitasIsi: s(k.aktivitasIsi, b.aktivitasIsi),
     aktivitas: arr(k.aktivitas, b.aktivitas, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400) })).filter((x) => x.judul.trim() !== "").slice(0, 6),
@@ -581,3 +598,7 @@ export function idYoutube(tautan: string): string {
   const m = /(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(tautan.trim());
   return m ? m[1] : "";
 }
+
+/** Titik resort di peta (lintang, bujur), dipakai peta "Cara menuju ke sini" dan tautan Google Maps. */
+export const KOORDINAT = { lat: -0.460074, lon: 130.691116 } as const;
+export const tautanPeta = () => `https://www.google.com/maps/search/?api=1&query=${KOORDINAT.lat},${KOORDINAT.lon}`;

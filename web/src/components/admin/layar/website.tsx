@@ -120,6 +120,19 @@ export default function Website() {
         </div>
       )} />
       <Bidang label="Catatan di bawah judul program"><input className={masukan} value={k.programCatatan} onChange={(e) => set("programCatatan", e.target.value)} /></Bidang>
+      <Kartu judul="Cara menuju ke sini" ket="Tampil di atas tanya jawab, di samping peta rute. Langkah 1 berlaku untuk semua tamu; berikutnya adalah jalur alternatif A (speedboat privat) dan B (feri). Titik resort di peta: -0.460074, 130.691116.">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Bidang label="Judul bagian"><input className={masukan} value={k.caraJudul} onChange={(e) => set("caraJudul", e.target.value)} /></Bidang>
+          <Bidang label="Pengantar"><input className={masukan} value={k.caraIsi} onChange={(e) => set("caraIsi", e.target.value)} /></Bidang>
+          {k.cara.map((x, i) => (
+            <div key={i} className="grid gap-3 rounded-2xl bg-panel-latar p-4 sm:col-span-2 sm:grid-cols-[14rem_1fr]">
+              <Bidang label={i === 0 ? "Langkah 1" : `Jalur ${String.fromCharCode(64 + i)}`}><input className={masukan} value={x.judul} onChange={(e) => set("cara", k.cara.map((y, j) => (j === i ? { ...y, judul: e.target.value } : y)))} /></Bidang>
+              <Bidang label="Keterangan"><input className={masukan} value={x.isi} onChange={(e) => set("cara", k.cara.map((y, j) => (j === i ? { ...y, isi: e.target.value } : y)))} /></Bidang>
+            </div>
+          ))}
+          <Bidang label="Catatan di bawah langkah" className="sm:col-span-2"><input className={masukan} value={k.caraCatatan} onChange={(e) => set("caraCatatan", e.target.value)} /></Bidang>
+        </div>
+      </Kartu>
       <Kartu judul="Aktivitas lain" ket="Tampil di bawah program selam. Tiga aktivitas pertama tampil sebagai kartu tegak; isi tautan video YouTube (sebaiknya video tegak atau Shorts) agar kartunya memutar video polos yang berulang. Tautan video berlaku untuk kedua bahasa.">
         <div className="grid gap-4 sm:grid-cols-2">
           <Bidang label="Judul bagian"><input className={masukan} value={k.aktivitasJudul} onChange={(e) => set("aktivitasJudul", e.target.value)} /></Bidang>
