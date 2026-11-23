@@ -57,7 +57,7 @@ function Menu({ tutup }: { tutup?: () => void }) {
   const { akun, layar, keLayar } = useData();
   const boleh = layarUntuk(akun.peran);
   return (
-    <nav aria-label="Menu dashboard" className="grid gap-5">
+    <nav aria-label="Menu dashboard" className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5">
       {GRUP.map((g) => {
         const isi = g.layar.filter((l) => boleh.includes(l));
         if (!isi.length) return null;
@@ -74,12 +74,12 @@ function Menu({ tutup }: { tutup?: () => void }) {
                     }}
                     aria-current={layar === l ? "page" : undefined}
                     className={cx(
-                      "flex w-full items-center gap-3 rounded-full px-4 py-2.5 text-left text-[15px] font-bold transition",
+                      "flex w-full min-w-0 items-center gap-3 rounded-full px-4 py-2.5 text-left text-[15px] font-bold transition",
                       layar === l ? "bg-panel-utama text-white" : "text-panel-tinta hover:bg-panel-lembut",
                     )}
                   >
                     <Ikon d={IKON[l]} className={layar === l ? "text-emas" : "text-panel-redup"} />
-                    {LABEL_LAYAR[l]}
+                    <span className="min-w-0 truncate">{LABEL_LAYAR[l]}</span>
                   </button>
                 </li>
               ))}
@@ -102,11 +102,11 @@ function HariIni() {
     d.length > 0 && (
       <div className="mt-3">
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-panel-redup">{judul}</p>
-        <ul className="mt-1 grid gap-0.5">
+        <ul className="mt-1 grid grid-cols-[minmax(0,1fr)] gap-0.5">
           {d.slice(0, 5).map((p) => (
             <li key={p.id}>
               <button
-                className="w-full truncate rounded-lg px-2 py-1 text-left text-sm hover:bg-white"
+                className="block w-full min-w-0 truncate rounded-lg px-2 py-1 text-left text-sm hover:bg-white"
                 onClick={() => {
                   keLayar("kalender");
                   bukaPesanan(p.id);
@@ -120,7 +120,7 @@ function HariIni() {
       </div>
     );
   return (
-    <div className="rounded-3xl bg-panel-latar p-4">
+    <div className="min-w-0 rounded-3xl bg-panel-latar p-4">
       <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emas-tua">Hari ini</p>
       <p className="mt-1 text-sm text-panel-tinta">
         {menginap.length} kamar terisi, {tiba.length} tiba, {pulang.length} pulang.
@@ -242,7 +242,7 @@ export function Rangka({ children, cari }: { children: ReactNode; cari: ReactNod
         </div>
       </header>
       <div className="mx-auto flex max-w-[100rem] gap-6 px-4 sm:px-6">
-        <aside className="sticky top-[4.5rem] hidden h-[calc(100svh-4.5rem)] w-[17rem] shrink-0 flex-col gap-6 overflow-y-auto py-6 lg:flex">
+        <aside className="sticky top-[4.5rem] hidden h-[calc(100svh-4.5rem)] w-[17rem] shrink-0 flex-col gap-6 overflow-y-auto overflow-x-hidden py-6 pr-3 [scrollbar-gutter:stable] [scrollbar-width:thin] lg:flex">
           <Menu />
           <HariIni />
         </aside>
@@ -250,7 +250,7 @@ export function Rangka({ children, cari }: { children: ReactNode; cari: ReactNod
       </div>
       {lembar && (
         <div className="fixed inset-0 z-50 bg-panel-utama/40 lg:hidden" onMouseDown={(e) => e.target === e.currentTarget && setLembar(false)}>
-          <div className="absolute inset-x-0 bottom-0 max-h-[88svh] overflow-y-auto rounded-t-3xl bg-white p-5 pb-8">
+          <div className="absolute inset-x-0 bottom-0 max-h-[88svh] overflow-y-auto overflow-x-hidden rounded-t-3xl bg-white p-5 pb-8">
             <div className="mb-4 flex items-center justify-between">
               <span className="font-bold">Menu</span>
               <button onClick={() => setLembar(false)} className="grid size-9 place-items-center rounded-full text-xl hover:bg-panel-lembut" aria-label="Tutup menu">×</button>
