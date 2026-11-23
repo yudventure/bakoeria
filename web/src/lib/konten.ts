@@ -50,7 +50,10 @@ export interface Konten {
   /** Cara menuju resort: langkah pertama (terbang ke Sorong), lalu dua jalur alternatif A dan B. */
   caraJudul: string;
   caraIsi: string;
-  cara: { judul: string; isi: string }[];
+  cara: { judul: string; isi: string; /** Waktu tempuh, misalnya "± 2 jam". */ waktu: string }[];
+  /** Waktu tempuh di peta untuk feri Sorong ke Waisai dan perahu Waisai ke resort. */
+  caraWaktuFeri: string;
+  caraWaktuPerahu: string;
   caraCatatan: string;
   /** Aktivitas lain di luar selam (tiga yang pertama tampil bersama video). */
   aktivitasJudul: string;
@@ -93,8 +96,10 @@ export const KONTEN_BAWAAN: Konten = {
     { judul: "Snorkeling", isi: "Untuk keluarga dan tamu yang menunggu di permukaan. Peralatan tersedia dan pemandu ikut di air.", meta: "Semua usia · peralatan tersedia", harga: "" },
   ],
   caraJudul: "Cara menuju ke sini",
-  caraIsi: "Bakoeria berada di pesisir Raja Ampat, di sebelah barat Waisai. Terbang ke Sorong, lalu pilih satu dari dua jalur: speedboat privat langsung ke resort, atau feri ke Waisai dan lanjut dengan perahu kami.",
-  cara: [{"judul": "Terbang ke Sorong", "isi": "Tiba di Bandara Domine Eduard Osok (SOQ). Dari sini ada dua pilihan jalur ke resort."}, {"judul": "Speedboat privat langsung dari Sorong", "isi": "Layanan antar jemput privat kami. Tim menjemput Anda di Sorong dan speedboat membawa Anda langsung ke resort, tanpa pindah kapal."}, {"judul": "Feri ke Waisai, lalu perahu resort", "isi": "Naik feri Sorong ke Waisai melintasi Selat Dampier, lalu tim kami menjemput di pelabuhan Waisai untuk perjalanan perahu ke resort."}],
+  caraIsi: "Bakoeria berada di ujung timur Pulau Gam, Raja Ampat, di seberang Waisai. Terbang ke Sorong, lalu pilih satu dari dua jalur: speedboat privat langsung ke resort, atau feri ke Waisai dan lanjut dengan perahu kami.",
+  cara: [{"judul": "Terbang ke Sorong", "isi": "Tiba di Bandara Domine Eduard Osok (SOQ). Dari sini ada dua pilihan jalur ke resort.", "waktu": ""}, {"judul": "Speedboat privat langsung dari Sorong", "isi": "Layanan antar jemput privat kami. Tim menjemput Anda di Sorong dan speedboat membawa Anda langsung ke resort, tanpa pindah kapal.", "waktu": "± 2 jam"}, {"judul": "Feri ke Waisai, lalu perahu resort", "isi": "Naik feri Sorong ke Waisai melintasi Selat Dampier, lalu tim kami menjemput di pelabuhan Waisai untuk perjalanan perahu ke resort.", "waktu": "± 2,5 jam"}],
+  caraWaktuFeri: "± 2 jam",
+  caraWaktuPerahu: "± 30 menit",
   caraCatatan: "Jadwal feri dan waktu perjalanan bisa berubah mengikuti cuaca dan operasional setempat. Speedboat privat perlu dipesan lebih dulu. Konfirmasikan rencana Anda dengan tim kami sebelum berangkat.",
   aktivitasJudul: "Aktivitas lain",
   aktivitasIsi: "Hari di luar air juga bagian dari menginap. Tim kami mengaturnya mengikuti pasang surut, cuaca, dan rencana selam Anda.",
@@ -313,8 +318,10 @@ export const KONTEN_BAWAAN_EN: Konten = {
     { judul: "Snorkelling", isi: "For families and anyone staying on the surface. Gear provided and a guide in the water with you.", meta: "All ages · gear provided", harga: "" },
   ],
   caraJudul: "How to get here",
-  caraIsi: "Bakoeria is on the Raja Ampat coast west of Waisai. Fly to Sorong, then choose one of two routes: a private speedboat straight to the resort, or the ferry to Waisai and our boat from there.",
-  cara: [{"judul": "Fly to Sorong", "isi": "Arrive at Domine Eduard Osok Airport (SOQ). From here there are two ways to reach the resort."}, {"judul": "Private speedboat direct from Sorong", "isi": "Our private transfer service. The team meets you in Sorong and the speedboat takes you straight to the resort, with no change of boat."}, {"judul": "Ferry to Waisai, then the resort boat", "isi": "Take the Sorong to Waisai ferry across the Dampier Strait, then our team meets you at Waisai harbour for the boat ride to the resort."}],
+  caraIsi: "Bakoeria is on the eastern tip of Gam Island, Raja Ampat, across the water from Waisai. Fly to Sorong, then choose one of two routes: a private speedboat straight to the resort, or the ferry to Waisai and our boat from there.",
+  cara: [{"judul": "Fly to Sorong", "isi": "Arrive at Domine Eduard Osok Airport (SOQ). From here there are two ways to reach the resort.", "waktu": ""}, {"judul": "Private speedboat direct from Sorong", "isi": "Our private transfer service. The team meets you in Sorong and the speedboat takes you straight to the resort, with no change of boat.", "waktu": "± 2 hours"}, {"judul": "Ferry to Waisai, then the resort boat", "isi": "Take the Sorong to Waisai ferry across the Dampier Strait, then our team meets you at Waisai harbour for the boat ride to the resort.", "waktu": "± 2.5 hours"}],
+  caraWaktuFeri: "± 2 hours",
+  caraWaktuPerahu: "± 30 min",
   caraCatatan: "Ferry schedules and travel times change with weather and local operations. The private speedboat must be booked in advance. Confirm your plans with our team before travelling.",
   aktivitasJudul: "Other activities",
   aktivitasIsi: "Days out of the water are part of the stay. Our team arranges these around the tides, the weather, and your dive plan.",
@@ -535,8 +542,10 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     program: arr(k.program, b.program, (x) => ({ judul: s(x.judul, ""), isi: s(x.isi, ""), meta: s(x.meta, ""), harga: s(x.harga, "") })),
     caraJudul: s(k.caraJudul, b.caraJudul),
     caraIsi: s(k.caraIsi, b.caraIsi),
-    cara: arr(k.cara, b.cara, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400) })).filter((x) => x.judul.trim() !== "").slice(0, 4),
+    cara: arr(k.cara, b.cara, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400), waktu: s(x.waktu, "").slice(0, 40) })).filter((x) => x.judul.trim() !== "").slice(0, 4),
     caraCatatan: s(k.caraCatatan, b.caraCatatan),
+    caraWaktuFeri: s(k.caraWaktuFeri, b.caraWaktuFeri).slice(0, 40),
+    caraWaktuPerahu: s(k.caraWaktuPerahu, b.caraWaktuPerahu).slice(0, 40),
     aktivitasJudul: s(k.aktivitasJudul, b.aktivitasJudul),
     aktivitasIsi: s(k.aktivitasIsi, b.aktivitasIsi),
     aktivitas: arr(k.aktivitas, b.aktivitas, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400) })).filter((x) => x.judul.trim() !== "").slice(0, 6),

@@ -125,11 +125,14 @@ export default function Website() {
           <Bidang label="Judul bagian"><input className={masukan} value={k.caraJudul} onChange={(e) => set("caraJudul", e.target.value)} /></Bidang>
           <Bidang label="Pengantar"><input className={masukan} value={k.caraIsi} onChange={(e) => set("caraIsi", e.target.value)} /></Bidang>
           {k.cara.map((x, i) => (
-            <div key={i} className="grid gap-3 rounded-2xl bg-panel-latar p-4 sm:col-span-2 sm:grid-cols-[14rem_1fr]">
+            <div key={i} className="grid gap-3 rounded-2xl bg-panel-latar p-4 sm:col-span-2 sm:grid-cols-[14rem_9rem_1fr]">
               <Bidang label={i === 0 ? "Langkah 1" : `Jalur ${String.fromCharCode(64 + i)}`}><input className={masukan} value={x.judul} onChange={(e) => set("cara", k.cara.map((y, j) => (j === i ? { ...y, judul: e.target.value } : y)))} /></Bidang>
+              <Bidang label="Waktu tempuh"><input className={masukan} value={x.waktu} placeholder="± 2 jam" onChange={(e) => set("cara", k.cara.map((y, j) => (j === i ? { ...y, waktu: e.target.value } : y)))} /></Bidang>
               <Bidang label="Keterangan"><input className={masukan} value={x.isi} onChange={(e) => set("cara", k.cara.map((y, j) => (j === i ? { ...y, isi: e.target.value } : y)))} /></Bidang>
             </div>
           ))}
+          <Bidang label="Waktu feri Sorong ke Waisai (di peta)"><input className={masukan} value={k.caraWaktuFeri} onChange={(e) => set("caraWaktuFeri", e.target.value)} /></Bidang>
+          <Bidang label="Waktu perahu Waisai ke resort (di peta)"><input className={masukan} value={k.caraWaktuPerahu} onChange={(e) => set("caraWaktuPerahu", e.target.value)} /></Bidang>
           <Bidang label="Catatan di bawah langkah" className="sm:col-span-2"><input className={masukan} value={k.caraCatatan} onChange={(e) => set("caraCatatan", e.target.value)} /></Bidang>
         </div>
       </Kartu>

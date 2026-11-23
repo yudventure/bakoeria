@@ -264,9 +264,12 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 </div>
                 {k.caraIsi && <p className="max-w-xl text-[14.5px] leading-relaxed text-malam/65 lg:justify-self-end">{k.caraIsi}</p>}
               </div>
-              <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-                <div className="muncul"><PetaRute teks={t.peta} id={`peta-${bahasa}`} /></div>
-                <div>
+              {/* Dua kolom sama tinggi: peta mengisi kolomnya, tombol menempel di dasar sejajar tepi bawah peta. */}
+              <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-stretch">
+                <div className="muncul min-h-[22rem]">
+                  <PetaRute id={`peta-${bahasa}`} teks={{ ...t.peta, feri: [t.peta.feri, k.caraWaktuFeri].filter(Boolean).join(" · "), perahu: [t.peta.perahu, k.caraWaktuPerahu].filter(Boolean).join(" · "), speedboat: [t.peta.speedboat, k.cara[1]?.waktu].filter(Boolean).join(" · ") }} />
+                </div>
+                <div className="flex flex-col">
                   {/* Langkah pertama sama untuk semua; sisanya jalur alternatif A dan B. */}
                   <ol className="grid gap-3">
                     {k.cara.map((x, i) => (
@@ -274,15 +277,19 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                         {i === 1 && <p className="mb-3 mt-2 text-[11px] font-bold uppercase tracking-[0.16em] text-emas-tua">{t.peta.pilih}</p>}
                         <div className={`flex gap-4 rounded-[1.2rem] bg-white p-5 ring-1 ${i === 1 ? "ring-2 ring-karang/50" : "ring-malam/8"}`}>
                           <span className={`angka grid size-9 shrink-0 place-items-center rounded-full text-sm font-bold text-white ${i === 1 ? "bg-karang" : i === 0 ? "bg-emas-tua" : "bg-malam"}`}>{i === 0 ? "1" : String.fromCharCode(64 + i)}</span>
-                          <div><h3 className="font-display text-[22px] leading-tight">{x.judul}</h3><p className="mt-1.5 text-[14px] leading-relaxed text-malam/65">{x.isi}</p></div>
+                          <div className="min-w-0">
+                            <h3 className="font-display text-[22px] leading-tight">{x.judul}</h3>
+                            {x.waktu && <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-busa px-2.5 py-0.5 text-[12.5px] font-bold text-emas-tua"><svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>{x.waktu}</p>}
+                            <p className="mt-1.5 text-[14px] leading-relaxed text-malam/65">{x.isi}</p>
+                          </div>
                         </div>
                       </li>
                     ))}
                   </ol>
                   {k.caraCatatan && <p className="muncul mt-5 text-[13.5px] leading-relaxed text-malam/60">{k.caraCatatan}</p>}
-                  <div className="muncul mt-5 flex flex-wrap gap-3">
-                    <a href={tautanPeta()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-emas-tua px-5 py-3 text-sm font-bold text-white transition hover:brightness-110"><Ikon nama="pin" className="size-4" />{t.peta.buka}</a>
-                    {wa && <a href={`https://wa.me/${wa}?text=${encodeURIComponent(t.peta.pesanWa)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-malam ring-1 ring-malam/15 transition hover:bg-busa"><Ikon nama="wa" className="size-4" />{t.peta.tanya}</a>}
+                  <div className="muncul mt-5 grid gap-3 sm:grid-cols-2 lg:mt-auto lg:pt-5">
+                    <a href={tautanPeta()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-emas-tua px-4 py-3 text-center text-sm font-bold text-white transition hover:brightness-110"><Ikon nama="pin" className="size-4 shrink-0" />{t.peta.buka}</a>
+                    {wa && <a href={`https://wa.me/${wa}?text=${encodeURIComponent(t.peta.pesanWa)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-4 py-3 text-center text-sm font-bold text-malam ring-1 ring-malam/15 transition hover:bg-busa"><Ikon nama="wa" className="size-4 shrink-0" />{t.peta.tanya}</a>}
                   </div>
                 </div>
               </div>
