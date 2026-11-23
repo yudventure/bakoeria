@@ -207,6 +207,41 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
           </div>
         </section>
 
+        {/* HARGA DAN PAKET DIVE TRIP */}
+        {k.paket.length > 0 && (
+          <section id="harga" className="scroll-mt-24 px-5 pb-20">
+            <div className="mx-auto max-w-6xl">
+              <div className="muncul grid gap-4 lg:grid-cols-[1fr_1.1fr] lg:items-end">
+                <div>
+                  <h2 className="font-display text-[clamp(30px,4vw,44px)] font-normal leading-[1.05]">{k.paketJudul}</h2>
+                  <Bintang className="mt-3 block text-[26px]" />
+                </div>
+                {k.paketCatatan && <p className="max-w-xl text-[14.5px] leading-relaxed text-malam/65 lg:justify-self-end">{k.paketCatatan}</p>}
+              </div>
+              <div className="mt-8 gap-4 md:columns-2 [&>*]:mb-4 [&>*]:break-inside-avoid">
+                {k.paket.map((grup, i) => (
+                  <div key={grup.judul + i} style={{ "--tunda": i % 2 } as React.CSSProperties} className="muncul rounded-[1.4rem] bg-white p-5 ring-1 ring-malam/8 sm:p-6">
+                    <h3 className="font-display text-[24px] leading-tight">{grup.judul}</h3>
+                    {grup.catatan && <p className="mt-1 text-[13px] leading-relaxed text-malam/55">{grup.catatan}</p>}
+                    <ul className="mt-4 divide-y divide-malam/8">
+                      {grup.isi.map((x, j) => (
+                        <li key={x.nama + j} className="flex items-baseline justify-between gap-4 py-3">
+                          <span className="min-w-0">
+                            <span className="block text-[15px] text-malam">{x.nama}</span>
+                            {x.ket && <span className="block text-[12.5px] leading-snug text-malam/55">{x.ket}</span>}
+                          </span>
+                          {x.harga && <b className="angka shrink-0 whitespace-nowrap text-[15px] font-bold text-emas-tua">{x.harga}</b>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              <a href="#pesan" className="muncul mt-6 inline-flex items-center gap-3 rounded-full bg-emas-tua py-2 pl-6 pr-2 text-sm font-bold text-white transition hover:brightness-110">{t.cekKetersediaan}<span className="grid size-9 place-items-center rounded-full bg-white/20">→</span></a>
+            </div>
+          </section>
+        )}
+
         {/* SEHARI */}
         <section id="sehari" className="scroll-mt-24 px-5 pb-20">
           <div className="muncul mx-auto max-w-6xl rounded-[1.6rem] bg-white/80 p-6 shadow-[0_10px_30px_rgba(10,36,64,.06)] ring-1 ring-malam/8 sm:p-8">

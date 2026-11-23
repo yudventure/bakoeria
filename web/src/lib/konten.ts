@@ -27,6 +27,12 @@ export interface Keunggulan {
   judul: string;
   isi: string;
 }
+/** Satu kelompok daftar harga selam (misalnya Fun dive), dengan baris nama, keterangan, dan harga. */
+export interface PaketGrup {
+  judul: string;
+  catatan: string;
+  isi: { nama: string; ket: string; harga: string }[];
+}
 export interface Konten {
   tagline: string;
   /** Awalan baris kata berganti di hero, misalnya "Here for". */
@@ -37,6 +43,10 @@ export interface Konten {
   introIsi: string;
   programCatatan: string;
   program: Program[];
+  /** Rincian harga dan paket dive trip. */
+  paketJudul: string;
+  paketCatatan: string;
+  paket: PaketGrup[];
   cottageJudul: string;
   cottageIsi: string;
   cottageFitur: string[];
@@ -72,6 +82,166 @@ export const KONTEN_BAWAAN: Konten = {
     { judul: "Kursus Open Water", isi: "Belajar menyelam dari awal dengan kelompok kecil, tempo yang tenang, dan perhatian penuh pada keselamatan.", meta: "Pemula · kelompok kecil", harga: "" },
     { judul: "Discover Scuba", isi: "Rasakan menyelam pertama Anda di perairan dangkal, tanpa perlu sertifikat, ditemani instruktur satu per satu.", meta: "Tanpa sertifikat · setengah hari", harga: "" },
     { judul: "Snorkeling", isi: "Untuk keluarga dan tamu yang menunggu di permukaan. Peralatan tersedia dan pemandu ikut di air.", meta: "Semua usia · peralatan tersedia", harga: "" },
+  ],
+  paketJudul: "Harga dan paket dive trip",
+  paketCatatan: "Harga dalam Rupiah. Titik selam yang jauh bisa dikenai biaya bensin Rp 300.000 sampai 500.000 bila penyelam kurang dari 3.",
+  paket: [
+    {
+      "judul": "Fun dive",
+      "catatan": "Per penyelam. Peralatan termasuk, kecuali dive computer dan senter.",
+      "isi": [
+        {
+          "nama": "Satu kali fun dive",
+          "ket": "Titik selam lokal",
+          "harga": "Rp 900.000"
+        },
+        {
+          "nama": "Dua fun dive pagi",
+          "ket": "Titik selam lokal",
+          "harga": "Rp 1.600.000"
+        },
+        {
+          "nama": "Tiga kali menyelam dalam sehari",
+          "ket": "Titik selam lokal",
+          "harga": "Rp 2.250.000"
+        },
+        {
+          "nama": "Dua dive di cleaning station manta dan Arborek",
+          "ket": "Minimal 3 penyelam",
+          "harga": "Rp 1.900.000"
+        },
+        {
+          "nama": "Satu dive sore di cleaning station manta",
+          "ket": "Minimal 3 penyelam",
+          "harga": "Rp 1.000.000"
+        },
+        {
+          "nama": "Dive di house reef",
+          "ket": "Tanpa pemandu, khusus penyelam berpengalaman",
+          "harga": "Rp 400.000"
+        }
+      ]
+    },
+    {
+      "judul": "Night dive",
+      "catatan": "Per penyelam, minimal 2 penyelam.",
+      "isi": [
+        {
+          "nama": "Night dive, titik dekat",
+          "ket": "Satu kali night dive",
+          "harga": "Rp 1.100.000"
+        },
+        {
+          "nama": "Night dive, titik jauh",
+          "ket": "Satu kali night dive",
+          "harga": "Rp 1.200.000"
+        }
+      ]
+    },
+    {
+      "judul": "Paket dive trip",
+      "catatan": "Selam dihitung per penyelam; perahu dihitung per perahu dan dibagi satu grup.",
+      "isi": [
+        {
+          "nama": "Piaynemo, dua fun dive",
+          "ket": "Per penyelam, belum termasuk perahu",
+          "harga": "Rp 1.700.000"
+        },
+        {
+          "nama": "Yangefo, dua fun dive",
+          "ket": "Titik Citrus dan Mayhem, minimal 3 penyelam, belum termasuk perahu",
+          "harga": "Rp 2.200.000"
+        },
+        {
+          "nama": "Bangkai P47, Pulau Wai, dan Manta Way, dua fun dive",
+          "ket": "Minimal 3 penyelam, perahu dihitung terpisah",
+          "harga": "Rp 2.000.000"
+        },
+        {
+          "nama": "Perahu ekskursi: Piaynemo, Yangefo, atau air terjun Batanta",
+          "ket": "Per perahu, 5 penyelam dan 1 snorkeler, termasuk lunch box dan tiket masuk",
+          "harga": "Rp 7.000.000"
+        }
+      ]
+    },
+    {
+      "judul": "Kursus dan selam pertama",
+      "catatan": "Per orang. Biaya pengajar dibayar terpisah.",
+      "isi": [
+        {
+          "nama": "Try dive",
+          "ket": "Tanpa sertifikat selam",
+          "harga": "Rp 1.300.000"
+        },
+        {
+          "nama": "Penyegaran keterampilan selam",
+          "ket": "Untuk penyelam bersertifikat yang lama tidak menyelam",
+          "harga": "Rp 1.200.000"
+        }
+      ]
+    },
+    {
+      "judul": "Trip snorkeling",
+      "catatan": "Per perahu. Pemandu snorkeling Rp 200.000 per trip.",
+      "isi": [
+        {
+          "nama": "Manta Point",
+          "ket": "Sampai 6 orang",
+          "harga": "Rp 2.000.000"
+        },
+        {
+          "nama": "Dermaga Pulau Arborek",
+          "ket": "Sampai 6 orang",
+          "harga": "Rp 1.600.000"
+        },
+        {
+          "nama": "Pulau Friwen atau Mioskun",
+          "ket": "Sampai 6 orang",
+          "harga": "Rp 1.200.000"
+        },
+        {
+          "nama": "Dermaga Sawandarek",
+          "ket": "Sampai 6 orang",
+          "harga": "Rp 1.000.000"
+        },
+        {
+          "nama": "Pasir Timbul",
+          "ket": "Sampai 4 orang",
+          "harga": "Rp 500.000"
+        }
+      ]
+    },
+    {
+      "judul": "Trip pulau",
+      "catatan": "Per perahu, sampai 6 orang.",
+      "isi": [
+        {
+          "nama": "Piaynemo",
+          "ket": "Snorkeling dan titik pandang, termasuk lunch box",
+          "harga": "Rp 7.000.000"
+        },
+        {
+          "nama": "Snorkeling dan air terjun Batanta",
+          "ket": "Termasuk lunch box",
+          "harga": "Rp 7.000.000"
+        },
+        {
+          "nama": "Celah Kabuy dan celah Citrus",
+          "ket": "Termasuk lunch box",
+          "harga": "Rp 7.000.000"
+        },
+        {
+          "nama": "Mengamati burung",
+          "ket": "Belum termasuk tiket masuk Rp 250.000 per orang",
+          "harga": "Rp 1.800.000"
+        },
+        {
+          "nama": "Trip memancing, 3 sampai 4 jam",
+          "ket": "Di sekitar resort",
+          "harga": "Rp 1.500.000"
+        }
+      ]
+    }
   ],
   cottageJudul: "Cottage kayu jati",
   cottageIsi: "Rumah panggung berdinding kayu jati dengan teras menghadap taman kelapa. Dibangun dari bahan lokal, dirancang untuk angin laut mengalir.",
@@ -125,6 +295,166 @@ export const KONTEN_BAWAAN_EN: Konten = {
     { judul: "Open Water Course", isi: "Learn to dive from the start in a small group, at a calm pace, with full attention on safety.", meta: "Beginners · small groups", harga: "" },
     { judul: "Discover Scuba", isi: "Try your first dive in shallow water, no certificate needed, one to one with an instructor.", meta: "No certificate · half day", harga: "" },
     { judul: "Snorkelling", isi: "For families and anyone staying on the surface. Gear provided and a guide in the water with you.", meta: "All ages · gear provided", harga: "" },
+  ],
+  paketJudul: "Prices and dive trip packages",
+  paketCatatan: "Prices in Indonesian Rupiah. Far sites may add a fuel charge of Rp 300.000 to 500.000 with fewer than 3 divers.",
+  paket: [
+    {
+      "judul": "Fun dives",
+      "catatan": "Per diver. Equipment included, except dive computer and torch.",
+      "isi": [
+        {
+          "nama": "One fun dive",
+          "ket": "Local dive site",
+          "harga": "Rp 900.000"
+        },
+        {
+          "nama": "Two morning fun dives",
+          "ket": "Local dive sites",
+          "harga": "Rp 1.600.000"
+        },
+        {
+          "nama": "Three dives in one day",
+          "ket": "Local dive sites",
+          "harga": "Rp 2.250.000"
+        },
+        {
+          "nama": "Two dives at the manta cleaning station and Arborek",
+          "ket": "Minimum 3 divers",
+          "harga": "Rp 1.900.000"
+        },
+        {
+          "nama": "One afternoon dive at the manta cleaning station",
+          "ket": "Minimum 3 divers",
+          "harga": "Rp 1.000.000"
+        },
+        {
+          "nama": "House reef dive",
+          "ket": "Without a guide, experienced divers only",
+          "harga": "Rp 400.000"
+        }
+      ]
+    },
+    {
+      "judul": "Night dives",
+      "catatan": "Per diver, minimum 2 divers.",
+      "isi": [
+        {
+          "nama": "Night dive, near site",
+          "ket": "One night dive",
+          "harga": "Rp 1.100.000"
+        },
+        {
+          "nama": "Night dive, far site",
+          "ket": "One night dive",
+          "harga": "Rp 1.200.000"
+        }
+      ]
+    },
+    {
+      "judul": "Dive trips",
+      "catatan": "Diving is priced per diver; the boat is priced per boat and shared by the group.",
+      "isi": [
+        {
+          "nama": "Piaynemo, two fun dives",
+          "ket": "Per diver, boat not included",
+          "harga": "Rp 1.700.000"
+        },
+        {
+          "nama": "Yangefo, two fun dives",
+          "ket": "Citrus and Mayhem sites, minimum 3 divers, boat not included",
+          "harga": "Rp 2.200.000"
+        },
+        {
+          "nama": "P47 wreck, Wai Island and Manta Way, two fun dives",
+          "ket": "Minimum 3 divers, boat charged separately",
+          "harga": "Rp 2.000.000"
+        },
+        {
+          "nama": "Excursion boat: Piaynemo, Yangefo or Batanta waterfall",
+          "ket": "Per boat, 5 divers and 1 snorkeller, lunch box and entrance fee included",
+          "harga": "Rp 7.000.000"
+        }
+      ]
+    },
+    {
+      "judul": "Courses and first dives",
+      "catatan": "Per person. Instructor fee is paid separately.",
+      "isi": [
+        {
+          "nama": "Try dive",
+          "ket": "No certification needed",
+          "harga": "Rp 1.300.000"
+        },
+        {
+          "nama": "Skill update and refresh",
+          "ket": "For certified divers who have not dived for a while",
+          "harga": "Rp 1.200.000"
+        }
+      ]
+    },
+    {
+      "judul": "Snorkelling trips",
+      "catatan": "Per boat. Snorkelling guide Rp 200.000 per trip.",
+      "isi": [
+        {
+          "nama": "Manta Point",
+          "ket": "Up to 6 people",
+          "harga": "Rp 2.000.000"
+        },
+        {
+          "nama": "Arborek Island jetty",
+          "ket": "Up to 6 people",
+          "harga": "Rp 1.600.000"
+        },
+        {
+          "nama": "Friwen or Mioskun Island",
+          "ket": "Up to 6 people",
+          "harga": "Rp 1.200.000"
+        },
+        {
+          "nama": "Sawandarek jetty",
+          "ket": "Up to 6 people",
+          "harga": "Rp 1.000.000"
+        },
+        {
+          "nama": "Sand bank",
+          "ket": "Up to 4 people",
+          "harga": "Rp 500.000"
+        }
+      ]
+    },
+    {
+      "judul": "Island trips",
+      "catatan": "Per boat, up to 6 people.",
+      "isi": [
+        {
+          "nama": "Piaynemo",
+          "ket": "Snorkelling and viewpoint, lunch box included",
+          "harga": "Rp 7.000.000"
+        },
+        {
+          "nama": "Batanta snorkelling and waterfall",
+          "ket": "Lunch box included",
+          "harga": "Rp 7.000.000"
+        },
+        {
+          "nama": "Kabuy passage and Citrus passage",
+          "ket": "Lunch box included",
+          "harga": "Rp 7.000.000"
+        },
+        {
+          "nama": "Bird watching",
+          "ket": "Entrance fee Rp 250.000 per person not included",
+          "harga": "Rp 1.800.000"
+        },
+        {
+          "nama": "Fishing trip, 3 to 4 hours",
+          "ket": "Near the resort",
+          "harga": "Rp 1.500.000"
+        }
+      ]
+    }
   ],
   cottageJudul: "Teak cottages",
   cottageIsi: "Stilt houses with teak walls and a terrace facing the coconut garden. Built from local materials and designed to let the sea breeze through.",
@@ -180,6 +510,16 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     introIsi: s(k.introIsi, b.introIsi),
     programCatatan: s(k.programCatatan, b.programCatatan),
     program: arr(k.program, b.program, (x) => ({ judul: s(x.judul, ""), isi: s(x.isi, ""), meta: s(x.meta, ""), harga: s(x.harga, "") })),
+    paketJudul: s(k.paketJudul, b.paketJudul),
+    paketCatatan: s(k.paketCatatan, b.paketCatatan),
+    paket: arr(k.paket, b.paket, (x) => ({
+      judul: s(x.judul, "").slice(0, 80),
+      catatan: s(x.catatan, "").slice(0, 300),
+      isi: (Array.isArray(x.isi) ? x.isi : []).slice(0, 30).map((y) => {
+        const r = (y ?? {}) as Record<string, unknown>;
+        return { nama: s(r.nama, "").slice(0, 120), ket: s(r.ket, "").slice(0, 200), harga: s(r.harga, "").slice(0, 40) };
+      }).filter((y) => y.nama.trim() !== ""),
+    })).filter((x) => x.judul.trim() !== "" || x.isi.length > 0),
     cottageJudul: s(k.cottageJudul, b.cottageJudul),
     cottageIsi: s(k.cottageIsi, b.cottageIsi),
     cottageFitur: Array.isArray(k.cottageFitur) ? k.cottageFitur.filter((x) => typeof x === "string").slice(0, 20) : b.cottageFitur,

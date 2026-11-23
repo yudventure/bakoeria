@@ -120,6 +120,33 @@ export default function Website() {
         </div>
       )} />
       <Bidang label="Catatan di bawah judul program"><input className={masukan} value={k.programCatatan} onChange={(e) => set("programCatatan", e.target.value)} /></Bidang>
+      <Kartu judul="Harga dan paket dive trip" ket="Tiap kelompok tampil sebagai satu kartu harga di website. Baris harga ditulis satu per baris dengan bentuk: nama | keterangan | harga. Keterangan boleh kosong.">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Bidang label="Judul bagian"><input className={masukan} value={k.paketJudul} onChange={(e) => set("paketJudul", e.target.value)} /></Bidang>
+          <Bidang label="Catatan di samping judul"><input className={masukan} value={k.paketCatatan} onChange={(e) => set("paketCatatan", e.target.value)} /></Bidang>
+        </div>
+        <div className="mt-4 grid gap-4">
+          {k.paket.map((grup, i) => {
+            const ubah = (v: Partial<typeof grup>) => set("paket", k.paket.map((x, j) => (j === i ? { ...x, ...v } : x)));
+            return (
+              <div key={`${i}-${k.paket.length}`} className="grid gap-3 rounded-2xl bg-panel-latar p-4 sm:grid-cols-2">
+                <Bidang label={`Kelompok ${i + 1}`}><input className={masukan} value={grup.judul} onChange={(e) => ubah({ judul: e.target.value })} /></Bidang>
+                <Bidang label="Catatan kelompok"><input className={masukan} value={grup.catatan} onChange={(e) => ubah({ catatan: e.target.value })} /></Bidang>
+                <Bidang label="Baris harga" ket="nama | keterangan | harga" className="sm:col-span-2">
+                  <textarea
+                    className={masukan + " font-mono text-[13px]"}
+                    rows={Math.max(3, grup.isi.length + 1)}
+                    defaultValue={grup.isi.map((x) => [x.nama, x.ket, x.harga].join(" | ")).join("\n")}
+                    onBlur={(e) => ubah({ isi: e.target.value.split("\n").map((b) => b.split("|").map((x) => x.trim())).filter((b) => b[0]).map((b) => ({ nama: b[0], ket: b.length > 2 ? b[1] : "", harga: b.length > 2 ? b.slice(2).join(" | ") : b[1] ?? "" })) })}
+                  />
+                </Bidang>
+                <button type="button" className="justify-self-start text-sm font-bold text-panel-merah underline" onClick={() => set("paket", k.paket.filter((_, j) => j !== i))}>Hapus kelompok</button>
+              </div>
+            );
+          })}
+        </div>
+        <button type="button" className="mt-4 text-sm font-bold text-panel-utama underline" onClick={() => set("paket", [...k.paket, { judul: "Kelompok baru", catatan: "", isi: [] }])}>+ Tambah kelompok harga</button>
+      </Kartu>
       <Kartu judul="Cottage">
         <div className="grid gap-4">
           <Bidang label="Judul"><input className={masukan} value={k.cottageJudul} onChange={(e) => set("cottageJudul", e.target.value)} /></Bidang>
