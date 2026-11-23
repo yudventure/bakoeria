@@ -8,7 +8,7 @@ import VideoLatar from "./video";
  * Bagian "Menginap": sorotan dan galeri, bukan daftar kartu kamar.
  * Semua cottage isinya sama dan hanya beda di kasurnya, jadi fasilitas
  * ditampilkan satu kali sebagai sorotan berikon, pilihan kasur ditampilkan
- * ringkas, dan harganya di satu ubin. Fotonya disusun mosaik dengan bentuk
+ * ringkas, dan harganya di satu ubin. Fotonya disusun mosaik dengan ukuran
  * yang berbeda-beda.
  */
 const IKON: [RegExp, string][] = [
@@ -38,13 +38,13 @@ export default function Menginap({ jenis, isi, bahasa, tanda, video }: { jenis: 
   const termurah = Math.min(...jenis.map((j) => j.r.baseRate));
   const normal = utama?.normalRate != null && utama.normalRate > termurah ? utama.normalRate : null;
 
-  /* Mosaik 12 kolom x 6 baris: lengkung tinggi, panorama, bulat, kapsul, dan satu ubin harga. */
+  /* Mosaik 12 kolom x 6 baris dengan ukuran ubin berbeda-beda; semua sudutnya membulat kecil, sama dengan bingkai video. */
   const foto: FotoGaleri[] = [
-    { src: "/img/cottage-left.jpg", alt: g.alt[0], kelas: "col-span-3 row-span-2 aspect-[3/4] lg:col-span-3 lg:col-start-1 lg:row-span-4 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-t-[999px] rounded-b-[1.4rem]", posisi: "object-[35%_50%]" },
+    { src: "/img/cottage-left.jpg", alt: g.alt[0], kelas: "col-span-3 row-span-2 aspect-[3/4] lg:col-span-3 lg:col-start-1 lg:row-span-4 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[35%_50%]" },
     { src: "/img/resort-night.jpg", alt: g.alt[1], kelas: "col-span-3 aspect-[3/2] lg:col-span-6 lg:col-start-4 lg:row-span-3 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_78%]" },
-    { src: "/img/lights-path.jpg", alt: g.alt[2], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-10 lg:row-span-3 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem] lg:rounded-full", posisi: "object-[55%_50%]" },
-    { src: "/img/cottage-right.jpg", alt: g.alt[3], kelas: "col-span-3 aspect-[3/2] lg:col-span-4 lg:col-start-4 lg:row-span-3 lg:row-start-4 lg:aspect-auto", bentuk: "rounded-[1.4rem] lg:rounded-[999px]", posisi: "object-[60%_55%]" },
-    { src: "/img/palms.jpg", alt: g.alt[4], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-5 lg:aspect-auto", bentuk: "rounded-[1.4rem] lg:rounded-b-[999px] lg:rounded-t-[1.4rem]", posisi: "object-[50%_30%]" },
+    { src: "/img/lights-path.jpg", alt: g.alt[2], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-10 lg:row-span-3 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[55%_50%]" },
+    { src: "/img/cottage-right.jpg", alt: g.alt[3], kelas: "col-span-3 aspect-[3/2] lg:col-span-4 lg:col-start-4 lg:row-span-3 lg:row-start-4 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[60%_55%]" },
+    { src: "/img/palms.jpg", alt: g.alt[4], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-5 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_30%]" },
   ];
 
   return (

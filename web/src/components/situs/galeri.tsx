@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 export interface FotoGaleri { src: string; alt: string; kelas: string; bentuk: string; posisi?: string }
 
 /**
- * Galeri mosaik: tiap foto punya ukuran dan bentuk sendiri (lengkung, kapsul, bulat).
+ * Galeri mosaik: tiap foto punya ukuran sendiri, dengan sudut membulat kecil.
  * Foto bisa diklik untuk diperbesar; panah kiri/kanan berpindah foto, Esc menutup.
  */
 export default function Galeri({ foto, teks, children }: { foto: FotoGaleri[]; teks: { buka: string; tutup: string; sebelum: string; sesudah: string }; children?: React.ReactNode }) {
