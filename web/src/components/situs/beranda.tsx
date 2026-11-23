@@ -1,5 +1,6 @@
 import { PencatatKunjungan } from "./pencatat";
 import Menginap from "./menginap";
+import HargaSelam from "./harga-selam";
 import { pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
@@ -7,7 +8,7 @@ import { idYoutube, nomorWa } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
-import { Ikon, ikonProgram } from "@/components/situs/ikon";
+import { Ikon } from "@/components/situs/ikon";
 import { Nav } from "@/components/situs/interaksi";
 import { Gerak, JudulHero } from "@/components/situs/gerak";
 import Pemesanan from "@/components/situs/pemesanan";
@@ -185,62 +186,21 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
           </section>
         )}
 
-        {/* PROGRAM SELAM */}
+        {/* PROGRAM SELAM: kartu yang membuka dan menampilkan harganya saat ditunjuk kursor */}
         <section id="menyelam" className="scroll-mt-24 px-5 pb-20">
-          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr] lg:items-center">
-            <div className="muncul">
-              <h2 className="font-display text-[34px] font-normal leading-tight">{t.programSelam}</h2>
-              <Bintang className="mt-3 block text-[26px]" />
-              {k.programCatatan && <p className="mt-4 text-[14px] text-malam/60">{k.programCatatan}</p>}
+          <div className="mx-auto max-w-6xl">
+            <div className="muncul grid gap-4 lg:grid-cols-[1fr_1.1fr] lg:items-end">
+              <div>
+                <h2 className="font-display text-[clamp(30px,4vw,44px)] font-normal leading-[1.05]">{t.programSelam}</h2>
+                <Bintang className="mt-3 block text-[26px]" />
+              </div>
+              <p className="max-w-xl text-[14.5px] leading-relaxed text-malam/65 lg:justify-self-end">{[k.programCatatan, k.paketCatatan].filter(Boolean).join(" ")}</p>
             </div>
-            <div className="muncul grid overflow-hidden rounded-[1.6rem] bg-white/70 ring-1 ring-malam/8 sm:grid-cols-2 xl:grid-cols-4">
-              {k.program.map((p, i) => (
-                <div key={p.judul + i} className="flex flex-col items-center gap-2 border-malam/8 px-5 py-7 text-center [&:not(:last-child)]:border-b sm:[&:nth-child(odd)]:border-r xl:border-b-0 xl:[&:not(:last-child)]:border-r">
-                  <Ikon nama={ikonProgram(p.judul, i)} className="size-9 text-malam/80" />
-                  <h3 className="mt-1 text-[15px] font-bold">{p.judul}</h3>
-                  <p className="text-[13px] leading-relaxed text-malam/60">{p.isi}</p>
-                  {p.harga && <p className="mt-1 text-[14px] font-bold text-emas-tua">{p.harga}</p>}
-                  {p.meta && <p className="mt-auto pt-2 text-[11px] uppercase tracking-[0.14em] text-malam/45">{p.meta}</p>}
-                </div>
-              ))}
+            <div className="muncul mt-8">
+              <HargaSelam paket={k.paket} teks={{ mulai: t.mulai, lihat: t.lihatHarga, pesan: t.cekKetersediaan }} />
             </div>
           </div>
         </section>
-
-        {/* HARGA DAN PAKET DIVE TRIP */}
-        {k.paket.length > 0 && (
-          <section id="harga" className="scroll-mt-24 px-5 pb-20">
-            <div className="mx-auto max-w-6xl">
-              <div className="muncul grid gap-4 lg:grid-cols-[1fr_1.1fr] lg:items-end">
-                <div>
-                  <h2 className="font-display text-[clamp(30px,4vw,44px)] font-normal leading-[1.05]">{k.paketJudul}</h2>
-                  <Bintang className="mt-3 block text-[26px]" />
-                </div>
-                {k.paketCatatan && <p className="max-w-xl text-[14.5px] leading-relaxed text-malam/65 lg:justify-self-end">{k.paketCatatan}</p>}
-              </div>
-              <div className="mt-8 gap-4 md:columns-2 [&>*]:mb-4 [&>*]:break-inside-avoid">
-                {k.paket.map((grup, i) => (
-                  <div key={grup.judul + i} style={{ "--tunda": i % 2 } as React.CSSProperties} className="muncul rounded-[1.4rem] bg-white p-5 ring-1 ring-malam/8 sm:p-6">
-                    <h3 className="font-display text-[24px] leading-tight">{grup.judul}</h3>
-                    {grup.catatan && <p className="mt-1 text-[13px] leading-relaxed text-malam/55">{grup.catatan}</p>}
-                    <ul className="mt-4 divide-y divide-malam/8">
-                      {grup.isi.map((x, j) => (
-                        <li key={x.nama + j} className="flex items-baseline justify-between gap-4 py-3">
-                          <span className="min-w-0">
-                            <span className="block text-[15px] text-malam">{x.nama}</span>
-                            {x.ket && <span className="block text-[12.5px] leading-snug text-malam/55">{x.ket}</span>}
-                          </span>
-                          {x.harga && <b className="angka shrink-0 whitespace-nowrap text-[15px] font-bold text-emas-tua">{x.harga}</b>}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-              <a href="#pesan" className="muncul mt-6 inline-flex items-center gap-3 rounded-full bg-emas-tua py-2 pl-6 pr-2 text-sm font-bold text-white transition hover:brightness-110">{t.cekKetersediaan}<span className="grid size-9 place-items-center rounded-full bg-white/20">→</span></a>
-            </div>
-          </section>
-        )}
 
         {/* SEHARI */}
         <section id="sehari" className="scroll-mt-24 px-5 pb-20">
