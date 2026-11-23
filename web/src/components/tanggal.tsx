@@ -104,7 +104,6 @@ export default function PilihTanggal({ value, onChange, min, max, bahasa = "id",
   const [buka, setBuka] = useState(false);
   /** Hari yang sedang disorot papan ketik; bulannya yang ditampilkan. */
   const [sorot, setSorot] = useState(sah ? value : kini);
-  const [keAtas, setKeAtas] = useState(false);
   const [keKanan, setKeKanan] = useState(false);
   const wadah = useRef<HTMLDivElement>(null);
   const pemicu = useRef<HTMLButtonElement>(null);
@@ -118,7 +117,6 @@ export default function PilihTanggal({ value, onChange, min, max, bahasa = "id",
     setSorot(jepit(sah ? value : kini));
     const r = pemicu.current?.getBoundingClientRect();
     if (r) {
-      setKeAtas(window.innerHeight - r.bottom < 380 && r.top > 380);
       setKeKanan(r.left + 320 > window.innerWidth - 8);
     }
     setBuka(true);
@@ -146,8 +144,10 @@ export default function PilihTanggal({ value, onChange, min, max, bahasa = "id",
   useEffect(() => {
     if (buka) papan.current?.querySelector<HTMLButtonElement>(`[data-tgl="${sorot}"]`)?.focus({ preventScroll: true });
   }, [buka, sorot]);
-  /* Saat dibuka, seluruh papan harus terlihat: tidak terpotong tepi layar dan tidak
-     tertutup menu atas yang menempel (jarak aman diatur lewat scroll-margin). */
+  /* Papan selalu membuka ke bawah. Membuka ke atas pernah membuatnya terpotong oleh
+     wadah ber-overflow tersembunyi (bagian pemesanan), sehingga tombol ganti bulan tidak
+     bisa diklik. Sebagai gantinya halaman digulir sampai seluruh papan terlihat; jarak
+     aman dari menu atas diatur lewat scroll-margin. */
   useEffect(() => {
     if (buka) papan.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [buka]);
@@ -214,7 +214,7 @@ export default function PilihTanggal({ value, onChange, min, max, bahasa = "id",
           role="dialog"
           aria-label={label ?? t.pilih}
           onKeyDown={tombol}
-          className={`absolute z-50 w-[19.5rem] max-w-[calc(100vw-1.5rem)] scroll-mb-4 scroll-mt-28 ${keAtas ? "bottom-[calc(100%+.5rem)]" : "top-[calc(100%+.5rem)]"} ${keKanan ? "right-0" : "left-0"} ${g.papan}`}
+          className={`absolute z-50 w-[19.5rem] max-w-[calc(100vw-1.5rem)] scroll-mb-4 scroll-mt-28 top-[calc(100%+.5rem)] ${keKanan ? "right-0" : "left-0"} ${g.papan}`}
         >
           <div className="flex items-center justify-between gap-2">
             <button type="button" className={g.panah} aria-label={t.sebelum} data-nav="-1" disabled={!bisaMundur} onClick={() => setSorot(jepit(geserBulan(sorot, -1)))}>‹</button>
