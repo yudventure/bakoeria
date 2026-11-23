@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 export interface FotoGaleri { src: string; srcSet?: string; style?: React.CSSProperties; alt: string; kelas: string; bentuk: string; posisi?: string }
 
@@ -8,8 +8,13 @@ export interface FotoGaleri { src: string; srcSet?: string; style?: React.CSSPro
  * Galeri mosaik: tiap foto punya ukuran sendiri, dengan sudut membulat kecil.
  * Foto bisa diklik untuk diperbesar; panah kiri/kanan berpindah foto, Esc menutup.
  */
-export default function Galeri({ foto, teks, children }: { foto: FotoGaleri[]; teks: { buka: string; tutup: string; sebelum: string; sesudah: string }; children?: React.ReactNode }) {
+export default function Galeri({ foto, teks, children, mosaik = foto.length }: { foto: FotoGaleri[]; teks: { buka: string; tutup: string; sebelum: string; sesudah: string; lebih?: string; kurang?: string }; children?: React.ReactNode; /** Jumlah foto di mosaik; sisanya tampil setelah "Show more". */ mosaik?: number }) {
   const [buka, setBuka] = useState<number | null>(null);
+  const [semua, setSemua] = useState(false);
+  const atas = foto.slice(0, mosaik);
+  const sisa = foto.slice(mosaik);
+  const awalSisa = useRef<HTMLDivElement>(null);
+  const idSisa = useId();
   const kotak = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = kotak.current;
@@ -23,9 +28,9 @@ export default function Galeri({ foto, teks, children }: { foto: FotoGaleri[]; t
   return (
     <>
       <div className="grid grid-cols-6 gap-3 sm:gap-4 lg:grid-cols-12 lg:grid-rows-[repeat(6,5.4rem)]">
-        {foto.map((x, i) => (
+        {atas.map((x, i) => (
           <button
-            key={x.src}
+            key={x.src + i}
             type="button"
             onClick={() => setBuka(i)}
             aria-label={`${teks.buka}: ${x.alt}`}
@@ -40,6 +45,37 @@ export default function Galeri({ foto, teks, children }: { foto: FotoGaleri[]; t
         ))}
         {children}
       </div>
+
+      {/* Foto selebihnya: kisi rapi yang terbuka dengan tombol teks "Show more". */}
+      {sisa.length > 0 && (
+        <>
+          <div ref={awalSisa} id={`${idSisa}`} hidden={!semua} className="mt-3 grid grid-cols-2 gap-3 sm:mt-4 sm:gap-4 lg:grid-cols-4">
+            {sisa.map((x, j) => {
+              const i = mosaik + j;
+              return (
+                <button key={x.src + i} type="button" onClick={() => setBuka(i)} aria-label={`${teks.buka}: ${x.alt}`} className="group relative aspect-[4/3] overflow-hidden rounded-[1.4rem] outline-none ring-emas-tua ring-offset-2 ring-offset-[#F6F4EF] focus-visible:ring-2">
+                  <img src={x.src} srcSet={x.srcSet} sizes={x.srcSet ? "(min-width: 1024px) 25vw, 50vw" : undefined} style={x.style} alt={x.alt} loading="lazy" className="size-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.07]" />
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-5 flex justify-center">
+            <button
+              type="button"
+              data-lebih
+              aria-expanded={semua}
+              aria-controls={idSisa}
+              onClick={() => {
+                setSemua(!semua);
+                if (semua) awalSisa.current?.previousElementSibling?.scrollIntoView({ block: "end", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+              }}
+              className="text-[14px] font-bold tracking-wide text-emas-tua underline-offset-4 transition hover:underline"
+            >
+              {semua ? teks.kurang ?? "Show less" : teks.lebih ?? "Show more"}
+            </button>
+          </div>
+        </>
+      )}
 
       <dialog
         ref={kotak}

@@ -1,7 +1,7 @@
 import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { rapikanPetaFoto, type Foto, type PetaFoto, type SlotFoto } from "@/lib/foto";
+import { galeriDariSlot, MAKS_GALERI, rapikanGaleri, rapikanPetaFoto, type Foto, type ItemGaleri, type NamaGaleri, type PetaFoto, type PetaGaleri, type SlotFoto } from "@/lib/foto";
 import { bacaJson, dirData, ubahJson } from "./gudang";
 
 /**
@@ -44,8 +44,29 @@ export async function simpanBagian(id: string, w: number, jenis: "webp" | "jpg",
   await fs.rename(/*turbopackIgnore: true*/ sementara, tujuan);
 }
 
+/** Galeri menginap dan aktivitas. Yang belum pernah diubah diambil dari slot lama. */
+export async function bacaGaleri(peta?: PetaFoto): Promise<PetaGaleri> {
+  const p = peta ?? (await bacaPetaFoto());
+  const g = (await bacaJson<Record<string, unknown>>("galeri.json", {})) ?? {};
+  return { menginap: rapikanGaleri(g.menginap) ?? galeriDariSlot(p, "menginap"), aktivitas: rapikanGaleri(g.aktivitas) ?? galeriDariSlot(p, "aktivitas") };
+}
+
+/** Ubah satu galeri dalam satu giliran antrean berkas, lalu bersihkan foto yang tidak dipakai. */
+export async function ubahGaleri(nama: NamaGaleri, ubah: (lama: ItemGaleri[]) => ItemGaleri[]): Promise<PetaGaleri> {
+  const peta = await bacaPetaFoto();
+  await ubahJson<Record<string, unknown>>("galeri.json", {}, (lama) => {
+    const g = { ...(lama ?? {}) };
+    const sekarang = rapikanGaleri(g[nama]) ?? galeriDariSlot(peta, nama);
+    g[nama] = ubah(sekarang).slice(0, MAKS_GALERI);
+    return g;
+  }, 0o644);
+  const galeri = await bacaGaleri(peta);
+  await bersihkan(peta, galeri).catch((e) => console.error("[foto] gagal membersihkan", e));
+  return galeri;
+}
+
 /** Periksa semua ukuran sudah ada di server, lalu pasang foto itu ke slot. Mengembalikan ukuran yang belum ada bila belum lengkap. */
-export async function resmikan(slot: SlotFoto, f: Omit<Foto, "fokus" | "kb">): Promise<{ foto: PetaFoto } | { kurang: number[] }> {
+export async function resmikan(tujuan: { slot: SlotFoto } | { galeri: NamaGaleri }, f: Omit<Foto, "fokus" | "kb">): Promise<{ foto: PetaFoto; galeri: PetaGaleri } | { kurang: number[] }> {
   if (!ID_SAH.test(f.id)) throw new Error("Nama foto tidak sah.");
   const dir = await dirFoto();
   const kurang: number[] = [];
@@ -56,7 +77,13 @@ export async function resmikan(slot: SlotFoto, f: Omit<Foto, "fokus" | "kb">): P
     else kb = Math.round(st.size / 1024);
   }
   if (kurang.length) return { kurang };
-  return { foto: await aturSlot(slot, (lama) => ({ ...f, kb, fokus: lama?.id === f.id ? lama.fokus : [50, 50] })) };
+  if ("galeri" in tujuan) {
+    /* Foto baru ditaruh di akhir galeri; unggahan ulang id yang sama (koneksi putus) tidak menggandakan. */
+    const galeri = await ubahGaleri(tujuan.galeri, (l) => (l.some((x) => x.kunci === f.id) ? l : [...l, { kunci: f.id, foto: { ...f, kb, fokus: [50, 50] }, bawaan: null }]));
+    return { foto: await bacaPetaFoto(), galeri };
+  }
+  const foto = await aturSlot(tujuan.slot, (lama) => ({ ...f, kb, fokus: lama?.id === f.id ? lama.fokus : [50, 50] }));
+  return { foto, galeri: await bacaGaleri(foto) };
 }
 
 /** Ubah isi satu slot (null = kembali ke foto bawaan), lalu hapus berkas yang tidak dipakai lagi. */
@@ -70,13 +97,13 @@ export async function aturSlot(slot: SlotFoto, ubah: (lama: Foto | undefined) =>
       return p;
     }, 0o644),
   );
-  await bersihkan(peta).catch((e) => console.error("[foto] gagal membersihkan", e));
+  await bersihkan(peta, await bacaGaleri(peta)).catch((e) => console.error("[foto] gagal membersihkan", e));
   return peta;
 }
 
 /** Hapus berkas yang tidak dipakai slot mana pun. Yang berumur di bawah 30 menit dibiarkan: bisa jadi unggahan yang sedang berjalan. */
-async function bersihkan(peta: PetaFoto) {
-  const dipakai = new Set(Object.values(peta).map((f) => f!.id));
+async function bersihkan(peta: PetaFoto, galeri: PetaGaleri) {
+  const dipakai = new Set([...Object.values(peta).map((f) => f!.id), ...Object.values(galeri).flat().map((x) => x.foto?.id).filter((x): x is string => Boolean(x))]);
   const dir = await dirFoto();
   const batas = Date.now() - 30 * 60 * 1000;
   for (const nama of await fs.readdir(/*turbopackIgnore: true*/ dir)) {

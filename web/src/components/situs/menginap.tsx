@@ -27,7 +27,7 @@ const Ikon = ({ d, className = "" }: { d: string; className?: string }) => (
   <svg viewBox="0 0 24 24" className={`size-5 shrink-0 ${className}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
 );
 
-export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, poster, pesan = "#pesan" }: { /** Foto slot kamar1-kamar5. */ galeri: Gambar[]; poster: Gambar; jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "" (tombol disembunyikan). */ pesan?: string; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
+export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, poster, pesan = "#pesan" }: { /** Foto galeri menginap, berurutan; jumlahnya bebas. */ galeri: Gambar[]; poster: Gambar; jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "" (tombol disembunyikan). */ pesan?: string; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
   const t = KAMUS[bahasa];
   const g = t.galeri;
   const fitur = (r: Kamar) => (bahasa === "id" ? (r.featuresId.length ? r.featuresId : r.featuresEn) : r.featuresEn.length ? r.featuresEn : r.featuresId);
@@ -39,14 +39,17 @@ export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, pos
   const termurah = Math.min(...jenis.map((j) => j.r.baseRate));
   const normal = utama?.normalRate != null && utama.normalRate > termurah ? utama.normalRate : null;
 
-  /* Mosaik 12 kolom x 6 baris dengan ukuran ubin berbeda-beda; semua sudutnya membulat kecil, sama dengan bingkai video. */
-  const foto: FotoGaleri[] = [
-    { ...galeri[0], alt: g.alt[0], kelas: "col-span-3 row-span-2 aspect-[3/4] lg:col-span-3 lg:col-start-1 lg:row-span-4 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[35%_50%]" },
-    { ...galeri[1], alt: g.alt[1], kelas: "col-span-3 aspect-[3/2] lg:col-span-6 lg:col-start-4 lg:row-span-3 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_78%]" },
-    { ...galeri[2], alt: g.alt[2], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-10 lg:row-span-3 lg:row-start-1 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[55%_50%]" },
-    { ...galeri[3], alt: g.alt[3], kelas: "col-span-3 aspect-[3/2] lg:col-span-4 lg:col-start-4 lg:row-span-3 lg:row-start-4 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[60%_55%]" },
-    { ...galeri[4], alt: g.alt[4], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-5 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_30%]" },
+  /* Mosaik 12 kolom x 6 baris dengan ukuran ubin berbeda-beda; semua sudutnya membulat kecil, sama dengan bingkai video.
+     Lima foto pertama galeri mengisi mosaik; selebihnya tampil setelah "Show more". */
+  const TATA = [
+    { kelas: "col-span-3 row-span-2 aspect-[3/4] lg:col-span-3 lg:col-start-1 lg:row-span-4 lg:row-start-1 lg:aspect-auto", posisi: "object-[35%_50%]" },
+    { kelas: "col-span-3 aspect-[3/2] lg:col-span-6 lg:col-start-4 lg:row-span-3 lg:row-start-1 lg:aspect-auto", posisi: "object-[50%_78%]" },
+    { kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-10 lg:row-span-3 lg:row-start-1 lg:aspect-auto", posisi: "object-[55%_50%]" },
+    { kelas: "col-span-3 aspect-[3/2] lg:col-span-4 lg:col-start-4 lg:row-span-3 lg:row-start-4 lg:aspect-auto", posisi: "object-[60%_55%]" },
+    { kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-5 lg:aspect-auto", posisi: "object-[50%_30%]" },
   ];
+  /* Teks alt bawaan menggambarkan foto bawaan; foto unggahan (punya srcset) memakai teks umum. */
+  const foto: FotoGaleri[] = galeri.map((x, i) => ({ ...x, alt: !x.srcSet && g.alt[i] ? g.alt[i] : g.fotoKe(i + 1), kelas: TATA[i]?.kelas ?? "", bentuk: "rounded-[1.4rem]", posisi: x.srcSet ? undefined : TATA[i]?.posisi }));
 
   return (
     <section id="menginap" className="scroll-mt-24 px-5 py-20">
@@ -62,7 +65,7 @@ export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, pos
         {video && <div className="mt-10"><VideoLatar id={video} poster={poster} sizes="(min-width: 1152px) 1152px, 100vw" judul={g.video} /></div>}
 
         <div className={video ? "mt-4" : "mt-10"}>
-          <Galeri foto={foto} teks={{ buka: g.buka, tutup: g.tutup, sebelum: g.sebelum, sesudah: g.sesudah }}>
+          <Galeri foto={foto} mosaik={TATA.length} teks={{ buka: g.buka, tutup: g.tutup, sebelum: g.sebelum, sesudah: g.sesudah, lebih: g.lebih, kurang: g.kurang }}>
             {/* Ubin harga, ikut dalam mosaik */}
             <div className="muncul relative col-span-6 flex flex-col justify-between overflow-hidden rounded-[1.4rem] bg-malam p-6 text-white lg:col-span-5 lg:col-start-8 lg:row-span-3 lg:row-start-4" style={{ "--tunda": 2 } as React.CSSProperties}>
               <img aria-hidden="true" alt="" src="/brand/bakoeria-ukiran-putih.svg" className="pointer-events-none absolute -bottom-10 -right-24 w-[420px] max-w-none opacity-[0.09]" />

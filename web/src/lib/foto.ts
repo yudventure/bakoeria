@@ -89,17 +89,70 @@ export function rapikanPetaFoto(o: unknown): PetaFoto {
   const hasil: PetaFoto = {};
   if (!o || typeof o !== "object") return hasil;
   for (const [k, v] of Object.entries(o as Record<string, unknown>)) {
-    if (!adaSlot(k) || !v || typeof v !== "object") continue;
-    const x = v as Record<string, unknown>;
-    const n = (a: unknown, d = 0) => (typeof a === "number" && Number.isFinite(a) ? a : d);
-    if (typeof x.id !== "string" || !/^[a-z0-9-]{6,60}$/.test(x.id)) continue;
-    const lebar = Array.isArray(x.lebar) ? x.lebar.map((y) => n(y)).filter((y) => y > 0 && y <= 4096) : [];
-    if (!lebar.length) continue;
-    const fk = Array.isArray(x.fokus) ? x.fokus : [];
-    const persen = (a: unknown) => Math.min(100, Math.max(0, Math.round(n(a, 50))));
-    hasil[k] = { id: x.id, w: n(x.w), h: n(x.h), lebar: lebar.sort((a, b) => a - b), jenis: x.jenis === "jpg" ? "jpg" : "webp", fokus: [persen(fk[0]), persen(fk[1])], kb: n(x.kb), kbAsli: n(x.kbAsli) };
+    const f = adaSlot(k) ? rapikanFoto(v) : null;
+    if (f) hasil[k as SlotFoto] = f;
   }
   return hasil;
+}
+
+/** Satu foto tersimpan, atau null bila isinya tidak masuk akal. */
+export function rapikanFoto(v: unknown): Foto | null {
+  if (!v || typeof v !== "object") return null;
+  const x = v as Record<string, unknown>;
+  const n = (a: unknown, d = 0) => (typeof a === "number" && Number.isFinite(a) ? a : d);
+  if (typeof x.id !== "string" || !/^[a-z0-9-]{6,60}$/.test(x.id)) return null;
+  const lebar = Array.isArray(x.lebar) ? x.lebar.map((y) => n(y)).filter((y) => y > 0 && y <= 4096) : [];
+  if (!lebar.length) return null;
+  const fk = Array.isArray(x.fokus) ? x.fokus : [];
+  const persen = (a: unknown) => Math.min(100, Math.max(0, Math.round(n(a, 50))));
+  return { id: x.id, w: n(x.w), h: n(x.h), lebar: lebar.sort((a, b) => a - b), jenis: x.jenis === "jpg" ? "jpg" : "webp", fokus: [persen(fk[0]), persen(fk[1])], kb: n(x.kb), kbAsli: n(x.kbAsli) };
+}
+
+/* ------------------------------------------------------------------ Galeri */
+
+/**
+ * Galeri foto yang jumlahnya bebas dan urutannya bisa diatur. Foto-foto pertama
+ * mengisi mosaik; sisanya muncul setelah pengunjung menekan "Show more".
+ * Sebelum pemilik mengubah galeri, isinya diambil dari slot lama (kamar1-5, galeri1-5).
+ */
+export const GALERI = {
+  menginap: { label: "Galeri menginap", mosaik: 5, slot: ["kamar1", "kamar2", "kamar3", "kamar4", "kamar5"] as SlotFoto[] },
+  aktivitas: { label: "Galeri aktivitas", mosaik: 5, slot: ["galeri1", "galeri2", "galeri3", "galeri4", "galeri5"] as SlotFoto[] },
+} as const;
+export type NamaGaleri = keyof typeof GALERI;
+export const adaGaleri = (v: unknown): v is NamaGaleri => v === "menginap" || v === "aktivitas";
+export const MAKS_GALERI = 60;
+
+/** Satu foto galeri: unggahan, atau foto bawaan situs (`bawaan` berisi alamatnya). `kunci` unik dalam galeri. */
+export interface ItemGaleri { kunci: string; foto: Foto | null; bawaan: string | null }
+export type PetaGaleri = Record<NamaGaleri, ItemGaleri[]>;
+
+export function galeriDariSlot(peta: PetaFoto, nama: NamaGaleri): ItemGaleri[] {
+  return GALERI[nama].slot.map((s) => {
+    const f = peta[s];
+    return f ? { kunci: f.id, foto: f, bawaan: null } : { kunci: `bawaan-${s}`, foto: null, bawaan: SLOT_FOTO.find((x) => x.id === s)!.bawaan };
+  });
+}
+
+export function rapikanGaleri(v: unknown): ItemGaleri[] | null {
+  if (!Array.isArray(v)) return null;
+  const hasil: ItemGaleri[] = [];
+  for (const x of v.slice(0, MAKS_GALERI)) {
+    if (!x || typeof x !== "object") continue;
+    const o = x as Record<string, unknown>;
+    const foto = rapikanFoto(o.foto);
+    const bawaan = typeof o.bawaan === "string" && /^\/img\/[a-z0-9-]+\.(jpg|webp|png)$/.test(o.bawaan) ? o.bawaan : null;
+    const kunci = typeof o.kunci === "string" ? o.kunci.slice(0, 80) : foto?.id ?? "";
+    if ((foto || bawaan) && kunci && !hasil.some((h) => h.kunci === kunci)) hasil.push({ kunci, foto, bawaan: foto ? null : bawaan });
+  }
+  return hasil;
+}
+
+export function gambarItem(it: ItemGaleri): Gambar {
+  const f = it.foto;
+  if (!f) return { src: it.bawaan ?? "" };
+  const tengah = f.lebar.find((w) => w >= 1080) ?? f.lebar[f.lebar.length - 1];
+  return { src: urlFoto(f, tengah), srcSet: f.lebar.map((w) => `${urlFoto(f, w)} ${w}w`).join(", "), style: { objectPosition: `${f.fokus[0]}% ${f.fokus[1]}%` }, w: f.w, h: f.h };
 }
 
 /** Atribut siap pakai untuk <img>: `sizes` memberi tahu browser selebar apa foto tampil, supaya ukuran yang diunduh pas. */

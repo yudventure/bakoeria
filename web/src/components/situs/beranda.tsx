@@ -11,8 +11,8 @@ import { tautanPeta, idYoutube, nomorWa, titikResort } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
-import { bacaPetaFoto } from "@/lib/server/foto";
-import { atribut, gambar, type SlotFoto } from "@/lib/foto";
+import { bacaGaleri, bacaPetaFoto } from "@/lib/server/foto";
+import { atribut, gambar, gambarItem, type SlotFoto } from "@/lib/foto";
 import { Ikon } from "@/components/situs/ikon";
 import { Nav } from "@/components/situs/interaksi";
 import { Gerak, JudulHero } from "@/components/situs/gerak";
@@ -73,6 +73,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
   const [k, set, kamar, petaFoto] = await Promise.all([bacaKonten(bahasa), bacaPengaturan(), kamarPublik(), bacaPetaFoto()]);
   /* Foto unggahan dari dashboard (WebP beberapa ukuran), atau foto bawaan bila slotnya belum diisi. */
   const g = (slot: SlotFoto) => gambar(petaFoto, slot);
+  const galeri = await bacaGaleri(petaFoto);
   const wa = nomorWa(k.kontak.whatsapp);
   /* Saklar seksi dari menu Website. Bila Pemesanan dimatikan, semua tombol pesan mengarah ke WhatsApp. */
   const on = k.seksi;
@@ -183,7 +184,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
 
         {/* MENGINAP: sorotan dan galeri; tanpa kamar di database memakai isi dari menu Website */}
         {on.menginap && (
-          <Menginap galeri={(["kamar1", "kamar2", "kamar3", "kamar4", "kamar5"] as const).map(g)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
+          <Menginap galeri={galeri.menginap.map(gambarItem)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
         )}
 
         {/* PROGRAM SELAM: kartu yang membuka dan menampilkan harganya saat ditunjuk kursor */}
@@ -213,15 +214,15 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 kartu={k.aktivitas.slice(0, 3).map((x, i) => ({ ...x, video: idYoutube(k.kontak.aktivitasVideo[i] ?? ""), foto: g((["aktivitas1", "aktivitas2", "aktivitas3"] as const)[i]), posisi: ["object-[60%_40%]", "object-center", "object-[30%_60%]"][i] }))}
               />
               <div className="mt-10">
+                {/* Lima foto pertama galeri aktivitas mengisi mosaik; selebihnya tampil setelah "Show more". */}
                 <Galeri
-                  teks={{ buka: t.galeri.buka, tutup: t.galeri.tutup, sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah }}
-                  foto={[
-                    { ...g("galeri1"), alt: t.galeri.alt[1], kelas: "col-span-6 aspect-[3/2] lg:col-span-6 lg:row-span-6 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: "object-[50%_70%]" },
-                    { ...g("galeri2"), alt: t.galeri.alt[4], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
-                    { ...g("galeri3"), alt: t.galeri.alt[2], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
-                    { ...g("galeri4"), alt: t.galeri.alt[0], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
-                    { ...g("galeri5"), alt: t.galeri.alt[3], kelas: "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]" },
-                  ]}
+                  mosaik={5}
+                  teks={{ buka: t.galeri.buka, tutup: t.galeri.tutup, sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah, lebih: t.galeri.lebih, kurang: t.galeri.kurang }}
+                  foto={galeri.aktivitas.map(gambarItem).map((x, i) => {
+                    const besar = i === 0;
+                    const altBawaan = [t.galeri.alt[1], t.galeri.alt[4], t.galeri.alt[2], t.galeri.alt[0], t.galeri.alt[3]][i];
+                    return { ...x, alt: !x.srcSet && altBawaan ? altBawaan : t.galeri.fotoKe(i + 1), kelas: i >= 5 ? "" : besar ? "col-span-6 aspect-[3/2] lg:col-span-6 lg:row-span-6 lg:aspect-auto" : "col-span-3 aspect-[3/2] lg:col-span-3 lg:row-span-3 lg:aspect-auto", bentuk: "rounded-[1.4rem]", posisi: besar && !x.srcSet ? "object-[50%_70%]" : undefined };
+                  })}
                 />
               </div>
             </div>
