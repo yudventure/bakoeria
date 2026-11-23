@@ -2,6 +2,7 @@ import { rupiah } from "@/lib/booking";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import type { Kamar } from "@/lib/server/buku";
 import Galeri, { type FotoGaleri } from "./galeri";
+import VideoLatar from "./video";
 
 /**
  * Bagian "Menginap": sorotan dan galeri, bukan daftar kartu kamar.
@@ -25,7 +26,7 @@ const Ikon = ({ d, className = "" }: { d: string; className?: string }) => (
   <svg viewBox="0 0 24 24" className={`size-5 shrink-0 ${className}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
 );
 
-export default function Menginap({ jenis, isi, bahasa, tanda }: { jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; tanda: React.ReactNode }) {
+export default function Menginap({ jenis, isi, bahasa, tanda, video }: { jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
   const t = KAMUS[bahasa];
   const g = t.galeri;
   const fitur = (r: Kamar) => (bahasa === "id" ? (r.featuresId.length ? r.featuresId : r.featuresEn) : r.featuresEn.length ? r.featuresEn : r.featuresId);
@@ -57,7 +58,9 @@ export default function Menginap({ jenis, isi, bahasa, tanda }: { jenis: { r: Ka
           <p className="max-w-xl text-[15.5px] leading-relaxed text-malam/65 lg:justify-self-end">{isi}</p>
         </div>
 
-        <div className="mt-10">
+        {video && <div className="mt-10"><VideoLatar id={video} poster="/img/resort-night.jpg" judul={g.video} /></div>}
+
+        <div className={video ? "mt-4" : "mt-10"}>
           <Galeri foto={foto} teks={{ buka: g.buka, tutup: g.tutup, sebelum: g.sebelum, sesudah: g.sesudah }}>
             {/* Ubin harga, ikut dalam mosaik */}
             <div className="muncul relative col-span-6 flex flex-col justify-between overflow-hidden rounded-[1.4rem] bg-malam p-6 text-white lg:col-span-5 lg:col-start-8 lg:row-span-3 lg:row-start-4" style={{ "--tunda": 2 } as React.CSSProperties}>

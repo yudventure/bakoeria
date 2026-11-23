@@ -3,7 +3,7 @@ import Menginap from "./menginap";
 import { pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
-import { nomorWa } from "@/lib/konten";
+import { idYoutube, nomorWa } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
@@ -163,7 +163,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
 
         {/* MENGINAP: sorotan dan galeri; tanpa kamar di database memakai isi dari menu Website */}
         {jenis.length > 0 ? (
-          <Menginap jenis={jenis} isi={k.cottageIsi} bahasa={bahasa} tanda={<Bintang className="block text-[26px]" />} />
+          <Menginap jenis={jenis} isi={k.cottageIsi} bahasa={bahasa} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
         ) : (
           <section id="menginap" className="scroll-mt-24 px-5 py-20">
             <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[13rem_1fr]">

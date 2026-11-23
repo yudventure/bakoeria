@@ -44,7 +44,7 @@ export interface Konten {
   galeriJudul: string;
   tanya: Tanya[];
   pesanIsi: string;
-  kontak: { whatsapp: string; email: string; instagram: string; alamat: string; peta: string; facebook: string; tiktok: string; youtube: string };
+  kontak: { whatsapp: string; email: string; instagram: string; alamat: string; peta: string; facebook: string; tiktok: string; youtube: string; /** Tautan video YouTube untuk bagian Menginap (diputar otomatis, berulang, tanpa suara). */ video: string };
   /** Paragraf pendek di kolom pertama footer. */
   footerTentang: string;
   pengumuman: string;
@@ -91,7 +91,7 @@ export const KONTEN_BAWAAN: Konten = {
     { t: "Bagaimana cara memesan?", j: "Pilih tanggal di formulir pemesanan. Permintaan Anda langsung masuk ke tim kami, dan kami membalas lewat WhatsApp atau email dengan konfirmasi dan cara pembayaran." },
   ],
   pesanIsi: "Pilih tanggal dan cottage. Kami membalas dengan konfirmasi dan cara pembayaran.",
-  kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "", alamat: "", peta: "", facebook: "", tiktok: "", youtube: "" },
+  kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "", alamat: "", peta: "", facebook: "", tiktok: "", youtube: "", video: "" },
   footerTentang: "Resor selam butik dengan cottage kayu jati di tepi pantai. Menyelam siang bersama pemandu yang mengenal lautnya, bermalam di bawah langit penuh bintang.",
   pengumuman: "",
   tutup: false,
@@ -196,6 +196,7 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
       facebook: tautan(kontak.facebook),
       tiktok: tautan(kontak.tiktok),
       youtube: tautan(kontak.youtube),
+      video: tautan(kontak.video),
     },
     footerTentang: s(k.footerTentang, b.footerTentang),
     pengumuman: s(k.pengumuman, b.pengumuman),
@@ -220,3 +221,9 @@ export const tautanInstagram = (v: string) => {
   if (/^https?:\/\//i.test(t)) return t;
   return `https://instagram.com/${t.replace(/^@/, "")}`;
 };
+
+/** Id video dari tautan YouTube (watch?v=, youtu.be/, shorts/, embed/, live/), atau "" bila bukan tautan YouTube. */
+export function idYoutube(tautan: string): string {
+  const m = /(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(tautan.trim());
+  return m ? m[1] : "";
+}

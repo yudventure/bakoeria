@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { IKON_KEUNGGULAN, type Konten } from "@/lib/konten";
+import { idYoutube, IKON_KEUNGGULAN, type Konten } from "@/lib/konten";
 import { api } from "../api";
 import { Bidang, Galat, Kartu, masukan, Memuat, Tab, Tombol, useToast } from "../ui";
 import type { Bahasa } from "@/lib/kamus";
@@ -81,6 +81,7 @@ export default function Website() {
           <Bidang label="Facebook" ket="Alamat lengkap, diawali https://. Kosongkan bila tidak ada."><input className={masukan} value={k.kontak.facebook} onChange={(e) => set("kontak", { ...k.kontak, facebook: e.target.value })} /></Bidang>
           <Bidang label="TikTok"><input className={masukan} value={k.kontak.tiktok} placeholder="https://www.tiktok.com/@…" onChange={(e) => set("kontak", { ...k.kontak, tiktok: e.target.value })} /></Bidang>
           <Bidang label="YouTube"><input className={masukan} value={k.kontak.youtube} placeholder="https://www.youtube.com/@…" onChange={(e) => set("kontak", { ...k.kontak, youtube: e.target.value })} /></Bidang>
+          <Bidang label="Video di bagian Menginap (tautan YouTube)" ket={k.kontak.video && !idYoutube(k.kontak.video) ? "Tautan ini bukan tautan video YouTube yang dikenali." : "Tampil lebar di atas galeri: diputar otomatis, berulang, tanpa suara, tanpa tombol dan logo YouTube. Kosongkan untuk menyembunyikan."} className="sm:col-span-2"><input className={masukan} value={k.kontak.video} placeholder="https://www.youtube.com/watch?v=…" onChange={(e) => set("kontak", { ...k.kontak, video: e.target.value })} /></Bidang>
           <Bidang label="Paragraf di footer" className="sm:col-span-2"><textarea rows={3} className={masukan} value={k.footerTentang} onChange={(e) => set("footerTentang", e.target.value)} /></Bidang>
         </div>
       </Kartu>
