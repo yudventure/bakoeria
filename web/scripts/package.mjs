@@ -26,10 +26,14 @@ cpSync(join(root, "public"), join(standalone, "public"), { recursive: true });
 cpSync(join(root, ".next", "static"), join(standalone, ".next", "static"), { recursive: true });
 
 /* Safari sebelum 15.4 (iPhone lama) tidak mengenal @layer dan membuang semua gaya
-   Tailwind. Tiap CSS dibuatkan salinan tanpa @layer, dimuat hanya oleh peramban itu. */
+   Tailwind. Tiap CSS dibuatkan salinan tanpa @layer di public/css-lama/ (dimuat hanya
+   oleh peramban itu). Bukan di .next/static: Hostinger hanya menyajikan berkas
+   .next/static yang dikenal Next saat build, berkas tambahan di sana dijawab 404. */
 {
   const dirCss = join(standalone, ".next", "static", "css");
-  if (existsSync(dirCss)) for (const f of readdirSync(dirCss)) if (f.endsWith(".css") && !f.endsWith(".lama.css")) writeFileSync(join(dirCss, f.replace(/\.css$/, ".lama.css")), bukaLayer(readFileSync(join(dirCss, f), "utf8")));
+  const tujuan = join(standalone, "public", "css-lama");
+  mkdirSync(tujuan, { recursive: true });
+  if (existsSync(dirCss)) for (const f of readdirSync(dirCss)) if (f.endsWith(".css")) writeFileSync(join(tujuan, f), bukaLayer(readFileSync(join(dirCss, f), "utf8")));
 }
 
 /* /version.json: commit mana yang sedang tayang. Dipakai workflow untuk
