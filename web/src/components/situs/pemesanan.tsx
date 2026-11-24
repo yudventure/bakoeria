@@ -210,7 +210,10 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
   const isiForm = (
     <div className="rounded-[2rem] border border-white/70 bg-white/85 p-5 shadow-[0_20px_60px_rgba(10,36,64,.12)] backdrop-blur-xl sm:p-8">
       <form onSubmit={cek} className="grid gap-4">
-        <p data-tanggal-form className="rounded-2xl bg-[#F6F4EF] px-4 py-3 text-[14px] text-malam">{tgl.masuk && tgl.keluar ? <>{tgl_(tgl.masuk)} {t.sampai} {tgl_(tgl.keluar)} · {t.malam(jumlahMalam(tgl.masuk, tgl.keluar))}</> : <span className="text-malam/55">{tgl.masuk ? t.kalender.pilihPulang : t.kalender.pilihTiba}</span>}</p>
+        <p data-tanggal-form className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 text-[15px] font-bold ${tgl.masuk && tgl.keluar ? "bg-malam text-white" : "bg-emas-tua/10 text-emas-tua ring-1 ring-emas-tua/30"}`}>
+          <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
+          <span>{tgl.masuk && tgl.keluar ? <>{tgl_(tgl.masuk)} {t.sampai} {tgl_(tgl.keluar)} · {t.malam(jumlahMalam(tgl.masuk, tgl.keluar))}</> : tgl.masuk ? t.kalender.pilihPulang : t.kalender.pilihTiba}</span>
+        </p>
         <fieldset className="grid gap-2">
           <legend className={`${kelasLabel} mb-1.5`}>{t.tamu}</legend>
           <Penghitung label={t.dewasa} nilai={tamu.dewasa} min={1} maks={8} ubah={(n) => ubahTamu({ dewasa: n })} teks={t} />
