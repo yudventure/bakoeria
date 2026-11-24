@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <defs>
+    <linearGradient id="l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7F3EC"/><stop offset="1" stop-color="#D7EEF0"/></linearGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA3AE"/><stop offset="1" stop-color="#0F4F7B"/></linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#l)"/>
+  <circle cx="150" cy="100" r="42" fill="#F3D9A4" opacity=".8"/>
+  <path d="M0 270c90-30 160-50 240-42 50 5 80 26 140 28 70 3 110-30 190-30 90 0 150 24 230 30v54H0z" fill="#188B9A" opacity=".55"/>
+  <rect y="290" width="800" height="210" fill="url(#a)"/>
+  <path d="M0 336q40-10 80 0t80 0 80 0 80 0 80 0 80 0 80 0 80 0 80 0 80 0" fill="none" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="4"/>
+  <path d="M0 448q40-10 80 0t80 0 80 0 80 0 80 0 80 0 80 0 80 0 80 0 80 0" fill="none" stroke="#FFFFFF" stroke-opacity=".25" stroke-width="4"/>
+  <!-- speedboat, dua mesin tempel 150 PK -->
+  <g transform="translate(170 250)">
+    <path d="M40 66 H500 C530 66 560 56 590 40 L560 104 C540 118 500 122 470 122 H90 C70 122 56 110 50 96 Z" fill="#FFFFFF"/>
+    <path d="M52 100 H520 C540 100 552 98 566 92" fill="none" stroke="#133250" stroke-width="10"/>
+    <path d="M60 84 H540" stroke="#188B9A" stroke-width="5"/>
+    <path d="M200 66 L250 14 H380 L420 66 Z" fill="#133250"/>
+    <path d="M262 22 H370 L398 58 H226 Z" fill="#D7EEF0" opacity=".9"/>
+    <path d="M300 22 V58" stroke="#133250" stroke-width="5"/>
+    <path d="M430 66 L470 40" stroke="#133250" stroke-width="5" stroke-linecap="round"/>
+    <rect x="-8" y="40" width="44" height="42" rx="9" fill="#133250"/>
+    <rect x="22" y="48" width="44" height="42" rx="9" fill="#0F4F7B"/>
+    <path d="M14 82 v46 M44 90 v40" stroke="#133250" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-90 136q35-14 70 0t70 0 70 0" fill="none" stroke="#FFFFFF" stroke-opacity=".8" stroke-width="6" stroke-linecap="round"/>
+    <path d="M-150 120q30-10 60 0" fill="none" stroke="#FFFFFF" stroke-opacity=".5" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

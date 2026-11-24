@@ -287,6 +287,38 @@ export default function Website() {
       )}
       {bagian === "lokasi" && (
         <>
+          <Kartu judul="Perahu antar-jemput" ket="Kartu perahu di bawah peta rute. Antar-jemput dibayar terpisah dari kamar. Harga ditulis bebas, misalnya Rp 4.000.000. Fotonya diganti di kotak Foto perahu di bawah (urutan foto sama dengan urutan perahu).">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Bidang label="Judul"><input className={masukan} value={k.perahuJudul} onChange={(e) => set("perahuJudul", e.target.value)} /></Bidang>
+              <Bidang label="Pengantar"><input className={masukan} value={k.perahuIsi} onChange={(e) => set("perahuIsi", e.target.value)} /></Bidang>
+            </div>
+            <div className="mt-4 grid gap-4">
+              {k.perahu.map((x, i) => {
+                const ubah = (v: Partial<typeof x>) => set("perahu", k.perahu.map((y, j) => (j === i ? { ...y, ...v } : y)));
+                return (
+                  <div key={i} data-perahu-admin={i} className="grid gap-3 rounded-2xl bg-panel-latar p-4 sm:grid-cols-2">
+                    <Bidang label={`Perahu ${i + 1}`}><input className={masukan} value={x.judul} placeholder="Speedboat" onChange={(e) => ubah({ judul: e.target.value })} /></Bidang>
+                    <Bidang label="Mesin"><input className={masukan} value={x.mesin} placeholder="2 mesin 150 PK" onChange={(e) => ubah({ mesin: e.target.value })} /></Bidang>
+                    <Bidang label="Keterangan" className="sm:col-span-2"><input className={masukan} value={x.isi} onChange={(e) => ubah({ isi: e.target.value })} /></Bidang>
+                    <div className="grid gap-2 sm:col-span-2">
+                      <span className="text-[13px] font-bold text-panel-tinta">Harga</span>
+                      {x.harga.map((h, r) => (
+                        <div key={r} className="grid grid-cols-[1fr_10rem_auto] gap-2">
+                          <input aria-label="Rute" className={masukan} value={h.rute} placeholder="Waisai, pulang pergi" onChange={(e) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, rute: e.target.value } : y)) })} />
+                          <input aria-label="Harga" className={masukan} value={h.harga} placeholder="Rp 4.000.000" onChange={(e) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, harga: e.target.value } : y)) })} />
+                          <button type="button" aria-label={`Hapus harga ${r + 1}`} onClick={() => ubah({ harga: x.harga.filter((_, q) => q !== r) })} className="grid size-9 place-items-center self-center rounded-full text-lg text-panel-redup hover:bg-panel-merah/10 hover:text-panel-merah">×</button>
+                        </div>
+                      ))}
+                      <button type="button" className="justify-self-start text-sm font-bold text-panel-utama underline" onClick={() => ubah({ harga: [...x.harga, { rute: "", harga: "" }] })}>+ Tambah harga</button>
+                    </div>
+                    <button type="button" className="justify-self-start text-sm font-bold text-panel-merah underline" onClick={() => set("perahu", k.perahu.filter((_, j) => j !== i))}>Hapus perahu</button>
+                  </div>
+                );
+              })}
+            </div>
+            {k.perahu.length < 3 && <button type="button" className="mt-4 text-sm font-bold text-panel-utama underline" onClick={() => set("perahu", [...k.perahu, { judul: "Perahu baru", mesin: "", isi: "", harga: [] }])}>+ Tambah perahu</button>}
+          </Kartu>
+          <FotoSitus judul="Foto perahu" grup={["Perahu antar-jemput"]} />
         <Kartu judul="Titik resort di peta">
           <div className="grid gap-4">
             <Bidang

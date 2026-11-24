@@ -53,6 +53,9 @@ export const SLOT_FOTO = [
   { id: "galeri3", grup: "Aktivitas lain", label: "Galeri 3", bawaan: "/img/lights-path.jpg", saran: "Lanskap" },
   { id: "galeri4", grup: "Aktivitas lain", label: "Galeri 4", bawaan: "/img/cottage-left.jpg", saran: "Lanskap" },
   { id: "galeri5", grup: "Aktivitas lain", label: "Galeri 5", bawaan: "/img/cottage-right.jpg", saran: "Lanskap" },
+  { id: "perahu1", grup: "Perahu antar-jemput", label: "Perahu 1 (longboat)", bawaan: "/img/perahu-longboat.svg", saran: "Foto perahu, lanskap 16:10" },
+  { id: "perahu2", grup: "Perahu antar-jemput", label: "Perahu 2 (speedboat)", bawaan: "/img/perahu-speedboat.svg", saran: "Foto perahu, lanskap 16:10" },
+  { id: "perahu3", grup: "Perahu antar-jemput", label: "Perahu 3", bawaan: "/img/perahu-speedboat.svg", saran: "Bila ada perahu ketiga" },
   { id: "pesan", grup: "Pemesanan", label: "Latar bawah", bawaan: "/img/resort-night.jpg", saran: "Lanskap lebar" },
 ] as const;
 

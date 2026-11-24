@@ -57,6 +57,10 @@ export interface Konten {
   caraWaktuFeri: string;
   caraWaktuPerahu: string;
   caraCatatan: string;
+  /** Perahu antar-jemput yang bisa dipilih tamu (bayar terpisah), tampil sebagai kartu di bagian Cara menuju ke sini. */
+  perahuJudul: string;
+  perahuIsi: string;
+  perahu: { judul: string; mesin: string; isi: string; harga: { rute: string; harga: string }[] }[];
   /** Aktivitas lain di luar selam (tiga yang pertama tampil bersama video). */
   aktivitasJudul: string;
   aktivitasIsi: string;
@@ -120,6 +124,12 @@ export const KONTEN_BAWAAN: Konten = {
   caraWaktuFeri: "± 2 jam",
   caraWaktuPerahu: "± 30 menit",
   caraCatatan: "Jadwal feri dan waktu perjalanan bisa berubah mengikuti cuaca dan operasional setempat. Speedboat privat perlu dipesan lebih dulu. Konfirmasikan rencana Anda dengan tim kami sebelum berangkat.",
+  perahuJudul: "Perahu antar-jemput",
+  perahuIsi: "Antar-jemput tidak termasuk harga kamar. Harga per perahu, pulang pergi. Kabari jam tiba Anda dan kami siapkan perahunya.",
+  perahu: [
+    { judul: "Longboat", mesin: "1 mesin 15 PK", isi: "Longboat kayu kecil yang tenang, untuk menjemput di Waisai saat laut teduh.", harga: [{ rute: "Waisai, pulang pergi", harga: "Rp 2.000.000" }] },
+    { judul: "Speedboat", mesin: "2 mesin 150 PK", isi: "Lebih cepat dan stabil. Menjemput di Waisai, atau langsung dari Sorong sekitar 1,5 jam.", harga: [{ rute: "Waisai, pulang pergi", harga: "Rp 4.000.000" }, { rute: "Sorong, pulang pergi", harga: "Rp 8.000.000" }] },
+  ],
   aktivitasJudul: "Aktivitas lain",
   aktivitasIsi: "Hari di luar air juga bagian dari menginap. Tim kami mengaturnya mengikuti pasang surut, cuaca, dan rencana selam Anda.",
   aktivitas: [{"judul": "Mengamati burung", "isi": "Berjalan sebelum matahari terbit bersama pemandu lokal untuk mencari cenderawasih dan burung hutan lainnya."}, {"judul": "Kayak ke sungai di belakang resort", "isi": "Mendayung pelan menyusuri sungai di belakang resort, di antara pepohonan, dengan tempo Anda sendiri."}, {"judul": "Island trip", "isi": "Sehari naik perahu ke pulau-pulau di sekitar resort: laguna karst Piaynemo, Batanta, Kali Biru, dan tempat lain sesuai cuaca. Naik ke puncak pandang, berenang di air jernih, lalu makan siang di pantai yang sepi."}],
@@ -350,6 +360,12 @@ export const KONTEN_BAWAAN_EN: Konten = {
   caraWaktuFeri: "± 2 hours",
   caraWaktuPerahu: "± 30 min",
   caraCatatan: "Ferry schedules and travel times change with weather and local operations. The private speedboat must be booked in advance. Confirm your plans with our team before travelling.",
+  perahuJudul: "Boat transfers",
+  perahuIsi: "Transfers are not included in the room rate. Prices are per boat, return trip. Send us your arrival time and we get the boat ready.",
+  perahu: [
+    { judul: "Longboat", mesin: "One 15 HP engine", isi: "A small, quiet wooden longboat for pick-ups in Waisai when the sea is calm.", harga: [{ rute: "Waisai, return", harga: "Rp 2,000,000" }] },
+    { judul: "Speedboat", mesin: "Twin 150 HP engines", isi: "Faster and more stable. Picks you up in Waisai, or straight from Sorong in about 1.5 hours.", harga: [{ rute: "Waisai, return", harga: "Rp 4,000,000" }, { rute: "Sorong, return", harga: "Rp 8,000,000" }] },
+  ],
   aktivitasJudul: "Other activities",
   aktivitasIsi: "Days out of the water are part of the stay. Our team arranges these around the tides, the weather, and your dive plan.",
   aktivitas: [{"judul": "Bird watching", "isi": "Walk out before sunrise with a local guide to look for birds of paradise and other forest birds."}, {"judul": "Kayaking the river behind the resort", "isi": "Paddle quietly up the river at the back of the resort, through the trees, at your own pace."}, {"judul": "Island trips", "isi": "A day by boat to the islands around the resort: the karst lagoons of Piaynemo, Batanta, Kali Biru, and more, depending on the weather. Climb to a viewpoint, swim in clear water, and have lunch on a quiet beach."}],
@@ -583,6 +599,14 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     /* Jalur A (speedboat privat) 1,5 jam menurut pemilik; perkiraan awal "± 2 jam" yang mungkin sudah tersimpan ikut dibetulkan. */
     cara: arr(k.cara, b.cara, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400), waktu: s(x.waktu, "").slice(0, 40) })).map((x, i) => (i === 1 && (x.waktu === "± 2 jam" || x.waktu === "± 2 hours") ? { ...x, waktu: b.cara[1]?.waktu ?? x.waktu } : x)).filter((x) => x.judul.trim() !== "").slice(0, 4),
     caraCatatan: s(k.caraCatatan, b.caraCatatan),
+    perahuJudul: s(k.perahuJudul, b.perahuJudul).slice(0, 80),
+    perahuIsi: s(k.perahuIsi, b.perahuIsi).slice(0, 400),
+    perahu: arr(k.perahu, b.perahu, (x) => ({
+      judul: s(x.judul, "").slice(0, 60),
+      mesin: s(x.mesin, "").slice(0, 60),
+      isi: s(x.isi, "").slice(0, 300),
+      harga: (Array.isArray(x.harga) ? x.harga : []).slice(0, 6).map((y) => { const r = (y ?? {}) as Record<string, unknown>; return { rute: s(r.rute, "").slice(0, 80), harga: s(r.harga, "").slice(0, 40) }; }).filter((y) => y.rute.trim() || y.harga.trim()),
+    })).filter((x) => x.judul.trim() !== "").slice(0, 4),
     caraWaktuFeri: s(k.caraWaktuFeri, b.caraWaktuFeri).slice(0, 40),
     caraWaktuPerahu: s(k.caraWaktuPerahu, b.caraWaktuPerahu).slice(0, 40),
     aktivitasJudul: s(k.aktivitasJudul, b.aktivitasJudul),
