@@ -44,8 +44,8 @@ const tgl = (n: number) => new Date(Date.now() + 9 * 3600000 + n * 86400000).toI
  */
 const HARGA_NORMAL = 1980000;
 const HARGA_PROMO = 1450000;
-const FASILITAS_EN = ["Air conditioning", "Private bathroom with shower", "American-style seated toilet", "Extra-large wardrobe", "Sofa", "Your own cottage, like a house", "Three meals a day included", "Free use of kayaks", "Free snorkeling gear", "Boat transfer", "Electricity from 6 pm to 6 am", "Starlink Wi-Fi"];
-const FASILITAS_ID = ["AC", "Kamar mandi dalam dengan shower", "Toilet duduk American style", "Lemari pakaian yang sangat luas", "Sofa", "Satu cottage untuk sendiri, seperti rumah", "Sudah termasuk makan 3 kali sehari", "Gratis pakai kayak", "Gratis alat snorkel", "Antar-jemput perahu", "Listrik dari jam 18.00 sampai 06.00", "Wi-Fi Starlink"];
+const FASILITAS_EN = ["Air conditioning", "Private bathroom with shower", "American-style seated toilet", "Extra-large wardrobe", "Sofa", "Your own cottage, like a house", "Three meals a day included", "Free use of kayaks", "Free snorkeling gear", "Boat transfer, paid separately", "Electricity from 6 pm to 6 am", "Starlink Wi-Fi"];
+const FASILITAS_ID = ["AC", "Kamar mandi dalam dengan shower", "Toilet duduk American style", "Lemari pakaian yang sangat luas", "Sofa", "Satu cottage untuk sendiri, seperti rumah", "Sudah termasuk makan 3 kali sehari", "Gratis pakai kayak", "Gratis alat snorkel", "Antar-jemput perahu, bayar terpisah", "Listrik dari jam 18.00 sampai 06.00", "Wi-Fi Starlink"];
 export const KAMAR_DEMO = [
   {
     name: "Cottage Double 1", roomType: "Cottage Double", capAdult: 2, capChild: 2, baseRate: HARGA_PROMO, normalRate: HARGA_NORMAL, sizeM2: null,

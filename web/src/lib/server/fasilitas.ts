@@ -19,10 +19,41 @@ const MIGRASI: { tanda: string; kunci: string[] }[] = [
   /* November 2026, permintaan pemilik: Wi-Fi Starlink. */
   { tanda: "wifiStarlink", kunci: ["wifi"] },
 ];
+/**
+ * Label yang diganti sekali di katalog tersimpan dan di semua kamar, selama labelnya
+ * masih label lama (yang sudah diubah pemilik dibiarkan).
+ */
+const GANTI_LABEL: { tanda: string; kunci: string; lama: { en: string; id: string } }[] = [
+  /* November 2026, pemilik: antar-jemput perahu tidak termasuk harga kamar. */
+  { tanda: "transferTerpisah", kunci: "transfer", lama: { en: "Boat transfer", id: "Antar-jemput perahu" } },
+];
+async function gantiLabel(g: (typeof GANTI_LABEL)[number]) {
+  const tanda = await bacaJson<Record<string, string> | null>("migrasi-fasilitas.json", null);
+  if (tanda?.[g.tanda]) return;
+  const baru = KATALOG_BAWAAN.kamar.find((x) => x.kunci === g.kunci)!;
+  const tersimpan = await bacaJson<Record<string, unknown> | null>("fasilitas.json", null);
+  if (tersimpan && Array.isArray(tersimpan.kamar)) {
+    const kat = rapikanKatalog(tersimpan);
+    if (kat.kamar.some((x) => x.en === g.lama.en || x.id === g.lama.id))
+      await ubahJson("fasilitas.json", null, () => ({ ...kat, kamar: kat.kamar.map((x) => (x.en === g.lama.en || x.id === g.lama.id ? { ...x, en: baru.en, id: baru.id } : x)) }), 0o644);
+  }
+  if (databaseReady()) {
+    const kamar = await kueri<{ id: string; features_en: string | null; features_id: string | null }>("SELECT id, features_en, features_id FROM rooms");
+    for (const r of kamar) {
+      const en = baris(r.features_en).map((l) => (l === g.lama.en ? baru.en : l));
+      const id = baris(r.features_id).map((l) => (l === g.lama.id ? baru.id : l));
+      if (en.join("\n") !== baris(r.features_en).join("\n") || id.join("\n") !== baris(r.features_id).join("\n"))
+        await jalankan("UPDATE rooms SET features_en = ?, features_id = ? WHERE id = ?", [en.join("\n"), id.join("\n"), r.id]);
+    }
+  }
+  await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), [g.tanda]: new Date().toISOString() }), 0o644);
+}
+
 let migrasi: Promise<void> | undefined;
 export function pastikanFasilitasTamu(): Promise<void> {
   migrasi ??= (async () => {
     for (const m of MIGRASI) await jalankanMigrasi(m);
+    for (const g of GANTI_LABEL) await gantiLabel(g);
   })()
     .catch((e) => console.error("[fasilitas] gagal menambah fasilitas tamu", e))
     .finally(() => { migrasi = undefined; });
