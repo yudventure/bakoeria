@@ -191,7 +191,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
 
         {/* MENGINAP: sorotan dan galeri; tanpa kamar di database memakai isi dari menu Website */}
         {on.menginap && (
-          <Menginap perahu={<PerahuJemput tata="menginap" judul={k.perahuJudul} isi={k.perahuIsi} perahu={k.perahu} foto={(["perahu1", "perahu2", "perahu3"] as const).map(g)} />} katalog={katalog.kamar} galeri={galeri.menginap.map(gambarItem)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
+          <Menginap perahu={<PerahuJemput tata="menginap" judul={k.perahuJudul} isi={k.perahuIsi} perahu={k.perahu} foto={(["perahu1", "perahu2", "perahu3"] as const).map((n) => galeri[n].map(gambarItem))} teks={{ sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah, foto: bahasa === "id" ? "foto" : "photo", dari: bahasa === "id" ? "dari" : "of" }} />} katalog={katalog.kamar} galeri={galeri.menginap.map(gambarItem)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
         )}
 
         {/* PROGRAM SELAM: kartu yang membuka dan menampilkan harganya saat ditunjuk kursor */}
@@ -300,7 +300,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               </div>
 
               {/* Perahu antar-jemput tampil di sini hanya bila seksi Menginap dimatikan; biasanya di seksi Menginap, dekat fasilitas antar-jemput. */}
-              {!on.menginap && <PerahuJemput judul={k.perahuJudul} isi={k.perahuIsi} perahu={k.perahu} foto={(["perahu1", "perahu2", "perahu3"] as const).map(g)} />}
+              {!on.menginap && <PerahuJemput judul={k.perahuJudul} isi={k.perahuIsi} perahu={k.perahu} foto={(["perahu1", "perahu2", "perahu3"] as const).map((n) => galeri[n].map(gambarItem))} teks={{ sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah, foto: bahasa === "id" ? "foto" : "photo", dari: bahasa === "id" ? "dari" : "of" }} />}
             </div>
           </section>
         )}

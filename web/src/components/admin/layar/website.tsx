@@ -287,7 +287,7 @@ export default function Website() {
       )}
       {bagian === "lokasi" && (
         <>
-          <Kartu judul="Perahu antar-jemput" ket="Kartu perahu di seksi Menginap, di bawah fasilitas (di bawah peta rute bila seksi Menginap dimatikan). Antar-jemput dibayar terpisah dari kamar. Harga ditulis bebas, misalnya Rp 4.000.000. Fotonya diganti di kotak Foto perahu di bawah (urutan foto sama dengan urutan perahu).">
+          <Kartu judul="Perahu antar-jemput" ket="Kartu perahu di seksi Menginap, di bawah fasilitas (di bawah peta rute bila seksi Menginap dimatikan). Antar-jemput dibayar terpisah dari kamar. Harga ditulis bebas, misalnya Rp 4.000.000. Foto tiap perahu (karosel: luar, kabin, kursi) diatur di kotak foto perahu di bawah, urutannya sama dengan urutan perahu.">
             <div className="grid gap-4 sm:grid-cols-2">
               <Bidang label="Judul"><input className={masukan} value={k.perahuJudul} onChange={(e) => set("perahuJudul", e.target.value)} /></Bidang>
               <Bidang label="Pengantar"><input className={masukan} value={k.perahuIsi} onChange={(e) => set("perahuIsi", e.target.value)} /></Bidang>
@@ -299,6 +299,7 @@ export default function Website() {
                   <div key={i} data-perahu-admin={i} className="grid gap-3 rounded-2xl bg-panel-latar p-4 sm:grid-cols-2">
                     <Bidang label={`Perahu ${i + 1}`}><input className={masukan} value={x.judul} placeholder="Speedboat" onChange={(e) => ubah({ judul: e.target.value })} /></Bidang>
                     <Bidang label="Mesin"><input className={masukan} value={x.mesin} placeholder="2 mesin 150 PK" onChange={(e) => ubah({ mesin: e.target.value })} /></Bidang>
+                    <Bidang label="Muatan"><input className={masukan} value={x.muat} placeholder="Maksimal 12 orang" onChange={(e) => ubah({ muat: e.target.value })} /></Bidang>
                     <Bidang label="Keterangan" className="sm:col-span-2"><input className={masukan} value={x.isi} onChange={(e) => ubah({ isi: e.target.value })} /></Bidang>
                     <div className="grid gap-2 sm:col-span-2">
                       <span className="text-[13px] font-bold text-panel-tinta">Harga</span>
@@ -316,9 +317,9 @@ export default function Website() {
                 );
               })}
             </div>
-            {k.perahu.length < 3 && <button type="button" className="mt-4 text-sm font-bold text-panel-utama underline" onClick={() => set("perahu", [...k.perahu, { judul: "Perahu baru", mesin: "", isi: "", harga: [] }])}>+ Tambah perahu</button>}
+            {k.perahu.length < 3 && <button type="button" className="mt-4 text-sm font-bold text-panel-utama underline" onClick={() => set("perahu", [...k.perahu, { judul: "Perahu baru", mesin: "", muat: "", isi: "", harga: [] }])}>+ Tambah perahu</button>}
           </Kartu>
-          <FotoSitus judul="Foto perahu" grup={["Perahu antar-jemput"]} />
+          {k.perahu.map((x, i) => i < 3 && <FotoSitus key={i} judul={`Foto ${x.judul || `perahu ${i + 1}`}`} grup={[]} galeri={(["perahu1", "perahu2", "perahu3"] as const)[i]} />)}
         <Kartu judul="Titik resort di peta">
           <div className="grid gap-4">
             <Bidang

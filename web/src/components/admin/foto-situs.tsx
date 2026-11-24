@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { daftarLebar, GALERI, SLOT_FOTO, urlFoto, type Foto, type ItemGaleri, type NamaGaleri, type PetaFoto, type PetaGaleri, type SlotFoto } from "@/lib/foto";
+import { daftarLebar, GALERI, NAMA_GALERI, SLOT_FOTO, urlFoto, type Foto, type ItemGaleri, type NamaGaleri, type PetaFoto, type PetaGaleri, type SlotFoto } from "@/lib/foto";
 import { api } from "./api";
 import { Galat, Kartu, Memuat, Tombol, useToast } from "./ui";
 
@@ -161,7 +161,7 @@ async function unggahTugas(t: Tugas, lapor: (teks: string, persen: number) => vo
 }
 
 /** Slot lama galeri (kamar1-5, galeri1-5) diganti editor galeri; tidak ditampilkan sebagai slot. */
-const SLOT_GALERI = new Set<SlotFoto>([...GALERI.menginap.slot, ...GALERI.aktivitas.slot]);
+const SLOT_GALERI = new Set<SlotFoto>(NAMA_GALERI.flatMap((n) => [...GALERI[n].slot]));
 const KET_UNGGAH = "Unggah foto asli dari kamera atau ponsel (JPG, PNG, WebP, AVIF; ukuran berapa pun). Foto dikompres di perangkat ini menjadi WebP beberapa ukuran, lalu diunggah sedikit demi sedikit dan diulang otomatis bila koneksi putus. Langsung tayang tanpa menekan Simpan, untuk kedua bahasa. Klik foto unggahan untuk memilih titik fokus.";
 
 function Proses({ st }: { st: Status }) {
@@ -299,6 +299,7 @@ export default function FotoSitus({ grup, galeri: namaGaleri, judul = "Foto" }: 
   const unggahanGaleri = Object.entries(status).filter(([k]) => namaGaleri && k.startsWith(`galeri:${namaGaleri}:`));
   const mosaik = namaGaleri ? GALERI[namaGaleri].mosaik : 0;
   const tampil = namaGaleri ? mosaik + GALERI[namaGaleri].tetap : 0;
+  const karosel = namaGaleri ? GALERI[namaGaleri].karosel : false;
 
   const slot = SLOT_FOTO.filter((s) => grup.includes(s.grup) && !SLOT_GALERI.has(s.id));
   return (
@@ -357,11 +358,11 @@ export default function FotoSitus({ grup, galeri: namaGaleri, judul = "Foto" }: 
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-sm font-bold">{GALERI[namaGaleri].label} · {daftar.length} foto</p>
-              <p className="text-xs text-panel-redup">{mosaik} foto pertama mengisi mosaik di situs{tampil > mosaik ? `, ${tampil - mosaik} berikutnya sebaris di bawahnya (selalu tampil)` : ""}; sisanya tampil setelah pengunjung menekan “Show more”. Seret foto atau pakai tombol ‹ › untuk mengatur urutan.</p>
+              <p className="text-xs text-panel-redup">{karosel ? "Foto digeser di kartu perahu (karosel), foto pertama jadi sampul. Tambahkan foto luar, kabin, kursi, dan mesin." : <>{mosaik} foto pertama mengisi mosaik di situs{tampil > mosaik ? `, ${tampil - mosaik} berikutnya sebaris di bawahnya (selalu tampil)` : ""}; sisanya tampil setelah pengunjung menekan “Show more”.</>} Seret foto atau pakai tombol ‹ › untuk mengatur urutan.</p>
             </div>
             <div className="flex gap-2">
               <Tombol kecil varian="garis" onClick={async () => {
-                if (!confirm("Kembalikan galeri ke 5 foto awal? Foto unggahan tambahan di galeri ini dihapus.")) return;
+                if (!confirm("Kembalikan galeri ke susunan awal? Foto unggahan tambahan di galeri ini dihapus.")) return;
                 try { setGaleri((await api<{ galeri: PetaGaleri }>(`/api/foto/galeri?nama=${namaGaleri}`, { method: "DELETE" })).galeri); toast("Galeri dikembalikan"); } catch (e) { toast(e instanceof Error ? e.message : "Gagal", "galat"); }
               }}>Susunan awal</Tombol>
               <Tombol kecil onClick={() => pilihBanyak.current?.click()}>+ Tambah foto</Tombol>
@@ -381,7 +382,7 @@ export default function FotoSitus({ grup, galeri: namaGaleri, judul = "Foto" }: 
               >
                 <button type="button" disabled={!it.foto} title={it.foto ? "Klik untuk memilih titik fokus" : undefined} onClick={(e) => fokusGaleri(it, e)} className={`relative block aspect-[4/3] w-full overflow-hidden bg-panel-garis ${it.foto ? "cursor-crosshair" : "cursor-grab"}`}>
                   <img src={it.foto ? urlFoto(it.foto, it.foto.lebar[0]) : it.bawaan!} alt="" draggable={false} className="size-full object-cover" style={it.foto ? { objectPosition: `${it.foto.fokus[0]}% ${it.foto.fokus[1]}%` } : undefined} />
-                  <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-bold ${i < tampil ? "bg-panel-utama text-white" : "bg-white/90 text-panel-tinta"}`}>{i + 1}{i < mosaik ? " · mosaik" : i < tampil ? " · baris bawah" : " · show more"}</span>
+                  <span className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[11px] font-bold ${i < tampil || (karosel && i === 0) ? "bg-panel-utama text-white" : "bg-white/90 text-panel-tinta"}`}>{i + 1}{karosel ? (i === 0 ? " · sampul" : "") : i < mosaik ? " · mosaik" : i < tampil ? " · baris bawah" : " · show more"}</span>
                   {it.foto && <span aria-hidden="true" className="absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-panel-hijau/80 shadow" style={{ left: `${it.foto.fokus[0]}%`, top: `${it.foto.fokus[1]}%` }} />}
                 </button>
                 <div className="flex items-center justify-between gap-1 px-2 py-1.5">

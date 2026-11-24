@@ -120,11 +120,16 @@ export function rapikanFoto(v: unknown): Foto | null {
  */
 export const GALERI = {
   /* Menginap: 5 foto mosaik + 4 foto sebaris di bawahnya selalu tampil (permintaan pemilik), selebihnya lewat "Show more". */
-  menginap: { label: "Galeri menginap", mosaik: 5, tetap: 4, slot: ["kamar1", "kamar2", "kamar3", "kamar4", "kamar5"] as SlotFoto[] },
-  aktivitas: { label: "Galeri aktivitas", mosaik: 5, tetap: 0, slot: ["galeri1", "galeri2", "galeri3", "galeri4", "galeri5"] as SlotFoto[] },
+  menginap: { label: "Galeri menginap", mosaik: 5, tetap: 4, karosel: false, slot: ["kamar1", "kamar2", "kamar3", "kamar4", "kamar5"] as SlotFoto[] },
+  aktivitas: { label: "Galeri aktivitas", mosaik: 5, tetap: 0, karosel: false, slot: ["galeri1", "galeri2", "galeri3", "galeri4", "galeri5"] as SlotFoto[] },
+  /* Tiap perahu antar-jemput punya karosel foto sendiri (luar, kabin, kursi, dll.); foto pertama sampul. */
+  perahu1: { label: "Foto perahu 1", mosaik: 0, tetap: 0, karosel: true, slot: ["perahu1"] as SlotFoto[] },
+  perahu2: { label: "Foto perahu 2", mosaik: 0, tetap: 0, karosel: true, slot: ["perahu2"] as SlotFoto[] },
+  perahu3: { label: "Foto perahu 3", mosaik: 0, tetap: 0, karosel: true, slot: ["perahu3"] as SlotFoto[] },
 } as const;
 export type NamaGaleri = keyof typeof GALERI;
-export const adaGaleri = (v: unknown): v is NamaGaleri => v === "menginap" || v === "aktivitas";
+export const adaGaleri = (v: unknown): v is NamaGaleri => typeof v === "string" && Object.prototype.hasOwnProperty.call(GALERI, v);
+export const NAMA_GALERI = Object.keys(GALERI) as NamaGaleri[];
 export const MAKS_GALERI = 60;
 
 /** Satu foto galeri: unggahan, atau foto bawaan situs (`bawaan` berisi alamatnya). `kunci` unik dalam galeri. */
@@ -145,7 +150,7 @@ export function rapikanGaleri(v: unknown): ItemGaleri[] | null {
     if (!x || typeof x !== "object") continue;
     const o = x as Record<string, unknown>;
     const foto = rapikanFoto(o.foto);
-    const bawaan = typeof o.bawaan === "string" && /^\/img\/[a-z0-9-]+\.(jpg|webp|png)$/.test(o.bawaan) ? o.bawaan : null;
+    const bawaan = typeof o.bawaan === "string" && /^\/img\/[a-z0-9-]+\.(jpg|webp|png|svg)$/.test(o.bawaan) ? o.bawaan : null;
     const kunci = typeof o.kunci === "string" ? o.kunci.slice(0, 80) : foto?.id ?? "";
     if ((foto || bawaan) && kunci && !hasil.some((h) => h.kunci === kunci)) hasil.push({ kunci, foto, bawaan: foto ? null : bawaan });
   }

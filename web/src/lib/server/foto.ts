@@ -1,7 +1,7 @@
 import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { galeriDariSlot, MAKS_GALERI, rapikanGaleri, rapikanPetaFoto, type Foto, type ItemGaleri, type NamaGaleri, type PetaFoto, type PetaGaleri, type SlotFoto } from "@/lib/foto";
+import { GALERI, galeriDariSlot, MAKS_GALERI, NAMA_GALERI, rapikanGaleri, rapikanPetaFoto, type Foto, type ItemGaleri, type NamaGaleri, type PetaFoto, type PetaGaleri, type SlotFoto } from "@/lib/foto";
 import { bacaJson, dirData, ubahJson } from "./gudang";
 
 /**
@@ -48,7 +48,7 @@ export async function simpanBagian(id: string, w: number, jenis: "webp" | "jpg",
 export async function bacaGaleri(peta?: PetaFoto): Promise<PetaGaleri> {
   const p = peta ?? (await bacaPetaFoto());
   const g = (await bacaJson<Record<string, unknown>>("galeri.json", {})) ?? {};
-  return { menginap: rapikanGaleri(g.menginap) ?? galeriDariSlot(p, "menginap"), aktivitas: rapikanGaleri(g.aktivitas) ?? galeriDariSlot(p, "aktivitas") };
+  return Object.fromEntries(NAMA_GALERI.map((n) => [n, rapikanGaleri(g[n]) ?? galeriDariSlot(p, n)])) as PetaGaleri;
 }
 
 /** Ubah satu galeri dalam satu giliran antrean berkas, lalu bersihkan foto yang tidak dipakai. */
@@ -79,7 +79,9 @@ export async function resmikan(tujuan: { slot: SlotFoto } | { galeri: NamaGaleri
   if (kurang.length) return { kurang };
   if ("galeri" in tujuan) {
     /* Foto baru ditaruh di akhir galeri; unggahan ulang id yang sama (koneksi putus) tidak menggandakan. */
-    const galeri = await ubahGaleri(tujuan.galeri, (l) => (l.some((x) => x.kunci === f.id) ? l : [...l, { kunci: f.id, foto: { ...f, kb, fokus: [50, 50] }, bawaan: null }]));
+    /* Galeri karosel (perahu): ilustrasi bawaan dilepas begitu foto asli masuk, supaya tidak ikut digeser. */
+    const karosel = GALERI[tujuan.galeri].karosel;
+    const galeri = await ubahGaleri(tujuan.galeri, (l) => (l.some((x) => x.kunci === f.id) ? l : [...(karosel ? l.filter((x) => x.foto) : l), { kunci: f.id, foto: { ...f, kb, fokus: [50, 50] }, bawaan: null }]));
     return { foto: await bacaPetaFoto(), galeri };
   }
   const foto = await aturSlot(tujuan.slot, (lama) => ({ ...f, kb, fokus: lama?.id === f.id ? lama.fokus : [50, 50] }));

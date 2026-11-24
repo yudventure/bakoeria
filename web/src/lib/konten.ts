@@ -60,7 +60,7 @@ export interface Konten {
   /** Perahu antar-jemput yang bisa dipilih tamu (bayar terpisah), tampil sebagai kartu di bagian Cara menuju ke sini. */
   perahuJudul: string;
   perahuIsi: string;
-  perahu: { judul: string; mesin: string; isi: string; harga: { rute: string; harga: string }[] }[];
+  perahu: { judul: string; mesin: string; /** Muatan, misalnya "Maksimal 12 orang". */ muat: string; isi: string; harga: { rute: string; harga: string }[] }[];
   /** Aktivitas lain di luar selam (tiga yang pertama tampil bersama video). */
   aktivitasJudul: string;
   aktivitasIsi: string;
@@ -127,8 +127,8 @@ export const KONTEN_BAWAAN: Konten = {
   perahuJudul: "Perahu antar-jemput",
   perahuIsi: "Antar-jemput tidak termasuk harga kamar. Harga per perahu, pulang pergi. Kabari jam tiba Anda dan kami siapkan perahunya.",
   perahu: [
-    { judul: "Longboat", mesin: "1 mesin 15 PK", isi: "Longboat kayu kecil yang tenang, untuk menjemput di Waisai saat laut teduh.", harga: [{ rute: "Waisai, pulang pergi", harga: "Rp 2.000.000" }] },
-    { judul: "Speedboat", mesin: "2 mesin 150 PK", isi: "Lebih cepat dan stabil. Menjemput di Waisai, atau langsung dari Sorong sekitar 1,5 jam.", harga: [{ rute: "Waisai, pulang pergi", harga: "Rp 4.000.000" }, { rute: "Sorong, pulang pergi", harga: "Rp 8.000.000" }] },
+    { judul: "Longboat", mesin: "1 mesin 15 PK", muat: "Maksimal 5 orang", isi: "Longboat kayu kecil yang tenang, untuk menjemput di Waisai saat laut teduh.", harga: [{ rute: "Waisai, pulang pergi", harga: "Rp 2.000.000" }] },
+    { judul: "Speedboat", mesin: "2 mesin 150 PK", muat: "Maksimal 12 orang", isi: "Lebih cepat dan stabil. Menjemput di Waisai, atau langsung dari Sorong sekitar 1,5 jam.", harga: [{ rute: "Waisai, pulang pergi", harga: "Rp 4.000.000" }, { rute: "Sorong, pulang pergi", harga: "Rp 8.000.000" }] },
   ],
   aktivitasJudul: "Aktivitas lain",
   aktivitasIsi: "Hari di luar air juga bagian dari menginap. Tim kami mengaturnya mengikuti pasang surut, cuaca, dan rencana selam Anda.",
@@ -363,8 +363,8 @@ export const KONTEN_BAWAAN_EN: Konten = {
   perahuJudul: "Boat transfers",
   perahuIsi: "Transfers are not included in the room rate. Prices are per boat, return trip. Send us your arrival time and we get the boat ready.",
   perahu: [
-    { judul: "Longboat", mesin: "One 15 HP engine", isi: "A small, quiet wooden longboat for pick-ups in Waisai when the sea is calm.", harga: [{ rute: "Waisai, return", harga: "Rp 2,000,000" }] },
-    { judul: "Speedboat", mesin: "Twin 150 HP engines", isi: "Faster and more stable. Picks you up in Waisai, or straight from Sorong in about 1.5 hours.", harga: [{ rute: "Waisai, return", harga: "Rp 4,000,000" }, { rute: "Sorong, return", harga: "Rp 8,000,000" }] },
+    { judul: "Longboat", mesin: "One 15 HP engine", muat: "Up to 5 people", isi: "A small, quiet wooden longboat for pick-ups in Waisai when the sea is calm.", harga: [{ rute: "Waisai, return", harga: "Rp 2,000,000" }] },
+    { judul: "Speedboat", mesin: "Twin 150 HP engines", muat: "Up to 12 people", isi: "Faster and more stable. Picks you up in Waisai, or straight from Sorong in about 1.5 hours.", harga: [{ rute: "Waisai, return", harga: "Rp 4,000,000" }, { rute: "Sorong, return", harga: "Rp 8,000,000" }] },
   ],
   aktivitasJudul: "Other activities",
   aktivitasIsi: "Days out of the water are part of the stay. Our team arranges these around the tides, the weather, and your dive plan.",
@@ -604,6 +604,8 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     perahu: arr(k.perahu, b.perahu, (x) => ({
       judul: s(x.judul, "").slice(0, 60),
       mesin: s(x.mesin, "").slice(0, 60),
+      /* Muatan ditambahkan kemudian: perahu tersimpan tanpa muatan mengambil muatan bawaan perahu yang namanya sama. */
+      muat: s(x.muat, b.perahu.find((d) => d.judul.toLowerCase() === String(x.judul ?? "").trim().toLowerCase())?.muat ?? "").slice(0, 60),
       isi: s(x.isi, "").slice(0, 300),
       harga: (Array.isArray(x.harga) ? x.harga : []).slice(0, 6).map((y) => { const r = (y ?? {}) as Record<string, unknown>; return { rute: s(r.rute, "").slice(0, 80), harga: s(r.harga, "").slice(0, 40) }; }).filter((y) => y.rute.trim() || y.harga.trim()),
     })).filter((x) => x.judul.trim() !== "").slice(0, 4),
