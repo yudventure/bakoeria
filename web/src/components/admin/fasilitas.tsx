@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { IKON_FASILITAS, ikonFasilitas, type Fasilitas, type JenisFasilitas, type KatalogFasilitas } from "@/lib/fasilitas";
-import { api } from "./api";
+import { IKON_FASILITAS, ikonFasilitas, sidikDaftar, type Fasilitas, type JenisFasilitas, type KatalogFasilitas } from "@/lib/fasilitas";
+import { api, GalatApi } from "./api";
 import { masukan, Tombol, useToast } from "./ui";
 
 export const IkonGaris = ({ nama, className = "size-5" }: { nama: string; className?: string }) => (
@@ -16,7 +16,8 @@ export function useKatalog(): [KatalogFasilitas | null, (k: KatalogFasilitas) =>
   const [k, setK] = useState(simpanan);
   useEffect(() => {
     pendengar.add(setK);
-    if (!simpanan) api<{ katalog: KatalogFasilitas }>("/api/fasilitas").then((r) => { simpanan = r.katalog; pendengar.forEach((f) => f(r.katalog)); }).catch(() => undefined);
+    /* Selalu dimuat ulang saat dipakai, supaya dashboard yang lama terbuka tidak memegang daftar usang. */
+    api<{ katalog: KatalogFasilitas }>("/api/fasilitas").then((r) => { simpanan = r.katalog; pendengar.forEach((f) => f(r.katalog)); }).catch(() => undefined);
     return () => { pendengar.delete(setK); };
   }, []);
   return [k, (baru) => { simpanan = baru; pendengar.forEach((f) => f(baru)); }];
@@ -46,6 +47,7 @@ export default function PilihFasilitas({ jenis, terpilih, ubah, judul }: { jenis
   const toast = useToast();
   const [katalog, setKatalog] = useKatalog();
   const [atur, setAtur] = useState<Fasilitas[] | null>(null);
+  const [asal, setAsal] = useState("");
   const [sibuk, setSibuk] = useState(false);
   if (!katalog) return <p className="text-sm text-panel-redup">Memuat fasilitas…</p>;
   const daftar = katalog[jenis];
@@ -54,12 +56,16 @@ export default function PilihFasilitas({ jenis, terpilih, ubah, judul }: { jenis
     if (!atur) return;
     setSibuk(true);
     try {
-      const r = await api<{ katalog: KatalogFasilitas }>("/api/fasilitas", { method: "PUT", body: { jenis, daftar: atur.filter((x) => x.en.trim() || x.id.trim()) } });
+      const r = await api<{ katalog: KatalogFasilitas }>("/api/fasilitas", { method: "PUT", body: { jenis, asal, daftar: atur.filter((x) => x.en.trim() || x.id.trim()) } });
       setKatalog(r.katalog);
       ubah(terpilih.filter((k) => r.katalog[jenis].some((x) => x.kunci === k)));
       setAtur(null);
       toast("Daftar fasilitas disimpan");
     } catch (e) {
+      if (e instanceof GalatApi && e.status === 409 && e.data.katalog) {
+        setKatalog(e.data.katalog as KatalogFasilitas);
+        setAtur(null);
+      }
       toast(e instanceof Error ? e.message : "Gagal", "galat");
     } finally {
       setSibuk(false);
@@ -71,7 +77,7 @@ export default function PilihFasilitas({ jenis, terpilih, ubah, judul }: { jenis
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-[13px] font-bold text-panel-tinta">{judul ?? "Fasilitas"} <span className="font-normal text-panel-redup">· {terpilih.length} dicentang</span></span>
         {!atur ? (
-          <button type="button" className="text-sm font-bold text-panel-utama underline" onClick={() => setAtur(daftar.map((x) => ({ ...x })))}>Atur daftar</button>
+          <button type="button" className="text-sm font-bold text-panel-utama underline" onClick={() => { setAtur(daftar.map((x) => ({ ...x }))); setAsal(sidikDaftar(daftar)); }}>Atur daftar</button>
         ) : (
           <span className="flex gap-2">
             <Tombol kecil varian="garis" onClick={() => setAtur(null)}>Batal</Tombol>

@@ -128,6 +128,14 @@ export function rapikanKatalog(o: unknown): KatalogFasilitas {
   return hasil;
 }
 
+/** Sidik satu daftar fasilitas: penyunting mengirim sidik daftar yang ia buka, supaya daftar usang tidak menimpa yang lebih baru. */
+export function sidikDaftar(daftar: Fasilitas[]): string {
+  const t = JSON.stringify(daftar.map((x) => [x.kunci, x.ikon, x.en, x.id]));
+  let h = 5381;
+  for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
+  return `${daftar.length}-${h.toString(36)}`;
+}
+
 /** Cari fasilitas katalog untuk satu label kamar (cocok dengan label Inggris atau Indonesia). */
 export const cariLabel = (katalog: Fasilitas[], label: string) => {
   const l = label.trim().toLowerCase();

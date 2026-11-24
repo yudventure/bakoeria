@@ -1,5 +1,5 @@
 import "server-only";
-import { cariLabel, KATALOG_BAWAAN, rapikanKatalog, type JenisFasilitas, type KatalogFasilitas } from "@/lib/fasilitas";
+import { cariLabel, KATALOG_BAWAAN, rapikanKatalog, sidikDaftar, type JenisFasilitas, type KatalogFasilitas } from "@/lib/fasilitas";
 import { databaseReady, jalankan, kueri } from "@/lib/db";
 import { bacaJson, ubahJson } from "./gudang";
 
@@ -18,6 +18,8 @@ const MIGRASI: { tanda: string; kunci: string[] }[] = [
   { tanda: "listrikMalam", kunci: ["listrik"] },
   /* November 2026, permintaan pemilik: Wi-Fi Starlink. */
   { tanda: "wifiStarlink", kunci: ["wifi"] },
+  /* Wi-Fi Starlink sempat terhapus dari semua kamar oleh dashboard yang masih memegang daftar lama; dipasang lagi sekali. */
+  { tanda: "wifiStarlink2", kunci: ["wifi"] },
 ];
 /**
  * Label yang diganti sekali di katalog tersimpan dan di semua kamar, selama labelnya
@@ -94,8 +96,16 @@ const baris = (v: unknown) => String(v ?? "").split("\n").map((x) => x.trim()).f
  * semua kamar, dan fasilitas yang dihapus dari daftar ikut dilepas dari semua kamar,
  * supaya pemilik cukup mengatur di satu tempat.
  */
-export async function simpanKatalog(jenis: JenisFasilitas, daftar: unknown): Promise<KatalogFasilitas> {
+export class KatalogBerubahError extends Error {
+  constructor(public katalog: KatalogFasilitas) {
+    super("Daftar fasilitas baru saja berubah.");
+  }
+}
+
+export async function simpanKatalog(jenis: JenisFasilitas, daftar: unknown, asal?: string): Promise<KatalogFasilitas> {
   const lama = await bacaKatalog();
+  /* Daftar yang dibuka penyunting sudah usang (misalnya tab dashboard lama): tolak, jangan menimpa. */
+  if (asal && asal !== sidikDaftar(lama[jenis])) throw new KatalogBerubahError(lama);
   const baru = rapikanKatalog({ ...lama, [jenis]: daftar });
   await ubahJson("fasilitas.json", null, () => baru, 0o644);
   if (jenis === "kamar" && databaseReady()) {
