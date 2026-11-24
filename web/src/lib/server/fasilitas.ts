@@ -14,6 +14,10 @@ const MIGRASI: { tanda: string; kunci: string[] }[] = [
   { tanda: "kayakSnorkel", kunci: ["kayak", "snorkel"] },
   /* November 2026, permintaan pemilik: antar-jemput perahu juga fasilitas setiap cottage. */
   { tanda: "boatTransfer", kunci: ["transfer"] },
+  /* November 2026, permintaan pemilik: listrik hanya menyala pukul 18.00 sampai 06.00. */
+  { tanda: "listrikMalam", kunci: ["listrik"] },
+  /* November 2026, permintaan pemilik: Wi-Fi Starlink. */
+  { tanda: "wifiStarlink", kunci: ["wifi"] },
 ];
 let migrasi: Promise<void> | undefined;
 export function pastikanFasilitasTamu(): Promise<void> {

@@ -81,6 +81,8 @@ export const KATALOG_BAWAAN: KatalogFasilitas = {
     f("kayak", "kayak", "Free use of kayaks", "Gratis pakai kayak"),
     f("snorkel", "snorkel", "Free snorkeling gear", "Gratis alat snorkel"),
     f("transfer", "perahu", "Boat transfer", "Antar-jemput perahu"),
+    f("listrik", "listrik", "Electricity from 6 pm to 6 am", "Listrik dari jam 18.00 sampai 06.00"),
+    f("wifi", "wifi", "Starlink Wi-Fi", "Wi-Fi Starlink"),
     f("teras", "kursi", "Private terrace", "Teras pribadi"),
     f("handuk", "handuk", "Towels", "Handuk"),
     f("air-minum", "air", "Drinking water", "Air minum"),
