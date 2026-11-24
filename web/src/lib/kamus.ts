@@ -9,7 +9,7 @@ export const awalanBahasa = (b: Bahasa) => (b === "en" ? "/" : "/id");
 
 const en = {
   lewati: "Skip to content",
-  menu: { tentang: "About", menginap: "Stay", menyelam: "Diving", sehari: "A day here", tanya: "FAQ", pesan: "Book" },
+  menu: { tentang: "About", menginap: "Stay", menyelam: "Diving", sehari: "A day here", aktivitas: "Activities", tanya: "FAQ", pesan: "Book" },
   bukaMenu: "Open menu",
   tutupMenu: "Close menu",
   gantiBahasa: "Language",
@@ -127,7 +127,7 @@ const en = {
 
 const id: typeof en = {
   lewati: "Lewati ke konten",
-  menu: { tentang: "Tentang", menginap: "Menginap", menyelam: "Menyelam", sehari: "Sehari", tanya: "Tanya jawab", pesan: "Pesan" },
+  menu: { tentang: "Tentang", menginap: "Menginap", menyelam: "Menyelam", sehari: "Sehari", aktivitas: "Aktivitas", tanya: "Tanya jawab", pesan: "Pesan" },
   bukaMenu: "Buka menu",
   tutupMenu: "Tutup menu",
   gantiBahasa: "Bahasa",

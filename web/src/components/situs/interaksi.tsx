@@ -36,7 +36,7 @@ export function Nav({ bahasa, seksi, pesan }: { bahasa: Bahasa; seksi: Record<Se
     ["#tentang", t.menu.tentang],
     ["#menginap", t.menu.menginap],
     ["#menyelam", t.menu.menyelam],
-    ["#sehari", t.menu.sehari],
+    ["#aktivitas", t.menu.aktivitas],
     ["#tanya", t.menu.tanya],
   ].filter(([h]) => seksi[h.slice(1) as SeksiId] !== false);
   return (
