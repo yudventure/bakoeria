@@ -139,7 +139,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         {on.tentang && <section id="tentang" className="scroll-mt-24 px-5 pb-20 pt-16 sm:pt-20">
           <div className="mx-auto max-w-6xl">
             <div className="muncul grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-              <div className="-my-[0.1em] overflow-hidden py-[0.1em]"><h2 data-geser="0.9" className="font-display text-[clamp(56px,8vw,104px)] font-normal leading-[0.9] tracking-[-0.03em] text-malam/80 will-change-transform">{t.tentangKami}</h2></div>
+              <div className="-mb-[0.25em] -mt-[0.1em] overflow-hidden pb-[0.25em] pt-[0.1em] text-[clamp(56px,8vw,104px)]"><h2 data-geser="0.9" className="font-display text-[1em] font-normal leading-[0.9] tracking-[-0.03em] text-malam/80 will-change-transform">{t.tentangKami}</h2></div>
               <div className="relative">
                 <Bintang className="absolute -top-1 right-0 text-[34px]" />
                 <p className="pr-8 text-[clamp(18px,2.1vw,25px)] font-normal uppercase leading-[1.35] tracking-[0.02em] text-malam">
