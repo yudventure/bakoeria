@@ -296,9 +296,16 @@ export const KONTEN_BAWAAN: Konten = {
   ],
   galeriJudul: "Cahaya hangat di tengah gelap",
   tanya: [
-    { t: "Apakah saya perlu sertifikat selam?", j: "Tidak untuk Discover Scuba dan snorkeling. Fun dive memerlukan sertifikat dasar seperti Open Water. Jika belum punya, Anda bisa mengambil kursus di sini." },
-    { t: "Apa yang perlu saya bawa?", j: "Pakaian ringan, tabir surya ramah karang, handuk, dan logbook jika ada. Peralatan selam dapat disewa di resor." },
-    { t: "Bagaimana cara memesan?", j: "Pilih tanggal di formulir pemesanan. Permintaan Anda langsung masuk ke tim kami, dan kami membalas lewat WhatsApp atau email dengan konfirmasi dan cara pembayaran." },
+    { t: "Bagaimana cara memesan?", j: "Pilih tanggal, jumlah tamu, dan cottage di formulir pemesanan, lalu isi nama dan nomor WhatsApp. Cottage langsung kami tahan untuk Anda, dan tim kami membalas lewat WhatsApp atau email dengan konfirmasi dan cara membayar uang muka. Mau bertanya dulu? Tekan tombol WhatsApp di bagian kontak." },
+    { t: "Apakah harga kamar sudah termasuk makan?", j: "Ya. Harga per malam sudah termasuk makan tiga kali sehari, dan tamu yang menginap bebas memakai kayak dan alat snorkel. Yang dibayar terpisah adalah selam dan trip pulau, antar-jemput dari Sorong, serta retribusi wisata Raja Ampat yang dibayar ke pemerintah daerah." },
+    { t: "Bagaimana dengan anak-anak?", j: "Anak di bawah 5 tahun gratis dan tidur bersama orang tua. Anak 5 tahun ke atas membayar 50% dari harga kamar per malam dan mendapat extra bed. Harga anak langsung terhitung di formulir pemesanan." },
+    { t: "Bagaimana cara sampai ke Bakoeria?", j: "Terbang ke Sorong. Dari Sorong ada dua pilihan: speedboat privat kami langsung ke resort sekitar 1,5 jam, atau kapal cepat umum ke Waisai sekitar 2 jam lalu dijemput perahu resort. Kabari jam mendarat Anda dan kami atur penjemputannya. Rutenya ada di bagian Cara menuju ke sini." },
+    { t: "Retribusi wisata itu apa, dan berapa?", j: "Kabupaten Raja Ampat memungut retribusi wisata dari setiap pengunjung menurut Peraturan Bupati Nomor 34 Tahun 2025: wisatawan mancanegara Rp 1.000.000 per orang dan WNI Rp 300.000, anak di bawah 12 tahun gratis. Daftar dan bayar online di sipari-rajaampat.id sebelum tiba, lalu simpan e-tiket QR di ponsel. Retribusi dibayar langsung ke pemerintah daerah, bukan ke resort." },
+    { t: "Apakah saya perlu sertifikat selam?", j: "Tidak untuk Discover Scuba dan snorkeling. Fun dive memerlukan sertifikat dasar seperti Open Water. Jika belum punya, Anda bisa mengambil kursus di sini bersama pemandu kami." },
+    { t: "Ada kegiatan untuk yang tidak menyelam?", j: "Ada. Kayak dan alat snorkel gratis untuk tamu yang menginap, dan terumbu di depan resort bisa dinikmati langsung dari pantai. Kami juga mengatur pengamatan burung cenderawasih pagi hari dan island trip ke Piaynemo, Batanta, Kali Biru, dan pulau lainnya." },
+    { t: "Bagaimana kalau cuaca buruk?", j: "Keselamatan lebih dulu. Selam, trip pulau, dan antar-jemput laut ditunda bila gelombang terlalu tinggi, dan kami mencarikan jadwal pengganti selama Anda menginap." },
+    { t: "Kapan waktu terbaik datang?", j: "Oktober sampai April laut umumnya paling tenang dan air paling jernih. Desember sampai Maret peluang bertemu manta paling tinggi. Juni sampai Agustus angin tenggara membuat gelombang lebih tinggi sehingga trip laut lebih sering ditunda, tapi suasananya lebih sepi." },
+    { t: "Apa yang perlu saya bawa?", j: "Pakaian ringan, tabir surya ramah karang, obat pribadi, dan logbook bila ada. Bawa juga uang tunai secukupnya dari Sorong atau Waisai: di kampung tidak ada ATM dan pembayaran nontunai belum tentu bisa. Peralatan selam bisa disewa di resort." },
   ],
   pesanIsi: "Pilih tanggal dan cottage. Kami membalas dengan konfirmasi dan cara pembayaran.",
   kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "", alamat: "", peta: "", facebook: "", tiktok: "", youtube: "", video: "", aktivitasVideo: ["", "", ""] },
@@ -519,9 +526,16 @@ export const KONTEN_BAWAAN_EN: Konten = {
   ],
   galeriJudul: "Warm light in the dark",
   tanya: [
-    { t: "Do I need a dive certificate?", j: "Not for Discover Scuba or snorkelling. Fun dives need a basic certificate such as Open Water. If you don't have one yet, you can take the course here." },
-    { t: "What should I bring?", j: "Light clothing, reef-safe sunscreen, a towel, and your logbook if you have one. Dive gear can be rented at the resort." },
-    { t: "How do I book?", j: "Choose your dates in the booking form. Your request goes straight to our team, and we reply on WhatsApp or by email with a confirmation and payment details." },
+    { t: "How do I book?", j: "Choose your dates, guests, and cottage in the booking form, then add your name and WhatsApp number. We hold the cottage for you straight away, and our team replies on WhatsApp or by email with a confirmation and how to pay the deposit. Want to ask first? Tap the WhatsApp button in the contact section." },
+    { t: "Are meals included in the room rate?", j: "Yes. The nightly rate includes three meals a day, and staying guests can use our kayaks and snorkel gear for free. Paid separately are diving and island trips, transfers from Sorong, and the Raja Ampat tourism levy, which goes to the local government." },
+    { t: "What about children?", j: "Children under 5 stay free and sleep with their parents. Children 5 and over pay 50% of the room rate per night and get an extra bed. The booking form adds this for you." },
+    { t: "How do I get to Bakoeria?", j: "Fly to Sorong. From there you have two options: our private speedboat straight to the resort in about 1.5 hours, or the public fast ferry to Waisai in about 2 hours, where our boat picks you up. Send us your landing time and we arrange the transfer. The route is in the How to get here section." },
+    { t: "What is the tourism levy, and how much is it?", j: "Raja Ampat Regency charges every visitor a tourism levy under Regent Regulation 34 of 2025: Rp 1,000,000 per person for foreign visitors and Rp 300,000 for Indonesian citizens, free for children under 12. Register and pay online at sipari-rajaampat.id before you arrive, then keep the QR e-ticket on your phone. The levy is paid to the local government, not to the resort." },
+    { t: "Do I need a dive certificate?", j: "Not for Discover Scuba or snorkelling. Fun dives need a basic certificate such as Open Water. If you don't have one yet, you can take the course here with our guides." },
+    { t: "Is there anything to do if I don't dive?", j: "Plenty. Kayaks and snorkel gear are free for staying guests, and the reef in front of the resort is right off the beach. We also arrange early-morning bird of paradise walks and island trips to Piaynemo, Batanta, Kali Biru, and more." },
+    { t: "What if the weather turns?", j: "Safety comes first. Dives, island trips, and sea transfers are postponed when the swell is too high, and we find another slot during your stay." },
+    { t: "When is the best time to come?", j: "From October to April the sea is usually calmest and the water clearest. December to March gives the best chance of seeing manta rays. From June to August the southeast wind brings bigger waves, so sea trips are postponed more often, but it is quieter." },
+    { t: "What should I bring?", j: "Light clothing, reef-safe sunscreen, personal medicine, and your logbook if you have one. Also bring enough cash from Sorong or Waisai: there are no ATMs in the villages and card payment may not work. Dive gear can be rented at the resort." },
   ],
   pesanIsi: "Choose your dates and cottage. We'll reply with a confirmation and payment details.",
   pernyataan: "We built a place to dive and to rest, where *the sea*, *teak wood*, and *a warm team* are in balance",
@@ -546,6 +560,7 @@ export const bawaanKonten = (b: "en" | "id") => (b === "en" ? KONTEN_BAWAAN_EN :
 /** Hanya tautan http(s) yang diterima untuk peta dan media sosial. */
 const tautan = (v: unknown) => (typeof v === "string" && /^https?:\/\/\S+$/i.test(v.trim()) ? v.trim().slice(0, 300) : "");
 
+const FAQ_LAMA = ["Apakah saya perlu sertifikat selam?|Apa yang perlu saya bawa?|Bagaimana cara memesan?", "Do I need a dive certificate?|What should I bring?|How do I book?"];
 const kunciFasilitas = (v: unknown) => (Array.isArray(v) ? [...new Set(v.filter((x): x is string => typeof x === "string").map((x) => x.slice(0, 40)))].slice(0, 30) : []);
 
 /** Gabungkan isi tersimpan dengan bawaan, supaya kolom baru tidak pernah kosong. */
@@ -590,7 +605,8 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     cottageFitur: Array.isArray(k.cottageFitur) ? k.cottageFitur.filter((x) => typeof x === "string").slice(0, 20) : b.cottageFitur,
     jadwal: arr(k.jadwal, b.jadwal, (x) => ({ jam: s(x.jam, ""), judul: s(x.judul, ""), isi: s(x.isi, "") })),
     galeriJudul: s(k.galeriJudul, b.galeriJudul),
-    tanya: arr(k.tanya, b.tanya, (x) => ({ t: s(x.t, ""), j: s(x.j, "") })),
+    /* FAQ bawaan versi pertama (3 pertanyaan) diganti FAQ lengkap yang disesuaikan dari situs DAMPIER (November 2026). FAQ yang sudah diubah pemilik dibiarkan. */
+    tanya: ((t) => (t.length === 3 && FAQ_LAMA.includes(t.map((x) => x.t).join("|")) ? b.tanya : t))(arr(k.tanya, b.tanya, (x) => ({ t: s(x.t, ""), j: s(x.j, "") }))),
     pesanIsi: s(k.pesanIsi, b.pesanIsi),
     kontak: {
       whatsapp: s(kontak.whatsapp, b.kontak.whatsapp),
