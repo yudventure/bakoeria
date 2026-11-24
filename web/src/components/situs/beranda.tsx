@@ -334,15 +334,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
             <div className="muncul">
               <h2 className="font-display text-[clamp(40px,5vw,58px)] font-normal leading-[0.98] tracking-[-0.02em]">{t.rencanakan}</h2>
               <p className="mt-4 max-w-sm text-[14px] text-malam/65">{k.pesanIsi}</p>
-              <dl className="mt-6 grid max-w-sm gap-2 text-[14px]">
-                {[["wa", "WhatsApp", nomorTampil(k.kontak.whatsapp)], ["surat", "Email", k.kontak.email], ["ig", "Instagram", k.kontak.instagram]].filter(([, , dd]) => dd.trim()).map(([ikon, dt, dd]) => (
-                  <div key={dt} className="flex items-center gap-3 rounded-full bg-white/85 px-4 py-2.5 ring-1 ring-malam/8 backdrop-blur">
-                    <Ikon nama={ikon} className="size-5 text-emas-tua" />
-                    <dt className="sr-only">{dt}</dt>
-                    <dd className="select-all">{dd}</dd>
-                  </div>
-                ))}
-              </dl>
+              {/* Kontak tidak diulang di sini: sudah ada di footer (permintaan pemilik). */}
             </div>
             <div className="muncul">
               <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} />
