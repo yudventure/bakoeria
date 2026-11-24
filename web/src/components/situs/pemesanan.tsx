@@ -23,7 +23,10 @@ interface Opsi {
   potongan: number;
   /** Nama musim bila ada malam bertarif musiman. */
   musim: string | null;
+  /** Tambahan bila memilih tarif Fleksibel. */
+  kenaikanFleksibel: number;
 }
+interface InfoTarif { fleksibel: boolean; aktif: boolean; persen: number; batasHari: number; batas: string }
 /** Perahu antar-jemput dari isi situs; harganya teks yang ditulis pemilik. */
 export interface PerahuPesan { judul: string; muat: string; harga: { rute: string; harga: string; sekali: string }[] }
 type HasilKupon = { kode: string; ok: true } | { kode: string; ok: false; alasan: keyof (typeof KAMUS)["en"]["form"]["kuponTolak"]; batas: number | string | null } | null;
@@ -80,7 +83,37 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
   const [selam, setSelam] = useState({ ikut: false, jumlah: 2, paket: "" });
   const [galat, setGalat] = useState("");
   const [sibuk, setSibuk] = useState(false);
-  const [selesai, setSelesai] = useState<{ kode: string; total: number; jamTahanan: number; persenDp: number } | null>(null);
+  const [selesai, setSelesai] = useState<{ kode: string; total: number; jamTahanan: number; token?: string } | null>(null);
+  const [tarif, setTarif] = useState<InfoTarif | null>(null);
+  const [pilihTarif, setPilihTarif] = useState<"standar" | "fleksibel">("standar");
+  const [sibukBayar, setSibukBayar] = useState(false);
+  /* Kembali dari halaman Midtrans: ?bayar=KODE&transaction_status=... (ditambahkan Midtrans). */
+  const [hasilBayar, setHasilBayar] = useState<{ kode: string; status: "lunas" | "tunda" | "gagal"; ulang: { kode: string; token: string; total: number } | null } | null>(null);
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const kode = q.get("bayar");
+    if (!kode) return;
+    const st = q.get("transaction_status") ?? "";
+    let ulang = null;
+    try { const x = JSON.parse(sessionStorage.getItem("bakoeria-bayar") ?? "null"); if (x?.kode === kode) ulang = x; } catch { /* penyimpanan tidak tersedia */ }
+    setHasilBayar({ kode, status: st === "settlement" || st === "capture" ? "lunas" : st === "pending" ? "tunda" : "gagal", ulang });
+    window.history.replaceState(null, "", window.location.pathname + window.location.hash);
+  }, []);
+  /** Buka halaman bayar Midtrans untuk total pesanan. */
+  async function bayarSekarang(d: { kode: string; token: string; total: number }) {
+    setSibukBayar(true);
+    setGalat("");
+    try {
+      try { sessionStorage.setItem("bakoeria-bayar", JSON.stringify(d)); } catch { /* penyimpanan tidak tersedia */ }
+      const r = await fetch("/api/publik/bayar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kode: d.kode, token: d.token, bahasa }) });
+      const x = await r.json();
+      if (!r.ok || !x.tautan) throw new Error(x.galat ?? t.bayarHasil.gagal);
+      window.location.href = x.tautan;
+    } catch (err) {
+      setGalat(err instanceof Error ? err.message : t.bayarHasil.gagal);
+      setSibukBayar(false);
+    }
+  }
   const [isianKupon, setIsianKupon] = useState("");
   const [kupon, setKupon] = useState<HasilKupon>(null);
   const [sibukKupon, setSibukKupon] = useState(false);
@@ -100,7 +133,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
     const r = await fetch(`/api/publik/ketersediaan?masuk=${tgl.masuk}&keluar=${tgl.keluar}&anak=${tamu.anak}&bahasa=${bahasa}${kode ? `&kupon=${encodeURIComponent(kode)}` : ""}`);
     const d = await r.json();
     if (!r.ok) throw new Error(d.galat ?? t.galatCek);
-    return d as { kamar: Opsi[]; malam: number; kupon: HasilKupon };
+    return d as { kamar: Opsi[]; malam: number; kupon: HasilKupon; tarif?: InfoTarif };
   }
   async function cek(e: React.FormEvent) {
     e.preventDefault();
@@ -112,6 +145,8 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
       const d = await ambil(kupon?.ok ? kupon.kode : "");
       setOpsi(d.kamar);
       setMalam(d.malam);
+      setTarif(d.tarif ?? null);
+      if (!d.tarif?.fleksibel) setPilihTarif("standar");
       setKupon(d.kupon?.ok ? d.kupon : null);
       const muat = (k: Opsi) => k.tersedia && k.dewasa >= tamu.dewasa && k.anak >= tamu.anak;
       const pertama = d.kamar.find(muat) ?? d.kamar.find((k) => k.tersedia);
@@ -129,6 +164,8 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
       const d = await ambil(kode);
       setOpsi(d.kamar);
       setMalam(d.malam);
+      setTarif(d.tarif ?? null);
+      if (!d.tarif?.fleksibel) setPilihTarif("standar");
       setKupon(d.kupon);
       if (!kode) setIsianKupon("");
     } catch (err) {
@@ -153,6 +190,8 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
   const j = jenis.find((x) => x.kunci === pilih && x.kosong.length > 0);
   const k = j?.kosong[0];
   const melebihi = k ? tamu.dewasa > k.dewasa || tamu.anak > k.anak : false;
+  const fleks = pilihTarif === "fleksibel" && !!tarif?.fleksibel && !!k?.kenaikanFleksibel;
+  const totalAkhir = k ? k.total + (fleks ? k.kenaikanFleksibel : 0) : 0;
 
   async function kirim(e: React.FormEvent) {
     e.preventDefault();
@@ -160,7 +199,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
     setGalat("");
     setSibuk(true);
     try {
-      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, minat: minatSah, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "", transport: perahuDipilih ? perahuDipilih.kunci : "", arah: satuArah ? "sekali" : "pp", selam: selam.ikut ? penyelam : 0, paketSelam: selam.ikut ? paketSah : "" }) });
+      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, minat: minatSah, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "", tarif: fleks ? "fleksibel" : "standar", transport: perahuDipilih ? perahuDipilih.kunci : "", arah: satuArah ? "sekali" : "pp", selam: selam.ikut ? penyelam : 0, paketSelam: selam.ikut ? paketSah : "" }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.galat ?? t.galatKirim);
       setSelesai(d);
@@ -200,10 +239,30 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
         <p className={kelasLabel}>{t.diterima}</p>
         <h3 className="mt-2 font-display text-4xl text-malam">{t.terimaKasih(f.nama.split(" ")[0])}</h3>
         <p className="mt-4 text-malam/70">
-          {t.kodeAnda} <b className="font-bold text-malam">{selesai.kode}</b>. {t.ditahan(selesai.jamTahanan, f.telepon ? t.lewatWa : t.lewatEmail, selesai.persenDp)}
+          {t.kodeAnda} <b className="font-bold text-malam">{selesai.kode}</b>. {t.ditahan(selesai.jamTahanan, f.telepon ? t.lewatWa : t.lewatEmail)}
         </p>
         <p className="mt-4 font-display text-2xl text-malam">{t.perkiraan} {rupiah(selesai.total)}</p>
+        {selesai.token && (
+          <div data-bayar-online className="mt-6 grid gap-2 rounded-2xl bg-[#F6F4EF] p-4">
+            <button type="button" disabled={sibukBayar} onClick={() => bayarSekarang({ kode: selesai.kode, token: selesai.token!, total: selesai.total })} className="justify-self-start rounded-full bg-malam px-6 py-3 text-sm font-bold text-white transition hover:brightness-125 disabled:opacity-60">{sibukBayar ? t.bayarMembuka : t.bayarSekarang(rupiah(selesai.total))}</button>
+            <p className="text-xs leading-relaxed text-malam/65">{t.bayarKet}</p>
+            <p className="text-xs text-malam/50">{t.bayarAtauNanti}</p>
+            {galat && <p role="alert" className="text-sm text-[#B03826]">{galat}</p>}
+          </div>
+        )}
         {wa && <a className="mt-6 inline-flex items-center gap-2 rounded-full bg-emas-tua px-6 py-3 text-sm font-bold text-white" href={`https://wa.me/${wa}?text=${encodeURIComponent(t.pesanWaKode(selesai.kode))}`} target="_blank" rel="noreferrer">{t.kirimKode}</a>}
+      </div>
+  ) : null;
+
+  const isiHasilBayar = hasilBayar ? (
+      <div data-hasil-bayar={hasilBayar.status} className="rounded-[2rem] border border-white/70 bg-white/85 p-8 shadow-[0_20px_60px_rgba(10,36,64,.12)] backdrop-blur-xl sm:p-10" role="status">
+        <p className={kelasLabel}>{t.bayarJudul} · {hasilBayar.kode}</p>
+        <h3 className={`mt-2 font-display text-3xl ${hasilBayar.status === "gagal" ? "text-[#B03826]" : "text-malam"}`}>{t.bayarHasil[hasilBayar.status]}</h3>
+        <div className="mt-6 flex flex-wrap gap-3">
+          {hasilBayar.status === "gagal" && hasilBayar.ulang && <button type="button" disabled={sibukBayar} onClick={() => bayarSekarang(hasilBayar.ulang!)} className="rounded-full bg-malam px-6 py-3 text-sm font-bold text-white disabled:opacity-60">{sibukBayar ? t.bayarMembuka : t.bayarSekarang(rupiah(hasilBayar.ulang.total))}</button>}
+          {wa && <a className="inline-flex items-center gap-2 rounded-full bg-emas-tua px-6 py-3 text-sm font-bold text-white" href={`https://wa.me/${wa}?text=${encodeURIComponent(t.pesanWaKode(hasilBayar.kode))}`} target="_blank" rel="noreferrer">{t.kirimKode}</a>}
+        </div>
+        {galat && <p role="alert" className="mt-4 text-sm text-[#B03826]">{galat}</p>}
       </div>
   ) : null;
 
@@ -339,12 +398,34 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
                 <p className={kelasLabel}>{t.ringkasan}</p>
                 <p className="mt-1 text-[15px] text-malam"><b className="font-bold">{j.nama}</b> · {tgl_(tgl.masuk)} {t.sampai} {tgl_(tgl.keluar)} · {t.malam(malam)}</p>
                 <p className="text-sm text-malam/65">{t.tamuRingkas(tamu.dewasa, tamu.anak, tamu.balita)}</p>
+                {tarif?.aktif && (
+                  <fieldset data-pilih-tarif className="mt-3 grid gap-2">
+                    <legend className={`${kelasLabel} mb-1.5`}>{t.tarifJudul}</legend>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {(["standar", "fleksibel"] as const).map((x) => {
+                        const mati = x === "fleksibel" && (!tarif.fleksibel || !k.kenaikanFleksibel);
+                        const on = (x === "fleksibel") === fleks;
+                        return (
+                          <label key={x} className={chip(on, mati)}>
+                            <input type="radio" name="tarif" value={x} disabled={mati} checked={on} onChange={() => setPilihTarif(x)} className="mt-1 self-start accent-[#0F6490]" />
+                            <span className="min-w-0 leading-snug">
+                              <span className="flex flex-wrap items-baseline justify-between gap-x-2"><span className="text-[15px] font-bold text-malam">{x === "standar" ? t.tarifStandar : t.tarifFleksibel}</span><span className="angka text-[15px] text-malam">{rupiah(k.total + (x === "fleksibel" ? k.kenaikanFleksibel : 0))}</span></span>
+                              <span className="mt-0.5 block text-xs text-malam/60">{x === "standar" ? t.ketStandar(tgl_(tarif.batas)) : t.ketFleksibel(tgl_(tarif.batas))}</span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    {!tarif.fleksibel && <p className="text-xs text-malam/60">{t.tarifHanyaStandar(tarif.batasHari)}</p>}
+                  </fieldset>
+                )}
                 <dl className="mt-3 grid gap-1 border-t border-malam/10 pt-3 text-sm text-malam/75">
                   <div className="flex justify-between gap-3"><dt>{t.hargaKamar}</dt><dd className="angka">{rupiah(k.hargaKamar)}</dd></div>
                   {tamu.anak > 0 && <div className="flex justify-between gap-3"><dt>{t.tambahanAnak(tamu.anak)}</dt><dd className="angka">{rupiah(k.tambahanAnak)}</dd></div>}
                   {tamu.balita > 0 && <div className="flex justify-between gap-3"><dt>{t.balitaGratis(tamu.balita)}</dt><dd>{t.gratis}</dd></div>}
                   {k.potongan > 0 && kupon?.ok && <div data-potongan className="flex justify-between gap-3 font-bold text-[#1E7A4C]"><dt>{t.potongan(kupon.kode)}</dt><dd className="angka">−{rupiah(k.potongan)}</dd></div>}
-                  <div className="flex justify-between gap-3 border-t border-malam/10 pt-2 text-base font-bold text-malam"><dt>{t.total}</dt><dd className="angka">{rupiah(k.total)}</dd></div>
+                  {fleks && <div data-baris-fleksibel className="flex justify-between gap-3"><dt>{t.barisFleksibel(tarif!.persen)}</dt><dd className="angka">{rupiah(k.kenaikanFleksibel)}</dd></div>}
+                  <div className="flex justify-between gap-3 border-t border-malam/10 pt-2 text-base font-bold text-malam"><dt>{t.total}</dt><dd className="angka">{rupiah(totalAkhir)}</dd></div>
                   {perahuDipilih && <div data-ringkas-transport className="flex justify-between gap-3 pt-1"><dt>{t.transportRingkas}<span className="block text-xs text-malam/55">{perahuDipilih.judul} · {perahuDipilih.rute} · {satuArah ? t.sekaliJalan : t.pp}</span></dt><dd className="angka whitespace-nowrap">{hargaPerahu}</dd></div>}
                   {selam.ikut && <div data-ringkas-selam className="flex justify-between gap-3 pt-1"><dt>{t.selamRingkas(penyelam)}<span className="block text-xs text-malam/55">{f.sertifikat} · {paketDipilih ? paketDipilih.nama : namaPaketSelam}</span></dt>{paketDipilih?.harga && <dd className="angka whitespace-nowrap">{paketDipilih.harga}</dd>}</div>}
                 </dl>
@@ -380,7 +461,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
               <label className="grid gap-1.5 sm:col-span-2"><span className={kelasLabel}>{t.catatan}</span><textarea rows={2} className={kelasMasukan} value={f.catatan} onChange={(e) => setF({ ...f, catatan: e.target.value })} /></label>
               <input type="text" name="situs" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" value={f.situs} onChange={(e) => setF({ ...f, situs: e.target.value })} />
               <div className="flex flex-wrap items-center justify-between gap-4 sm:col-span-2">
-                <p className="text-sm text-malam/60">{t.total} <b className="font-bold text-malam">{rupiah(k.total)}</b></p>
+                <p className="text-sm text-malam/60">{t.total} <b className="font-bold text-malam">{rupiah(totalAkhir)}</b></p>
                 <button type="submit" disabled={sibuk} className="inline-flex items-center gap-3 rounded-full bg-emas-tua py-2 pl-6 pr-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60">{sibuk ? t.mengirim : t.kirim}<span className="grid size-9 place-items-center rounded-full bg-white/20">→</span></button>
               </div>
             </form>
@@ -395,9 +476,9 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
     <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
       <div className="muncul">
         {kiri}
-        {!selesai && <KalenderSedia bahasa={bahasa} sisa={sedia.sisa} awal={sedia.awal} akhir={sedia.akhir} masuk={tgl.masuk} keluar={tgl.keluar} pilih={(masuk, keluar) => ubahTgl({ masuk, keluar })} />}
+        {!selesai && !hasilBayar && <KalenderSedia bahasa={bahasa} sisa={sedia.sisa} awal={sedia.awal} akhir={sedia.akhir} masuk={tgl.masuk} keluar={tgl.keluar} pilih={(masuk, keluar) => ubahTgl({ masuk, keluar })} />}
       </div>
-      <div className="muncul">{isiSelesai ?? isiForm}</div>
+      <div className="muncul">{isiHasilBayar ?? isiSelesai ?? isiForm}</div>
     </div>
   );
 }

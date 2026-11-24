@@ -5,13 +5,19 @@ export interface Pengaturan {
   namaResort: string;
   /** Jam berlakunya tahanan dari website sebelum batal otomatis. */
   jamTahanan: number;
-  /** Persen uang muka yang diminta, untuk pesan konfirmasi. */
+  /** Tidak dipakai lagi (pemilik, November 2026: tanpa uang muka, tamu bayar penuh). Disimpan untuk data lama. */
   persenDp: number;
   komisi: Partial<Record<Channel, number>>;
   /** Email penerima pemberitahuan pesanan dari website. */
   emailNotifikasi: string;
   /** Situs publik menerima pemesanan langsung. */
   terimaPesananWeb: boolean;
+  /**
+   * Dua tingkat harga kamar (seperti DAMPIER): Standar tidak bisa refund tapi tanggal bisa
+   * diganti sekali; Fleksibel lebih mahal `persen`% dan bisa batal dengan uang kembali 100%.
+   * Keduanya sampai `batasHari` hari sebelum check-in.
+   */
+  tarifFleksibel: { aktif: boolean; persen: number; batasHari: number };
 }
 
 export const PENGATURAN_BAWAAN: Pengaturan = {
@@ -21,6 +27,7 @@ export const PENGATURAN_BAWAAN: Pengaturan = {
   komisi: KOMISI_BAWAAN,
   emailNotifikasi: "",
   terimaPesananWeb: true,
+  tarifFleksibel: { aktif: true, persen: 20, batasHari: 7 },
 };
 
 export function rapikanPengaturan(o: Partial<Pengaturan> | null | undefined): Pengaturan {
@@ -36,5 +43,9 @@ export function rapikanPengaturan(o: Partial<Pengaturan> | null | undefined): Pe
     komisi,
     emailNotifikasi: typeof k.emailNotifikasi === "string" ? k.emailNotifikasi.trim().slice(0, 120) : b.emailNotifikasi,
     terimaPesananWeb: typeof k.terimaPesananWeb === "boolean" ? k.terimaPesananWeb : b.terimaPesananWeb,
+    tarifFleksibel: (() => {
+      const t = (k.tarifFleksibel && typeof k.tarifFleksibel === "object" ? k.tarifFleksibel : {}) as Record<string, unknown>;
+      return { aktif: typeof t.aktif === "boolean" ? t.aktif : b.tarifFleksibel.aktif, persen: n(t.persen, b.tarifFleksibel.persen, 1, 100), batasHari: Math.round(n(t.batasHari, b.tarifFleksibel.batasHari, 1, 60)) };
+    })(),
   };
 }

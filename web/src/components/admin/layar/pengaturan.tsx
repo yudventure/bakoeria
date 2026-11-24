@@ -8,6 +8,7 @@ import { useData } from "../data";
 import { Bidang, Galat, Kartu, masukan, Memuat, Pil, Tombol, useToast } from "../ui";
 import DataDemo from "../data-demo";
 import DiagnosaDb from "../diagnosa-db";
+import PengaturanMidtrans from "../midtrans";
 
 interface Status {
   database: boolean;
@@ -56,10 +57,17 @@ export default function Pengaturan() {
           <Bidang label="Nama resort"><input className={masukan} disabled={!boleh} value={p.namaResort} onChange={(e) => setP({ ...p, namaResort: e.target.value })} /></Bidang>
           <Bidang label="Email pemberitahuan pesanan" ket="Pesanan dari website dikirim ke sini. Kosong berarti ke alamat pengirim (SMTP_USER)."><input className={masukan} disabled={!boleh} type="email" value={p.emailNotifikasi} onChange={(e) => setP({ ...p, emailNotifikasi: e.target.value })} /></Bidang>
           <Bidang label="Lama tahanan dari website (jam)" ket="Tahanan yang tidak dikonfirmasi batal sendiri setelah ini."><input className={masukan} disabled={!boleh} type="number" min={1} max={168} value={p.jamTahanan} onChange={(e) => setP({ ...p, jamTahanan: Number(e.target.value) })} /></Bidang>
-          <Bidang label="Uang muka yang diminta (%)"><input className={masukan} disabled={!boleh} type="number" min={0} max={100} value={p.persenDp} onChange={(e) => setP({ ...p, persenDp: Number(e.target.value) })} /></Bidang>
           <label className="flex items-center gap-2 text-sm font-bold sm:col-span-2"><input type="checkbox" className="size-4" disabled={!boleh} checked={p.terimaPesananWeb} onChange={(e) => setP({ ...p, terimaPesananWeb: e.target.checked })} /> Terima pemesanan langsung dari website</label>
         </div>
       </Kartu>
+      <Kartu judul="Tarif Standar dan Fleksibel" ket="Dua tingkat harga kamar di formulir pesan. Standar memakai tarif biasa: tidak bisa refund, tanggal bisa diganti sekali. Fleksibel lebih mahal: bisa batal dengan uang kembali 100%, biaya kirim kembali uang ditanggung tamu. Keduanya sampai batas hari sebelum check-in. Simpan dengan tombol Simpan di atas.">
+        <div className="grid gap-4 sm:grid-cols-3">
+          <label className="flex items-center gap-2 self-end pb-3 text-sm font-bold"><input type="checkbox" className="size-4" disabled={!boleh} checked={p.tarifFleksibel.aktif} onChange={(e) => setP({ ...p, tarifFleksibel: { ...p.tarifFleksibel, aktif: e.target.checked } })} /> Tawarkan tarif Fleksibel</label>
+          <Bidang label="Fleksibel lebih mahal (%)" ket="Dari harga kamar sebelum kupon, dibulatkan ke ribuan."><input className={masukan} disabled={!boleh || !p.tarifFleksibel.aktif} type="number" min={1} max={100} value={p.tarifFleksibel.persen} onChange={(e) => setP({ ...p, tarifFleksibel: { ...p.tarifFleksibel, persen: Number(e.target.value) } })} /></Bidang>
+          <Bidang label="Batas batal dan ganti tanggal (hari sebelum check-in)" ket="Check-in yang lebih dekat dari ini hanya ditawari tarif Standar."><input className={masukan} disabled={!boleh} type="number" min={1} max={60} value={p.tarifFleksibel.batasHari} onChange={(e) => setP({ ...p, tarifFleksibel: { ...p.tarifFleksibel, batasHari: Number(e.target.value) } })} /></Bidang>
+        </div>
+      </Kartu>
+      <PengaturanMidtrans boleh={boleh} />
       <Kartu judul="Perkiraan komisi per sumber" ket="Dipakai bila komisi pesanan dikosongkan. Persen dari total.">
         <div className="grid gap-4 sm:grid-cols-3">
           {(["BOOKING_COM", "AGODA", "TRAVELOKA", "AIRBNB", "AGEN"] as Channel[]).map((c) => (

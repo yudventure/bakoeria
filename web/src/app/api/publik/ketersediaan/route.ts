@@ -3,7 +3,8 @@ import { databaseReady } from "@/lib/db";
 import { ambilKamar, bookingDalam } from "@/lib/server/buku";
 import { gagal, ok } from "@/lib/server/rute";
 import { rincianHarga, totalDenganAnak } from "@/lib/booking";
-import { hitungKupon, rapikanKode } from "@/lib/tarif";
+import { batasTarif, fleksibelBoleh, hitungKupon, kenaikanFleksibel, rapikanKode } from "@/lib/tarif";
+import { bacaPengaturan } from "@/lib/server/simpanan";
 import { kuponDenganKode } from "@/lib/server/kupon";
 
 /** Kamar yang kosong untuk [masuk, keluar), dengan total harga. Tanpa data tamu. */
@@ -26,6 +27,8 @@ export async function GET(req: Request) {
   const hariIni = hariIniWit();
   const hasilKupon: ReturnType<typeof hitungKupon>[] = [];
   const malam = jumlahMalam(masuk, keluar);
+  const tf = (await bacaPengaturan()).tarifFleksibel;
+  const fleksibel = tf.aktif && fleksibelBoleh(masuk, hariIni, tf.batasHari);
   const daftar = kamar.map((k) => {
     const h = rincianHarga(masuk, keluar, k.baseRate, k.musim);
     const t = totalDenganAnak(h.total, anak);
@@ -49,6 +52,8 @@ export async function GET(req: Request) {
       musim: h.baris.find((b) => b.label)?.label ?? (h.baris.some((b) => b.tarif !== k.baseRate) ? "" : null),
       potongan,
       total: t.total - potongan,
+      /** Tambahan bila memilih tarif Fleksibel (dari total sebelum kupon). */
+      kenaikanFleksibel: fleksibel ? kenaikanFleksibel(t.total, tf.persen) : 0,
       normal: promo ? totalDenganAnak(k.normalRate! * h.baris.length, anak).total : potongan ? t.total : null,
     };
   });
@@ -57,6 +62,7 @@ export async function GET(req: Request) {
   return ok({
     malam,
     kamar: daftar,
+    tarif: { fleksibel, aktif: tf.aktif, persen: tf.persen, batasHari: tf.batasHari, batas: batasTarif(masuk, tf.batasHari) },
     kupon: !kode ? null : diterima ? { kode, ok: true } : { kode, ok: false, alasan: ditolak?.alasan ?? "tidakAda", batas: ditolak?.batas ?? null },
   });
 }

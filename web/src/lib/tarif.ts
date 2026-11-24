@@ -79,3 +79,10 @@ export function hitungKupon(k: Kupon | null, p: { masuk: string; malam: number; 
 
 export const teksKupon = (k: Pick<Kupon, "jenis" | "nilai" | "maksPotongan">) =>
   k.jenis === "PERSEN" ? `${k.nilai}%${k.maksPotongan != null ? ` (maks. Rp ${k.maksPotongan.toLocaleString("id-ID")})` : ""}` : `Rp ${Math.round(k.nilai).toLocaleString("id-ID")}`;
+
+/** Kenaikan tarif Fleksibel dari total kamar sebelum kupon, dibulatkan ke ribuan. Sama di situs dan server. */
+export const kenaikanFleksibel = (totalKamar: number, persen: number) => bulatRibu((totalKamar * persen) / 100);
+/** Tarif Fleksibel hanya bisa dipilih bila check-in masih paling sedikit `batasHari` hari lagi. */
+export const fleksibelBoleh = (masuk: string, hariIni: string, batasHari: number) => Date.parse(masuk + "T00:00:00Z") - Date.parse(hariIni + "T00:00:00Z") >= batasHari * 86400000;
+/** Tanggal terakhir untuk batal (Fleksibel) atau ganti tanggal (Standar). */
+export const batasTarif = (masuk: string, batasHari: number) => new Date(Date.parse(masuk + "T00:00:00Z") - batasHari * 86400000).toISOString().slice(0, 10);
