@@ -1,5 +1,6 @@
 "use client";
 
+import { KolomRupiah } from "../kolom-rupiah";
 import PilihTanggal from "@/components/tanggal";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { rupiah } from "@/lib/booking";
@@ -115,7 +116,7 @@ export function FormRekaman({ koleksiId, awal, rujukan, tutup, simpan, hapus }: 
             ) : b.tipe === "tanggal" ? (
               <PilihTanggal value={String(nilai[b.k] ?? "")} bolehKosong={!b.wajib} onChange={(v) => setNilai({ ...nilai, [b.k]: v })} />
             ) : (
-              <input className={masukan} type={b.tipe === "angka" ? "number" : "text"} min={b.tipe === "angka" && !b.negatif ? 0 : undefined} value={String(nilai[b.k] ?? "")} onChange={(e) => setNilai({ ...nilai, [b.k]: e.target.value })} />
+              b.tipe === "angka" && b.satuan === "Rp" && !b.negatif ? <KolomRupiah nilai={String(nilai[b.k] ?? "")} ubah={(v) => setNilai({ ...nilai, [b.k]: v })} /> : <input className={masukan} type={b.tipe === "angka" ? "number" : "text"} min={b.tipe === "angka" && !b.negatif ? 0 : undefined} value={String(nilai[b.k] ?? "")} onChange={(e) => setNilai({ ...nilai, [b.k]: e.target.value })} />
             )}
           </Bidang>
         ))}

@@ -1,5 +1,6 @@
 "use client";
 
+import { KolomRupiah } from "./kolom-rupiah";
 import { useEffect, useState } from "react";
 import PilihTanggal from "@/components/tanggal";
 import { hariIniWit, rupiah, tglPendek } from "@/lib/booking";
@@ -116,10 +117,10 @@ export default function KuponDiskon({ tipeKamar }: { tipeKamar: string[] }) {
             <Bidang label="Potongan">
               <div className="flex gap-2">
                 <select aria-label="Jenis potongan" className={`${masukan} w-32 shrink-0`} value={f.jenis} onChange={(e) => setF({ ...f, jenis: e.target.value as Isian["jenis"] })}><option value="PERSEN">Persen</option><option value="NOMINAL">Rupiah</option></select>
-                <input aria-label="Besar potongan" className={masukan} type="number" min={1} max={f.jenis === "PERSEN" ? 100 : undefined} value={f.nilai} onChange={(e) => setF({ ...f, nilai: e.target.value })} />
+                {f.jenis === "PERSEN" ? <input aria-label="Besar potongan" className={masukan} type="number" min={1} max={100} value={f.nilai} onChange={(e) => setF({ ...f, nilai: e.target.value })} /> : <KolomRupiah label="Besar potongan" nilai={f.nilai} ubah={(v) => setF({ ...f, nilai: v })} className="flex-1" />}
               </div>
             </Bidang>
-            {f.jenis === "PERSEN" && <Bidang label="Potongan paling besar (Rp)" ket="Opsional."><input className={masukan} type="number" min={0} value={f.maksPotongan} placeholder="Tanpa batas" onChange={(e) => setF({ ...f, maksPotongan: e.target.value })} /></Bidang>}
+            {f.jenis === "PERSEN" && <Bidang label="Potongan paling besar (Rp)" ket="Opsional."><KolomRupiah nilai={f.maksPotongan} placeholder="Tanpa batas" ubah={(v) => setF({ ...f, maksPotongan: v })} /></Bidang>}
             <Bidang label="Minimal menginap (malam)"><input className={masukan} type="number" min={1} value={f.minMalam} onChange={(e) => setF({ ...f, minMalam: e.target.value })} /></Bidang>
             <Bidang label="Batas pemakaian" ket="Jumlah pesanan. Pesanan yang batal mengembalikan kuota."><input className={masukan} type="number" min={1} value={f.maksPakai} placeholder="Tanpa batas" onChange={(e) => setF({ ...f, maksPakai: e.target.value })} /></Bidang>
             <Bidang label="Bisa dipakai sampai" ket="Tanggal terakhir kode bisa dimasukkan. Kosong = tidak kedaluwarsa."><PilihTanggal value={f.berlakuSampai} onChange={(v) => setF({ ...f, berlakuSampai: v })} /></Bidang>

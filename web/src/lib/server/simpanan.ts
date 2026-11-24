@@ -31,6 +31,11 @@ export async function bacaKonten(bahasa: Bahasa = "en"): Promise<Konten> {
     milikku?.[i]?.termasuk !== undefined ? null : Array.isArray(punyaLain?.[i]?.termasuk) ? (punyaLain![i].termasuk as string[]) : null;
   hasil.paket = hasil.paket.map((g, i) => ({ ...g, termasuk: dari(milik.paket, lain.paket, i) ?? g.termasuk }));
   hasil.aktivitas = hasil.aktivitas.map((a, i) => ({ ...a, termasuk: dari(milik.aktivitas, lain.aktivitas, i) ?? a.termasuk }));
+  /* Bahasa yang perahunya belum pernah disimpan memakai harga perahu dari bahasa lain (harga tidak bergantung bahasa). */
+  if (milik.perahu === undefined && Array.isArray(lain.perahu)) {
+    const hargaLain = rapikanKonten({ perahu: lain.perahu } as Partial<Konten>, bahasa === "en" ? "id" : "en").perahu;
+    hasil.perahu = hasil.perahu.map((x, i) => (hargaLain[i] ? { ...x, harga: x.harga.map((h, j) => (hargaLain[i].harga[j] ? { ...h, harga: hargaLain[i].harga[j].harga, sekali: hargaLain[i].harga[j].sekali } : h)) } : x));
+  }
   return hasil;
 }
 
@@ -64,6 +69,8 @@ export async function simpanKonten(bahasa: Bahasa, isi: unknown): Promise<Konten
       if (sisi) {
         if (Array.isArray(sisi.paket)) sisi.paket = sisi.paket.map((g, i) => ({ ...g, termasuk: baru.paket[i]?.termasuk ?? g.termasuk ?? [] }));
         if (Array.isArray(sisi.aktivitas)) sisi.aktivitas = sisi.aktivitas.map((a, i) => ({ ...a, termasuk: baru.aktivitas[i]?.termasuk ?? a.termasuk ?? [] }));
+        /* Harga perahu (pulang pergi dan sekali jalan) sama untuk kedua bahasa; nama rute tetap milik masing-masing. */
+        if (Array.isArray(sisi.perahu)) sisi.perahu = sisi.perahu.map((x, i) => (baru.perahu[i] && Array.isArray(x.harga) ? { ...x, harga: x.harga.map((h, j) => (baru.perahu[i].harga[j] ? { ...h, harga: baru.perahu[i].harga[j].harga, sekali: baru.perahu[i].harga[j].sekali } : h)) } : x));
       }
       return { [bahasa]: baru, ...(sisi ? { [lain]: sisi } : {}) } as Simpanan;
     },

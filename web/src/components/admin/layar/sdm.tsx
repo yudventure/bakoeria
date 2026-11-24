@@ -1,5 +1,6 @@
 "use client";
 
+import { KolomRupiah } from "../kolom-rupiah";
 import PilihTanggal from "@/components/tanggal";
 import { useMemo, useState } from "react";
 import { hariIniWit, rupiah, tambahHari } from "@/lib/booking";
@@ -125,7 +126,11 @@ export default function Sdm() {
             <div className="grid gap-4 sm:grid-cols-2">
               {(Object.keys(LABEL_PARAMETER) as (keyof ParameterSdm)[]).map((k) => (
                 <Bidang key={k} label={`${LABEL_PARAMETER[k].label} (${LABEL_PARAMETER[k].satuan})`} ket={LABEL_PARAMETER[k].ket}>
-                  <input className={masukan} type="number" step="any" disabled={!m.bolehUbahParameter} value={(p ?? m.parameter)[k]} onChange={(e) => setP({ ...(p ?? m.parameter), [k]: Number(e.target.value) })} />
+                  {LABEL_PARAMETER[k].satuan === "Rp" ? (
+                    <KolomRupiah disabled={!m.bolehUbahParameter} nilai={(p ?? m.parameter)[k]} ubah={(v) => setP({ ...(p ?? m.parameter), [k]: Number(v) || 0 })} />
+                  ) : (
+                    <input className={masukan} type="number" step="any" disabled={!m.bolehUbahParameter} value={(p ?? m.parameter)[k]} onChange={(e) => setP({ ...(p ?? m.parameter), [k]: Number(e.target.value) })} />
+                  )}
                 </Bidang>
               ))}
             </div>

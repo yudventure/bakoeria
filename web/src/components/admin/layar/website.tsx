@@ -1,5 +1,6 @@
 "use client";
 
+import { KolomHargaTeks } from "../kolom-rupiah";
 import { useEffect, useState } from "react";
 import { bacaTitik, idYoutube, sumberVideo, tautanPendekTiktok, IKON_KEUNGGULAN, KOORDINAT, SEKSI, tautanPeta, type Konten } from "@/lib/konten";
 import { api } from "../api";
@@ -227,7 +228,7 @@ export default function Website() {
                         <div key={r} data-baris-harga={r} className="grid grid-cols-[1fr_auto] gap-2 rounded-xl bg-white p-2 ring-1 ring-panel-garis sm:grid-cols-[1.3fr_1.3fr_9rem_auto] sm:bg-transparent sm:p-0 sm:ring-0">
                           <input aria-label="Nama paket" className={masukan} placeholder="Nama paket" value={x.nama} onChange={(e) => ubahBaris({ nama: e.target.value })} />
                           <input aria-label="Keterangan" className={`${masukan} col-start-1 sm:col-start-auto`} placeholder="Keterangan" value={x.ket} onChange={(e) => ubahBaris({ ket: e.target.value })} />
-                          <input aria-label="Harga" className={`${masukan} col-start-1 sm:col-start-auto`} placeholder="Rp 900.000" value={x.harga} onChange={(e) => ubahBaris({ harga: e.target.value })} />
+                          <KolomHargaTeks label="Harga" className="col-start-1 sm:col-start-auto" placeholder="900000" nilai={x.harga} ubah={(v) => ubahBaris({ harga: v })} />
                           <span className="col-start-2 row-span-3 row-start-1 flex flex-col items-center justify-center gap-1 sm:col-start-auto sm:row-span-1 sm:row-start-auto sm:flex-row">
                             <button type="button" aria-label={`Naikkan baris ${r + 1}`} disabled={r === 0} onClick={() => { const n = [...grup.isi]; [n[r - 1], n[r]] = [n[r], n[r - 1]]; ubah({ isi: n }); }} className="grid size-8 place-items-center rounded-full text-panel-redup hover:bg-panel-latar disabled:opacity-30">↑</button>
                             <button type="button" aria-label={`Hapus baris ${r + 1}`} onClick={() => ubah({ isi: grup.isi.filter((_, q) => q !== r) })} className="grid size-8 place-items-center rounded-full text-lg text-panel-redup hover:bg-panel-merah/10 hover:text-panel-merah">×</button>
@@ -249,7 +250,7 @@ export default function Website() {
         <Daftar judul="Program selam" isi={k.program} kosong={{ judul: "", isi: "", meta: "", harga: "" }} ubah={(v) => set("program", v)} render={(x, s) => (
           <div className="grid gap-3 sm:grid-cols-2">
             <Bidang label="Nama"><input className={masukan} value={x.judul} onChange={(e) => s({ ...x, judul: e.target.value })} /></Bidang>
-            <Bidang label="Harga" ket="Teks bebas, misalnya Rp1.200.000 per orang. Kosongkan untuk tidak menampilkan."><input className={masukan} value={x.harga} onChange={(e) => s({ ...x, harga: e.target.value })} /></Bidang>
+            <Bidang label="Harga" ket="Ketik angkanya saja; keterangan seperti per orang di kolom kanan. Kosongkan untuk tidak menampilkan."><KolomHargaTeks label="Harga" nilai={x.harga} akhiran="per orang" ubah={(v) => s({ ...x, harga: v })} /></Bidang>
             <Bidang label="Keterangan" className="sm:col-span-2"><textarea rows={2} className={masukan} value={x.isi} onChange={(e) => s({ ...x, isi: e.target.value })} /></Bidang>
             <Bidang label="Label kecil" className="sm:col-span-2"><input className={masukan} value={x.meta} onChange={(e) => s({ ...x, meta: e.target.value })} /></Bidang>
           </div>
@@ -307,8 +308,8 @@ export default function Website() {
                       {x.harga.map((h, r) => (
                         <div key={r} data-baris-perahu={r} className="grid grid-cols-2 gap-2 rounded-xl bg-white p-2 ring-1 ring-panel-garis sm:grid-cols-[1fr_9.5rem_9.5rem_2.25rem] sm:bg-transparent sm:p-0 sm:ring-0">
                           <input aria-label="Rute" className={`${masukan} col-span-2 sm:col-span-1`} value={h.rute} placeholder="Waisai" onChange={(e) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, rute: e.target.value } : y)) })} />
-                          <input aria-label="Harga pulang pergi" className={masukan} value={h.harga} placeholder="Rp 4.000.000" onChange={(e) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, harga: e.target.value } : y)) })} />
-                          <input aria-label="Harga sekali jalan" className={masukan} value={h.sekali} placeholder="Rp 2.500.000" onChange={(e) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, sekali: e.target.value } : y)) })} />
+                          <KolomHargaTeks label="Harga pulang pergi" nilai={h.harga} placeholder="4000000" ubah={(v) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, harga: v } : y)) })} />
+                          <KolomHargaTeks label="Harga sekali jalan" nilai={h.sekali} placeholder="Boleh kosong" ubah={(v) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, sekali: v } : y)) })} />
                           <button type="button" aria-label={`Hapus harga ${r + 1}`} onClick={() => ubah({ harga: x.harga.filter((_, q) => q !== r) })} className="col-span-2 grid size-9 place-items-center justify-self-end self-center sm:col-span-1 rounded-full text-lg text-panel-redup hover:bg-panel-merah/10 hover:text-panel-merah">×</button>
                         </div>
                       ))}

@@ -1,3 +1,4 @@
+import { seragamkanHarga } from "./rupiah-teks";
 /**
  * Isi situs publik. Bawaan di sini; yang diubah dari tab Website disimpan di
  * `konten.json` di folder data dan langsung tayang tanpa build ulang.
@@ -593,7 +594,7 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     introJudul: s(k.introJudul, b.introJudul),
     introIsi: s(k.introIsi, b.introIsi),
     programCatatan: s(k.programCatatan, b.programCatatan),
-    program: arr(k.program, b.program, (x) => ({ judul: s(x.judul, ""), isi: s(x.isi, ""), meta: s(x.meta, ""), harga: s(x.harga, "") })),
+    program: arr(k.program, b.program, (x) => ({ judul: s(x.judul, ""), isi: s(x.isi, ""), meta: s(x.meta, ""), harga: seragamkanHarga(s(x.harga, "")) })),
     caraJudul: s(k.caraJudul, b.caraJudul),
     caraIsi: s(k.caraIsi, b.caraIsi),
     /* Jalur A (speedboat privat) 1,5 jam menurut pemilik; perkiraan awal "± 2 jam" yang mungkin sudah tersimpan ikut dibetulkan. */
@@ -607,7 +608,7 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
       /* Muatan ditambahkan kemudian: perahu tersimpan tanpa muatan mengambil muatan bawaan perahu yang namanya sama. */
       muat: s(x.muat, b.perahu.find((d) => d.judul.toLowerCase() === String(x.judul ?? "").trim().toLowerCase())?.muat ?? "").slice(0, 60),
       isi: s(x.isi, "").slice(0, 300),
-      harga: (Array.isArray(x.harga) ? x.harga : []).slice(0, 6).map((y) => { const r = (y ?? {}) as Record<string, unknown>; /* Harga sekali jalan ditambahkan kemudian; "pulang pergi" kini tertulis di kartu, jadi dibuang dari nama rute lama. */ return { rute: s(r.rute, "").replace(/,\s*(pulang pergi|return)\s*$/i, "").slice(0, 80), harga: s(r.harga, "").slice(0, 40), sekali: s(r.sekali, "").slice(0, 40) }; }).filter((y) => y.rute.trim() || y.harga.trim() || y.sekali.trim()),
+      harga: (Array.isArray(x.harga) ? x.harga : []).slice(0, 6).map((y) => { const r = (y ?? {}) as Record<string, unknown>; /* Harga sekali jalan ditambahkan kemudian; "pulang pergi" kini tertulis di kartu, jadi dibuang dari nama rute lama. */ return { rute: s(r.rute, "").replace(/,\s*(pulang pergi|return)\s*$/i, "").slice(0, 80), harga: seragamkanHarga(s(r.harga, "")).slice(0, 40), sekali: seragamkanHarga(s(r.sekali, "")).slice(0, 40) }; }).filter((y) => y.rute.trim() || y.harga.trim() || y.sekali.trim()),
     })).filter((x) => x.judul.trim() !== "").slice(0, 4),
     caraWaktuFeri: s(k.caraWaktuFeri, b.caraWaktuFeri).slice(0, 40),
     caraWaktuPerahu: s(k.caraWaktuPerahu, b.caraWaktuPerahu).slice(0, 40),
@@ -623,7 +624,7 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
       termasuk: kunciFasilitas(x.termasuk),
       isi: (Array.isArray(x.isi) ? x.isi : []).slice(0, 30).map((y) => {
         const r = (y ?? {}) as Record<string, unknown>;
-        return { nama: s(r.nama, "").slice(0, 120), ket: s(r.ket, "").slice(0, 200), harga: s(r.harga, "").slice(0, 40) };
+        return { nama: s(r.nama, "").slice(0, 120), ket: s(r.ket, "").slice(0, 200), harga: seragamkanHarga(s(r.harga, "")).slice(0, 40) };
       }).filter((y) => y.nama.trim() !== ""),
     })).filter((x) => x.judul.trim() !== "" || x.isi.length > 0),
     cottageJudul: s(k.cottageJudul, b.cottageJudul),

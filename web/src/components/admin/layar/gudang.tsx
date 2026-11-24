@@ -1,5 +1,6 @@
 "use client";
 
+import { KolomRupiah } from "../kolom-rupiah";
 import { useMemo, useState } from "react";
 import { hariIniWit, malam, MENEMPATI, rupiah, tambahHari } from "@/lib/booking";
 import { hitungStok, type BarisStok } from "@/lib/modul";
@@ -89,7 +90,7 @@ export default function Gudang() {
         {cepat && (
           <div className="grid gap-4">
             <Bidang label={`Jumlah (${cepat.b.satuan})`} ket={`Stok sekarang ${cepat.b.stok}.`}><input autoFocus className={masukan} type="number" min={1} value={cepat.jumlah} onChange={(e) => setCepat({ ...cepat, jumlah: e.target.value })} /></Bidang>
-            {cepat.jenis === "Masuk" && <Bidang label="Harga satuan (Rp)"><input className={cx(masukan)} type="number" min={0} value={cepat.harga} onChange={(e) => setCepat({ ...cepat, harga: e.target.value })} /></Bidang>}
+            {cepat.jenis === "Masuk" && <Bidang label="Harga satuan (Rp)"><KolomRupiah nilai={cepat.harga} ubah={(v) => setCepat({ ...cepat, harga: v })} /></Bidang>}
           </div>
         )}
       </Modal>

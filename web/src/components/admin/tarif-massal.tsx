@@ -1,5 +1,6 @@
 "use client";
 
+import { KolomRupiah } from "./kolom-rupiah";
 import { useMemo, useState } from "react";
 import PilihTanggal from "@/components/tanggal";
 import { rupiah, tglPendek } from "@/lib/booking";
@@ -27,7 +28,11 @@ function IsianCara({ mode, angka, ubah, mode2, label = "Harga" }: { mode: Mode; 
       <select aria-label={`${label}: cara mengubah`} className={`${masukan} w-40 shrink-0`} value={mode} onChange={(e) => ubah(e.target.value as Mode, angka)}>
         {(mode2 ?? (Object.keys(LABEL_MODE) as Mode[])).map((m) => <option key={m} value={m}>{LABEL_MODE[m]}</option>)}
       </select>
-      <input aria-label={`${label}: ${mode === "tetap" ? "rupiah" : mode.endsWith("Persen") ? "persen" : "rupiah"}`} className={masukan} type="number" min={0} inputMode="numeric" value={angka} placeholder={mode === "tetap" ? "1980000" : mode.endsWith("Persen") ? "20" : "100000"} onChange={(e) => ubah(mode, e.target.value)} />
+      {mode.endsWith("Persen") ? (
+        <input aria-label={`${label}: persen`} className={masukan} type="number" min={0} inputMode="numeric" value={angka} placeholder="20" onChange={(e) => ubah(mode, e.target.value)} />
+      ) : (
+        <KolomRupiah label={`${label}: rupiah`} nilai={angka} placeholder={mode === "tetap" ? "1980000" : "100000"} ubah={(v) => ubah(mode, v)} className="flex-1" />
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { KolomRupiah } from "./kolom-rupiah";
 import PilihTanggal from "@/components/tanggal";
 import { useEffect, useState } from "react";
 import { hariIniWit, jumlahMalam, LABEL_CHANNEL, LABEL_KIND, LABEL_METHOD, LABEL_STATUS, rupiah, sisaTagihan, tglPanjang, type PaymentKind, type PaymentMethod, type Status } from "@/lib/booking";
@@ -221,7 +222,7 @@ export default function LaciPesanan() {
             {formBayar && (
               <div className="mt-3 grid gap-3 rounded-2xl ring-1 ring-panel-garis p-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <Bidang label="Jumlah (Rp)"><input className={masukan} type="number" min={0} value={bayar.amount} onChange={(e) => setBayar({ ...bayar, amount: e.target.value })} autoFocus /></Bidang>
+                  <Bidang label="Jumlah (Rp)"><KolomRupiah nilai={bayar.amount} ubah={(v) => setBayar({ ...bayar, amount: v })} autoFocus /></Bidang>
                   <Bidang label="Tanggal"><PilihTanggal value={bayar.paidAt} onChange={(v) => setBayar({ ...bayar, paidAt: v })} /></Bidang>
                   <Bidang label="Jenis">
                     <select className={masukan} value={bayar.kind} onChange={(e) => setBayar({ ...bayar, kind: e.target.value as PaymentKind })}>

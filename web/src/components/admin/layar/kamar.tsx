@@ -1,5 +1,6 @@
 "use client";
 
+import { KolomRupiah } from "../kolom-rupiah";
 import PilihTanggal from "@/components/tanggal";
 import { useState } from "react";
 import { rupiah, tglPendek } from "@/lib/booking";
@@ -144,8 +145,8 @@ export default function LayarKamar() {
             <Bidang label="Tipe"><input className={masukan} value={f.roomType ?? ""} onChange={(e) => setF({ ...f, roomType: e.target.value })} placeholder="Cottage pantai" /></Bidang>
             <Bidang label="Dewasa"><input className={masukan} type="number" min={1} value={f.capAdult} onChange={(e) => setF({ ...f, capAdult: Number(e.target.value) })} /></Bidang>
             <Bidang label="Anak"><input className={masukan} type="number" min={0} value={f.capChild} onChange={(e) => setF({ ...f, capChild: Number(e.target.value) })} /></Bidang>
-            <Bidang label="Tarif per malam (Rp)" ket="Harga yang berlaku dan ditagihkan."><input className={masukan} type="number" min={0} value={f.baseRate} onChange={(e) => setF({ ...f, baseRate: Number(e.target.value) })} /></Bidang>
-            <Bidang label="Harga normal sebelum promo (Rp)" ket="Opsional. Bila diisi dan lebih tinggi, tampil dicoret di website."><input className={masukan} type="number" min={0} value={f.normalRate} onChange={(e) => setF({ ...f, normalRate: e.target.value === "" ? "" : Number(e.target.value) })} /></Bidang>
+            <Bidang label="Tarif per malam (Rp)" ket="Harga yang berlaku dan ditagihkan."><KolomRupiah nilai={f.baseRate} ubah={(v) => setF({ ...f, baseRate: Number(v) || 0 })} /></Bidang>
+            <Bidang label="Harga normal sebelum promo (Rp)" ket="Opsional. Bila diisi dan lebih tinggi, tampil dicoret di website."><KolomRupiah nilai={f.normalRate} ubah={(v) => setF({ ...f, normalRate: v === "" ? "" : Number(v) })} /></Bidang>
             <Bidang label="Urutan"><input className={masukan} type="number" value={f.sortOrder} onChange={(e) => setF({ ...f, sortOrder: Number(e.target.value) })} /></Bidang>
             <Bidang label="Luas (m²)" ket="Kosongkan bila belum tahu."><input className={masukan} type="number" min={0} value={f.sizeM2} onChange={(e) => setF({ ...f, sizeM2: e.target.value === "" ? "" : Number(e.target.value) })} /></Bidang>
             <div className="hidden sm:block" />
@@ -194,7 +195,7 @@ export default function LayarKamar() {
             <Bidang label="Nama musim" className="sm:col-span-2"><input className={masukan} value={musim.label} onChange={(e) => setMusim({ ...musim, label: e.target.value })} placeholder="Musim ramai, Natal, Lebaran" /></Bidang>
             <Bidang label="Dari tanggal"><PilihTanggal value={musim.dateFrom} onChange={(v) => setMusim({ ...musim, dateFrom: v, dateTo: musim.dateTo && musim.dateTo < v ? v : musim.dateTo })} /></Bidang>
             <Bidang label="Sampai tanggal" ket="Termasuk tanggal ini."><PilihTanggal value={musim.dateTo} min={musim.dateFrom || undefined} onChange={(v) => setMusim({ ...musim, dateTo: v })} /></Bidang>
-            <Bidang label="Tarif per malam (Rp)" className="sm:col-span-2"><input className={masukan} type="number" min={0} value={musim.rate} onChange={(e) => setMusim({ ...musim, rate: e.target.value })} /></Bidang>
+            <Bidang label="Tarif per malam (Rp)" className="sm:col-span-2"><KolomRupiah nilai={musim.rate} ubah={(v) => setMusim({ ...musim, rate: v })} /></Bidang>
           </div>
         )}
       </Modal>

@@ -1,5 +1,6 @@
 "use client";
 
+import { KolomRupiah } from "./kolom-rupiah";
 import PilihTanggal from "@/components/tanggal";
 import { useEffect, useMemo, useState } from "react";
 import { totalDenganAnak, CHANNEL, jumlahMalam, KOMISI_BAWAAN, LABEL_CHANNEL, LABEL_STATUS, MENEMPATI, rincianHarga, rupiah, tambahHari, tanggalSah, tumpang, hariIniWit, type Channel, type Status } from "@/lib/booking";
@@ -190,10 +191,10 @@ export default function FormPesanan() {
         {rp && !blok && (
           <div className="grid gap-4 sm:grid-cols-2">
             <Bidang label="Total (Rp)" ket={saran != null ? <>Menurut tarif kamar{anakBayar ? ` + ${anakBayar} anak (50%)` : ""}: <b>{rupiah(saran)}</b>{f.totalAmount === "" ? " (dipakai bila dikosongkan)" : ""}</> : undefined}>
-              <input className={masukan} type="number" min={0} value={f.totalAmount} onChange={set("totalAmount")} placeholder={saran != null ? String(saran) : ""} />
+              <KolomRupiah nilai={f.totalAmount} ubah={(v) => setF((x) => ({ ...x, totalAmount: v }))} placeholder={saran != null ? String(saran) : ""} />
             </Bidang>
             <Bidang label="Perkiraan komisi OTA (Rp)" ket={KOMISI_BAWAAN[f.channel] ? `Kosongkan untuk ${Math.round(KOMISI_BAWAAN[f.channel]! * 100)}% dari total.` : "Isi bila ada komisi agen."}>
-              <input className={masukan} type="number" min={0} value={f.otaCommissionEst} onChange={set("otaCommissionEst")} />
+              <KolomRupiah nilai={f.otaCommissionEst} ubah={(v) => setF((x) => ({ ...x, otaCommissionEst: v }))} />
             </Bidang>
           </div>
         )}
