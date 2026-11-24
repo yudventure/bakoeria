@@ -32,7 +32,8 @@ export interface Keunggulan {
 export interface PaketGrup {
   judul: string;
   catatan: string;
-  isi: { nama: string; ket: string; harga: string }[];
+  /** `untuk`: siapa yang ditawari baris ini di formulir pesan (lihat lib/selam.ts); kosong = ditebak. */
+  isi: { nama: string; ket: string; harga: string; untuk?: string }[];
   /** Kunci fasilitas selam yang termasuk (katalog "selam"); sama untuk kedua bahasa. */
   termasuk?: string[];
 }
@@ -624,7 +625,7 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
       termasuk: kunciFasilitas(x.termasuk),
       isi: (Array.isArray(x.isi) ? x.isi : []).slice(0, 30).map((y) => {
         const r = (y ?? {}) as Record<string, unknown>;
-        return { nama: s(r.nama, "").slice(0, 120), ket: s(r.ket, "").slice(0, 200), harga: seragamkanHarga(s(r.harga, "")).slice(0, 40) };
+        return { nama: s(r.nama, "").slice(0, 120), ket: s(r.ket, "").slice(0, 200), harga: seragamkanHarga(s(r.harga, "")).slice(0, 40), untuk: ["sertifikat", "pemula", "kursus", "lain"].includes(String(r.untuk)) ? String(r.untuk) : "" };
       }).filter((y) => y.nama.trim() !== ""),
     })).filter((x) => x.judul.trim() !== "" || x.isi.length > 0),
     cottageJudul: s(k.cottageJudul, b.cottageJudul),

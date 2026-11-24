@@ -330,7 +330,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         {/* PESAN */}
         {on.pesan && <section id="pesan" className="relative scroll-mt-24 overflow-hidden px-5 pb-56 pt-20 sm:pb-64">
           <img {...atribut(g("pesan"), "100vw")} alt="" loading="lazy" className="absolute inset-x-0 bottom-0 h-[46%] w-full object-cover object-[50%_80%] [mask-image:linear-gradient(180deg,transparent,#000_40%)]" />
-          <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} perahu={k.perahu.map((p) => ({ judul: p.judul, muat: p.muat, harga: p.harga }))} kiri={<>
+          <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} perahu={k.perahu.map((p) => ({ judul: p.judul, muat: p.muat, harga: p.harga }))} paket={k.paket} selamAktif={on.menyelam} kiri={<>
             <h2 className="font-display text-[clamp(40px,5vw,58px)] font-normal leading-[0.98] tracking-[-0.02em]">{t.rencanakan}</h2>
             <p className="mt-4 max-w-sm text-[14px] text-malam/65">{k.pesanIsi}</p>
             {/* Kontak tidak diulang di sini: sudah ada di footer (permintaan pemilik). */}

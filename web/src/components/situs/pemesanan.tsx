@@ -2,6 +2,8 @@
 
 import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import KalenderSedia from "./kalender-sedia";
+import type { PaketGrup } from "@/lib/konten";
+import { opsiSelam } from "@/lib/selam";
 import { hariIniWit, jumlahMalam, rupiah, tambahHari } from "@/lib/booking";
 import { KAMUS, tglBahasa, type Bahasa } from "@/lib/kamus";
 
@@ -55,7 +57,7 @@ function Penghitung({ label, ket, nilai, ubah, min, maks, teks }: { label: strin
  * tahanan. Anak di bawah 5 tahun gratis; 5 tahun ke atas 50% harga kamar per
  * malam dengan extra bed. Harga dihitung di server.
  */
-export default function Pemesanan({ wa, aktif, bahasa, perahu = [], kiri }: { wa: string; aktif: boolean; bahasa: Bahasa; perahu?: PerahuPesan[]; /** Judul dan keterangan kolom kiri; kalender ketersediaan ditaruh di bawahnya. */ kiri: ReactNode }) {
+export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], selamAktif = true, kiri }: { wa: string; aktif: boolean; bahasa: Bahasa; perahu?: PerahuPesan[]; /** Daftar harga selam (isi situs) untuk pilihan paket diving. */ paket?: PaketGrup[]; /** Seksi Program selam menyala; bila mati, pertanyaan diving tidak ditampilkan. */ selamAktif?: boolean; /** Judul dan keterangan kolom kiri; kalender ketersediaan ditaruh di bawahnya. */ kiri: ReactNode }) {
   const t = KAMUS[bahasa].form;
   const tgl_ = (s: string) => tglBahasa(s, bahasa);
   const hari = hariIniWit();
@@ -74,7 +76,8 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], kiri }: { wa
   /* Pilihan perahu "i-j" (perahu ke-i, rute ke-j) atau "" bila tamu mengatur sendiri. */
   const [transport, setTransport] = useState("");
   const [sekali, setSekali] = useState(false);
-  const [selam, setSelam] = useState({ ikut: false, jumlah: 2 });
+  /* Diving: ikut atau tidak, jumlah penyelam, dan paket ("kelompok-baris", "kursus-ow", atau "" bila minta disarankan). */
+  const [selam, setSelam] = useState({ ikut: false, jumlah: 2, paket: "" });
   const [galat, setGalat] = useState("");
   const [sibuk, setSibuk] = useState(false);
   const [selesai, setSelesai] = useState<{ kode: string; total: number; jamTahanan: number; persenDp: number } | null>(null);
@@ -157,7 +160,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], kiri }: { wa
     setGalat("");
     setSibuk(true);
     try {
-      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, minat: minatSah, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "", transport: perahuDipilih ? perahuDipilih.kunci : "", arah: satuArah ? "sekali" : "pp", selam: selam.ikut ? penyelam : 0 }) });
+      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, minat: minatSah, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "", transport: perahuDipilih ? perahuDipilih.kunci : "", arah: satuArah ? "sekali" : "pp", selam: selam.ikut ? penyelam : 0, paketSelam: selam.ikut ? paketSah : "" }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.galat ?? t.galatKirim);
       setSelesai(d);
@@ -174,12 +177,20 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], kiri }: { wa
   const satuArah = (sekali && !!perahuDipilih?.sekali) || (!!perahuDipilih && !perahuDipilih.harga);
   const hargaPerahu = perahuDipilih ? (satuArah ? perahuDipilih.sekali : perahuDipilih.harga) : "";
   const penyelam = Math.min(selam.jumlah, jumlahTamu);
-  const minatSelam = t.minatPilihan.slice(0, 3);
   const minatLain = t.minatPilihan.slice(3);
-  const minatSah = (selam.ikut ? minatSelam : minatLain).includes(f.minat) ? f.minat : (selam.ikut ? minatSelam : minatLain)[0];
+  const tingkatSelam = t.sertifikatPilihan.slice(0, -1);
+  const bersertifikat = f.sertifikat !== t.sertifikatPilihan[0];
+  const opsi_ = opsiSelam(paket, bersertifikat);
+  /* Belum bersertifikat dan belum ada baris kursus di daftar harga: tetap tawarkan kursus Open Water (harga menyusul). */
+  const kursusCadangan = !bersertifikat && !opsi_.some((x) => x.untuk === "kursus");
+  const grupSelam = [...new Set(opsi_.map((x) => x.grup))];
+  const paketDipilih = opsi_.find((x) => x.kunci === selam.paket);
+  const paketSah = paketDipilih || (kursusCadangan && selam.paket === "kursus-ow") ? selam.paket : "";
+  const namaPaketSelam = paketDipilih ? `${paketDipilih.nama}${paketDipilih.harga ? ` · ${paketDipilih.harga}` : ""}` : paketSah === "kursus-ow" ? t.kursusOw : t.paketBelumTahu;
+  const minatSah = selam.ikut ? (paketDipilih ? `${paketDipilih.grup}: ${paketDipilih.nama}` : paketSah === "kursus-ow" ? t.minatPilihan[1] : t.minatPilihan[0]) : minatLain.includes(f.minat) ? f.minat : minatLain[0];
   const aturSelam = (ikut: boolean) => {
-    setSelam({ ikut, jumlah: Math.max(1, Math.min(selam.jumlah, jumlahTamu)) });
-    setF({ ...f, minat: (ikut ? minatSelam : minatLain)[0], sertifikat: ikut ? t.sertifikatPilihan[0] : t.sertifikatPilihan[t.sertifikatPilihan.length - 1] });
+    setSelam({ ...selam, ikut, jumlah: Math.max(1, Math.min(selam.jumlah, jumlahTamu)) });
+    setF({ ...f, sertifikat: ikut ? t.sertifikatPilihan[1] : t.sertifikatPilihan[t.sertifikatPilihan.length - 1] });
   };
   const chip = (on: boolean, mati = false) => `flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-left transition ${mati ? "cursor-not-allowed border-malam/5 opacity-45" : on ? "border-emas-tua bg-busa/50" : "border-malam/10 bg-white/80 hover:border-emas-tua/50"}`;
   const teksWa = encodeURIComponent(t.pesanWaTanya(tgl_(tgl.masuk), tgl_(tgl.keluar), String(jumlahTamu)));
@@ -240,7 +251,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], kiri }: { wa
             <p className="text-xs text-malam/55">{t.transportKet}</p>
           </fieldset>
         )}
-        <fieldset className="grid gap-2" data-pilih-selam>
+        {selamAktif && <fieldset className="grid gap-2" data-pilih-selam>
           <legend className={`${kelasLabel} mb-1.5`}>{t.selam}</legend>
           <div className="grid gap-2 sm:grid-cols-2">
             <label className={chip(selam.ikut)}>
@@ -252,8 +263,32 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], kiri }: { wa
               <span className="text-[15px] text-malam">{t.selamTidak}</span>
             </label>
           </div>
-          {selam.ikut && <Penghitung label={t.penyelam} ket={t.selamKet} nilai={penyelam} min={1} maks={jumlahTamu} ubah={(n) => setSelam({ ...selam, jumlah: n })} teks={t} />}
-        </fieldset>
+          {selam.ikut && (
+            <>
+              <Penghitung label={t.penyelam} ket={t.selamKet} nilai={penyelam} min={1} maks={jumlahTamu} ubah={(n) => setSelam({ ...selam, jumlah: n })} teks={t} />
+              <div className="grid gap-2 sm:grid-cols-2">
+                <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.sertifikatTanya}</span>
+                  <select data-pilih-sertifikat className={kelasMasukan} value={tingkatSelam.includes(f.sertifikat) ? f.sertifikat : tingkatSelam[1]} onChange={(e) => { setF({ ...f, sertifikat: e.target.value }); setSelam({ ...selam, paket: "" }); }}>
+                    {tingkatSelam.map((m) => <option key={m}>{m}</option>)}
+                  </select>
+                </label>
+                <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.paketSelam}</span>
+                  <select data-pilih-paket-selam className={kelasMasukan} value={paketSah} onChange={(e) => setSelam({ ...selam, paket: e.target.value })}>
+                    <option value="">{t.paketBelumTahu}</option>
+                    {grupSelam.map((g) => (
+                      <optgroup key={g} label={g}>
+                        {opsi_.filter((x) => x.grup === g).map((x) => <option key={x.kunci} value={x.kunci}>{x.nama}{x.harga ? ` · ${x.harga}` : ""}</option>)}
+                      </optgroup>
+                    ))}
+                    {kursusCadangan && <optgroup label={t.grupKursus}><option value="kursus-ow">{t.kursusOw}</option></optgroup>}
+                  </select>
+                </label>
+              </div>
+              {paketDipilih?.ket && <p className="text-xs text-malam/60">{paketDipilih.ket}</p>}
+              <p className="text-xs text-malam/55">{bersertifikat ? t.ketPaketSelam : `${t.ketPemula} ${t.ketPaketSelam}`}</p>
+            </>
+          )}
+        </fieldset>}
         <p className="rounded-2xl bg-busa/60 px-4 py-3 text-[13px] leading-relaxed text-malam/75"><b className="font-bold text-malam">{t.kebijakanJudul}.</b> {t.kebijakan} {t.termasukMakan}</p>
         {aktif ? (
           <button type="submit" disabled={sibuk || !tgl.masuk || !tgl.keluar} className="justify-self-start rounded-full bg-emas-tua px-7 py-3.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60">{sibuk && !opsi ? t.mengecek : !tgl.masuk || !tgl.keluar ? t.kalender.pilihDulu : KAMUS[bahasa].cekKetersediaan}</button>
@@ -308,7 +343,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], kiri }: { wa
                   {k.potongan > 0 && kupon?.ok && <div data-potongan className="flex justify-between gap-3 font-bold text-[#1E7A4C]"><dt>{t.potongan(kupon.kode)}</dt><dd className="angka">−{rupiah(k.potongan)}</dd></div>}
                   <div className="flex justify-between gap-3 border-t border-malam/10 pt-2 text-base font-bold text-malam"><dt>{t.total}</dt><dd className="angka">{rupiah(k.total)}</dd></div>
                   {perahuDipilih && <div data-ringkas-transport className="flex justify-between gap-3 pt-1"><dt>{t.transportRingkas}<span className="block text-xs text-malam/55">{perahuDipilih.judul} · {perahuDipilih.rute} · {satuArah ? t.sekaliJalan : t.pp}</span></dt><dd className="angka whitespace-nowrap">{hargaPerahu}</dd></div>}
-                  {selam.ikut && <div data-ringkas-selam className="pt-1"><dt>{t.selamRingkas(penyelam)}</dt></div>}
+                  {selam.ikut && <div data-ringkas-selam className="flex justify-between gap-3 pt-1"><dt>{t.selamRingkas(penyelam)}<span className="block text-xs text-malam/55">{f.sertifikat} · {paketDipilih ? paketDipilih.nama : namaPaketSelam}</span></dt>{paketDipilih?.harga && <dd className="angka whitespace-nowrap">{paketDipilih.harga}</dd>}</div>}
                 </dl>
                 <div className="mt-3 border-t border-malam/10 pt-3">
                   {kupon?.ok ? (
@@ -333,14 +368,9 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], kiri }: { wa
               <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.whatsapp}</span><input className={kelasMasukan} inputMode="tel" autoComplete="tel" value={f.telepon} onChange={(e) => setF({ ...f, telepon: e.target.value })} /></label>
               <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.email}</span><input className={kelasMasukan} type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></label>
               <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.asal}</span><input className={kelasMasukan} autoComplete="country-name" value={f.asal} onChange={(e) => setF({ ...f, asal: e.target.value })} /></label>
-              <label className={`grid min-w-0 gap-1.5 ${selam.ikut ? "" : "sm:col-span-2"}`}><span className={kelasLabel}>{t.minat}</span>
+              {!selam.ikut && <label className="grid min-w-0 gap-1.5 sm:col-span-2"><span className={kelasLabel}>{t.minat}</span>
                 <select className={kelasMasukan} value={minatSah} onChange={(e) => setF({ ...f, minat: e.target.value })}>
-                  {(selam.ikut ? minatSelam : minatLain).map((m) => <option key={m}>{m}</option>)}
-                </select>
-              </label>
-              {selam.ikut && <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.sertifikat}</span>
-                <select className={kelasMasukan} value={f.sertifikat} onChange={(e) => setF({ ...f, sertifikat: e.target.value })}>
-                  {t.sertifikatPilihan.slice(0, -1).map((m) => <option key={m}>{m}</option>)}
+                  {minatLain.map((m) => <option key={m}>{m}</option>)}
                 </select>
               </label>}
               <label className="grid min-w-0 gap-1.5 sm:col-span-2"><span className={kelasLabel}>{t.jamTiba}</span><input className={kelasMasukan} placeholder={t.jamTibaKet} value={f.jamTiba} onChange={(e) => setF({ ...f, jamTiba: e.target.value })} /></label>

@@ -1,5 +1,6 @@
 "use client";
 
+import { LABEL_UNTUK, tebakUntuk, UNTUK_SELAM } from "@/lib/selam";
 import { KolomHargaTeks } from "../kolom-rupiah";
 import { useEffect, useState } from "react";
 import { bacaTitik, idYoutube, sumberVideo, tautanPendekTiktok, IKON_KEUNGGULAN, KOORDINAT, SEKSI, tautanPeta, type Konten } from "@/lib/konten";
@@ -206,7 +207,7 @@ export default function Website() {
       )}
       {bagian === "selam" && (
         <>
-        <Kartu judul="Program selam dan harganya" ket="Tiap kelompok menjadi satu kartu di bagian Program selam; kartu yang ditunjuk kursor membuka dan menampilkan harganya serta apa saja yang termasuk.">
+        <Kartu judul="Program selam dan harganya" ket="Kolom Ditawarkan untuk menentukan paket mana yang muncul di formulir pesan: penyelam bersertifikat, tanpa sertifikat (try dive), kursus, atau bukan diving (snorkeling, trip pulau). Otomatis ditebak dari namanya dan berlaku untuk kedua bahasa. Tiap kelompok menjadi satu kartu di bagian Program selam; kartu yang ditunjuk kursor membuka dan menampilkan harganya serta apa saja yang termasuk.">
           <div className="grid gap-4 sm:grid-cols-2">
             <Bidang label="Judul bagian"><input className={masukan} value={k.paketJudul} onChange={(e) => set("paketJudul", e.target.value)} /></Bidang>
             <Bidang label="Catatan di samping judul"><input className={masukan} value={k.paketCatatan} onChange={(e) => set("paketCatatan", e.target.value)} /></Bidang>
@@ -221,22 +222,26 @@ export default function Website() {
                   {/* Baris harga: satu baris satu paket, langsung diisi tanpa format khusus. */}
                   <div className="grid gap-2 sm:col-span-2">
                     <span className="text-[13px] font-bold text-panel-tinta">Daftar harga</span>
-                    <div className="hidden grid-cols-[1.3fr_1.3fr_9rem_auto] gap-2 px-1 text-xs text-panel-redup sm:grid"><span>Nama paket</span><span>Keterangan (boleh kosong)</span><span>Harga</span><span className="w-[4.5rem]" /></div>
+                    <div className="hidden grid-cols-[1.3fr_1.3fr_9rem_10rem_auto] gap-2 px-1 text-xs text-panel-redup sm:grid"><span>Nama paket</span><span>Keterangan (boleh kosong)</span><span>Harga</span><span title="Siapa yang ditawari paket ini di formulir pesan">Ditawarkan untuk</span><span className="w-[4.5rem]" /></div>
                     {grup.isi.map((x, r) => {
                       const ubahBaris = (v: Partial<typeof x>) => ubah({ isi: grup.isi.map((y, q) => (q === r ? { ...y, ...v } : y)) });
                       return (
-                        <div key={r} data-baris-harga={r} className="grid grid-cols-[1fr_auto] gap-2 rounded-xl bg-white p-2 ring-1 ring-panel-garis sm:grid-cols-[1.3fr_1.3fr_9rem_auto] sm:bg-transparent sm:p-0 sm:ring-0">
+                        <div key={r} data-baris-harga={r} className="grid grid-cols-[1fr_auto] gap-2 rounded-xl bg-white p-2 ring-1 ring-panel-garis sm:grid-cols-[1.3fr_1.3fr_9rem_10rem_auto] sm:bg-transparent sm:p-0 sm:ring-0">
                           <input aria-label="Nama paket" className={masukan} placeholder="Nama paket" value={x.nama} onChange={(e) => ubahBaris({ nama: e.target.value })} />
                           <input aria-label="Keterangan" className={`${masukan} col-start-1 sm:col-start-auto`} placeholder="Keterangan" value={x.ket} onChange={(e) => ubahBaris({ ket: e.target.value })} />
                           <KolomHargaTeks label="Harga" className="col-start-1 sm:col-start-auto" placeholder="900000" nilai={x.harga} ubah={(v) => ubahBaris({ harga: v })} />
-                          <span className="col-start-2 row-span-3 row-start-1 flex flex-col items-center justify-center gap-1 sm:col-start-auto sm:row-span-1 sm:row-start-auto sm:flex-row">
+                          <select aria-label="Ditawarkan untuk" className={`${masukan} col-start-1 sm:col-start-auto`} value={x.untuk ?? ""} onChange={(e) => ubahBaris({ untuk: e.target.value })}>
+                            <option value="">Otomatis: {LABEL_UNTUK[tebakUntuk(grup.judul, x.nama, x.ket)].toLowerCase()}</option>
+                            {UNTUK_SELAM.map((u) => <option key={u} value={u}>{LABEL_UNTUK[u]}</option>)}
+                          </select>
+                          <span className="col-start-2 row-span-4 row-start-1 flex flex-col items-center justify-center gap-1 sm:col-start-auto sm:row-span-1 sm:row-start-auto sm:flex-row">
                             <button type="button" aria-label={`Naikkan baris ${r + 1}`} disabled={r === 0} onClick={() => { const n = [...grup.isi]; [n[r - 1], n[r]] = [n[r], n[r - 1]]; ubah({ isi: n }); }} className="grid size-8 place-items-center rounded-full text-panel-redup hover:bg-panel-latar disabled:opacity-30">↑</button>
                             <button type="button" aria-label={`Hapus baris ${r + 1}`} onClick={() => ubah({ isi: grup.isi.filter((_, q) => q !== r) })} className="grid size-8 place-items-center rounded-full text-lg text-panel-redup hover:bg-panel-merah/10 hover:text-panel-merah">×</button>
                           </span>
                         </div>
                       );
                     })}
-                    <button type="button" className="justify-self-start text-sm font-bold text-panel-utama underline" onClick={() => ubah({ isi: [...grup.isi, { nama: "", ket: "", harga: "" }] })}>+ Tambah baris harga</button>
+                    <button type="button" className="justify-self-start text-sm font-bold text-panel-utama underline" onClick={() => ubah({ isi: [...grup.isi, { nama: "", ket: "", harga: "", untuk: "" }] })}>+ Tambah baris harga</button>
                   </div>
                   <div className="sm:col-span-2"><PilihFasilitas jenis="selam" terpilih={grup.termasuk ?? []} ubah={(v) => ubah({ termasuk: v })} judul="Termasuk dalam harga" /></div>
                   <button type="button" className="justify-self-start text-sm font-bold text-panel-merah underline" onClick={() => set("paket", k.paket.filter((_, j) => j !== i))}>Hapus kelompok</button>

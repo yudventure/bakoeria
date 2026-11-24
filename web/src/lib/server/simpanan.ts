@@ -67,7 +67,7 @@ export async function simpanKonten(bahasa: Bahasa, isi: unknown): Promise<Konten
       if (sisi) for (const kunci of BERSAMA) (sisi as Record<string, unknown>)[kunci] = baru[kunci];
       /* Centang "termasuk" pada kelompok harga selam dan aktivitas berlaku untuk kedua bahasa (dicocokkan per urutan). */
       if (sisi) {
-        if (Array.isArray(sisi.paket)) sisi.paket = sisi.paket.map((g, i) => ({ ...g, termasuk: baru.paket[i]?.termasuk ?? g.termasuk ?? [] }));
+        if (Array.isArray(sisi.paket)) sisi.paket = sisi.paket.map((g, i) => ({ ...g, termasuk: baru.paket[i]?.termasuk ?? g.termasuk ?? [], isi: Array.isArray(g.isi) ? g.isi.map((x, j) => (baru.paket[i]?.isi[j] ? { ...x, untuk: baru.paket[i].isi[j].untuk ?? "" } : x)) : g.isi }));
         if (Array.isArray(sisi.aktivitas)) sisi.aktivitas = sisi.aktivitas.map((a, i) => ({ ...a, termasuk: baru.aktivitas[i]?.termasuk ?? a.termasuk ?? [] }));
         /* Harga perahu (pulang pergi dan sekali jalan) sama untuk kedua bahasa; nama rute tetap milik masing-masing. */
         if (Array.isArray(sisi.perahu)) sisi.perahu = sisi.perahu.map((x, i) => (baru.perahu[i] && Array.isArray(x.harga) ? { ...x, harga: x.harga.map((h, j) => (baru.perahu[i].harga[j] ? { ...h, harga: baru.perahu[i].harga[j].harga, sekali: baru.perahu[i].harga[j].sekali } : h)) } : x));
