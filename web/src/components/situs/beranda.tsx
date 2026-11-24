@@ -191,7 +191,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
 
         {/* MENGINAP: sorotan dan galeri; tanpa kamar di database memakai isi dari menu Website */}
         {on.menginap && (
-          <Menginap perahu={<PerahuJemput tata="menginap" judul={k.perahuJudul} isi={k.perahuIsi} perahu={k.perahu} foto={(["perahu1", "perahu2", "perahu3"] as const).map((n) => galeri[n].map(gambarItem))} teks={{ sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah, foto: bahasa === "id" ? "foto" : "photo", dari: bahasa === "id" ? "dari" : "of" }} />} katalog={katalog.kamar} galeri={galeri.menginap.map(gambarItem)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
+          <Menginap perahu={<PerahuJemput tata="menginap" judul={k.perahuJudul} isi={k.perahuIsi} perahu={k.perahu} foto={(["perahu1", "perahu2", "perahu3"] as const).map((n) => galeri[n].map(gambarItem))} teks={{ sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah, foto: bahasa === "id" ? "foto" : "photo", dari: bahasa === "id" ? "dari" : "of", pp: bahasa === "id" ? "Pulang pergi" : "Return", sekali: bahasa === "id" ? "Sekali jalan" : "One way" }} />} katalog={katalog.kamar} galeri={galeri.menginap.map(gambarItem)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
         )}
 
         {/* PROGRAM SELAM: kartu yang membuka dan menampilkan harganya saat ditunjuk kursor */}
@@ -300,7 +300,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               </div>
 
               {/* Perahu antar-jemput tampil di sini hanya bila seksi Menginap dimatikan; biasanya di seksi Menginap, dekat fasilitas antar-jemput. */}
-              {!on.menginap && <PerahuJemput judul={k.perahuJudul} isi={k.perahuIsi} perahu={k.perahu} foto={(["perahu1", "perahu2", "perahu3"] as const).map((n) => galeri[n].map(gambarItem))} teks={{ sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah, foto: bahasa === "id" ? "foto" : "photo", dari: bahasa === "id" ? "dari" : "of" }} />}
+              {!on.menginap && <PerahuJemput judul={k.perahuJudul} isi={k.perahuIsi} perahu={k.perahu} foto={(["perahu1", "perahu2", "perahu3"] as const).map((n) => galeri[n].map(gambarItem))} teks={{ sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah, foto: bahasa === "id" ? "foto" : "photo", dari: bahasa === "id" ? "dari" : "of", pp: bahasa === "id" ? "Pulang pergi" : "Return", sekali: bahasa === "id" ? "Sekali jalan" : "One way" }} />}
             </div>
           </section>
         )}
@@ -330,16 +330,11 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         {/* PESAN */}
         {on.pesan && <section id="pesan" className="relative scroll-mt-24 overflow-hidden px-5 pb-56 pt-20 sm:pb-64">
           <img {...atribut(g("pesan"), "100vw")} alt="" loading="lazy" className="absolute inset-x-0 bottom-0 h-[46%] w-full object-cover object-[50%_80%] [mask-image:linear-gradient(180deg,transparent,#000_40%)]" />
-          <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-            <div className="muncul">
-              <h2 className="font-display text-[clamp(40px,5vw,58px)] font-normal leading-[0.98] tracking-[-0.02em]">{t.rencanakan}</h2>
-              <p className="mt-4 max-w-sm text-[14px] text-malam/65">{k.pesanIsi}</p>
-              {/* Kontak tidak diulang di sini: sudah ada di footer (permintaan pemilik). */}
-            </div>
-            <div className="muncul">
-              <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} perahu={k.perahu.map((p) => ({ judul: p.judul, muat: p.muat, harga: p.harga }))} />
-            </div>
-          </div>
+          <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} perahu={k.perahu.map((p) => ({ judul: p.judul, muat: p.muat, harga: p.harga }))} kiri={<>
+            <h2 className="font-display text-[clamp(40px,5vw,58px)] font-normal leading-[0.98] tracking-[-0.02em]">{t.rencanakan}</h2>
+            <p className="mt-4 max-w-sm text-[14px] text-malam/65">{k.pesanIsi}</p>
+            {/* Kontak tidak diulang di sini: sudah ada di footer (permintaan pemilik). */}
+          </>} />
         </section>}
       </main>
 

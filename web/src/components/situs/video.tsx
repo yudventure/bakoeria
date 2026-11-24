@@ -40,6 +40,8 @@ export default function VideoLatar({ video, poster, judul, tegak = false, classN
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    /* iPhone lama (iOS 15 ke bawah, memori 2 GB): pemutar TikTok/YouTube bisa membuat Safari menutup tab. Fotonya saja. */
+    if (document.documentElement.classList.contains("peramban-lama")) return;
     const el = bingkai.current;
     if (!el || !("IntersectionObserver" in window)) return setMuat(true);
     const io = new IntersectionObserver((e) => e.some((x) => x.isIntersecting) && (setMuat(true), io.disconnect()), { rootMargin: "1600px 0px" });

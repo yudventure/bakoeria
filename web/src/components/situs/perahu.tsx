@@ -8,7 +8,7 @@ import type { Konten } from "@/lib/konten";
  * Menginap di bawah fasilitas (tata "menginap": judul di kolom kiri seperti "Di setiap
  * cottage"), atau di seksi Cara menuju ke sini bila seksi Menginap dimatikan.
  */
-export default function PerahuJemput({ judul, isi, perahu, foto, teks, tata = "lokasi" }: { judul: string; isi: string; perahu: Konten["perahu"]; /** Foto tiap perahu (karosel), berurutan sesuai perahu. */ foto: Gambar[][]; teks: { sebelum: string; sesudah: string; foto: string; dari: string }; tata?: "menginap" | "lokasi" }) {
+export default function PerahuJemput({ judul, isi, perahu, foto, teks, tata = "lokasi" }: { judul: string; isi: string; perahu: Konten["perahu"]; /** Foto tiap perahu (karosel), berurutan sesuai perahu. */ foto: Gambar[][]; teks: { sebelum: string; sesudah: string; foto: string; dari: string; pp: string; sekali: string }; tata?: "menginap" | "lokasi" }) {
   if (!perahu.length) return null;
   const kartu = (
     <ul className={`grid gap-4 ${perahu.length > 1 ? "sm:grid-cols-2" : ""} ${perahu.length > 2 ? "lg:grid-cols-3" : ""}`}>
@@ -39,9 +39,10 @@ export default function PerahuJemput({ judul, isi, perahu, foto, teks, tata = "l
             {x.harga.length > 0 && (
               <dl className="mt-auto grid gap-2 pt-1">
                 {x.harga.map((h, j) => (
-                  <div key={h.rute + j} className="flex items-baseline justify-between gap-3 rounded-xl bg-[#F6F4EF] px-3.5 py-2.5">
-                    <dt className="text-[13.5px] text-malam/70">{h.rute}</dt>
-                    <dd className="angka whitespace-nowrap text-[15px] font-bold text-emas-tua">{h.harga}</dd>
+                  <div key={h.rute + j} data-harga-perahu className="rounded-xl bg-[#F6F4EF] px-3.5 py-2.5">
+                    <dt className="text-[13.5px] font-bold text-malam/80">{h.rute}</dt>
+                    {h.harga && <dd className="flex items-baseline justify-between gap-3"><span className="text-[13px] text-malam/60">{teks.pp}</span><span className="angka whitespace-nowrap text-[15px] font-bold text-emas-tua">{h.harga}</span></dd>}
+                    {h.sekali && <dd data-sekali className="flex items-baseline justify-between gap-3"><span className="text-[13px] text-malam/60">{teks.sekali}</span><span className="angka whitespace-nowrap text-[15px] font-bold text-emas-tua">{h.sekali}</span></dd>}
                   </div>
                 ))}
               </dl>

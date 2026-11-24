@@ -1,8 +1,8 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
-import PilihTanggal from "@/components/tanggal";
-import { hariIniWit, rupiah, tambahHari } from "@/lib/booking";
+import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
+import KalenderSedia from "./kalender-sedia";
+import { hariIniWit, jumlahMalam, rupiah, tambahHari } from "@/lib/booking";
 import { KAMUS, tglBahasa, type Bahasa } from "@/lib/kamus";
 
 interface Opsi {
@@ -23,7 +23,7 @@ interface Opsi {
   musim: string | null;
 }
 /** Perahu antar-jemput dari isi situs; harganya teks yang ditulis pemilik. */
-export interface PerahuPesan { judul: string; muat: string; harga: { rute: string; harga: string }[] }
+export interface PerahuPesan { judul: string; muat: string; harga: { rute: string; harga: string; sekali: string }[] }
 type HasilKupon = { kode: string; ok: true } | { kode: string; ok: false; alasan: keyof (typeof KAMUS)["en"]["form"]["kuponTolak"]; batas: number | string | null } | null;
 /** Cottage dengan jenis yang sama ditawarkan sebagai satu pilihan; unitnya dipilihkan yang kosong. */
 interface Jenis { kunci: string; nama: string; ket: string | null; unit: Opsi[]; kosong: Opsi[]; contoh: Opsi }
@@ -55,13 +55,17 @@ function Penghitung({ label, ket, nilai, ubah, min, maks, teks }: { label: strin
  * tahanan. Anak di bawah 5 tahun gratis; 5 tahun ke atas 50% harga kamar per
  * malam dengan extra bed. Harga dihitung di server.
  */
-export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: string; aktif: boolean; bahasa: Bahasa; perahu?: PerahuPesan[] }) {
+export default function Pemesanan({ wa, aktif, bahasa, perahu = [], kiri }: { wa: string; aktif: boolean; bahasa: Bahasa; perahu?: PerahuPesan[]; /** Judul dan keterangan kolom kiri; kalender ketersediaan ditaruh di bawahnya. */ kiri: ReactNode }) {
   const t = KAMUS[bahasa].form;
   const tgl_ = (s: string) => tglBahasa(s, bahasa);
   const hari = hariIniWit();
-  const idTiba = useId();
-  const idPulang = useId();
-  const [tgl, setTgl] = useState({ masuk: tambahHari(hari, 7), keluar: tambahHari(hari, 10) });
+  /* Tanggal dipilih di kalender ketersediaan; mulai kosong. */
+  const [tgl, setTgl] = useState({ masuk: "", keluar: "" });
+  const [sedia, setSedia] = useState<{ awal: string; akhir: string; sisa: Record<string, number> }>({ awal: hari, akhir: tambahHari(hari, 400), sisa: {} });
+  useEffect(() => {
+    if (!aktif) return;
+    fetch("/api/publik/kalender").then((r) => (r.ok ? r.json() : null)).then((d) => d && setSedia({ awal: d.dari, akhir: d.sampai, sisa: d.sisa ?? {} })).catch(() => undefined);
+  }, [aktif]);
   const [tamu, setTamu] = useState({ dewasa: 2, anak: 0, balita: 0 });
   const [opsi, setOpsi] = useState<Opsi[] | null>(null);
   const [malam, setMalam] = useState(0);
@@ -69,6 +73,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: stri
   const [f, setF] = useState({ nama: "", telepon: "", email: "", asal: "", minat: t.minatPilihan[0], sertifikat: t.sertifikatPilihan[t.sertifikatPilihan.length - 1], jamTiba: "", catatan: "", situs: "" });
   /* Pilihan perahu "i-j" (perahu ke-i, rute ke-j) atau "" bila tamu mengatur sendiri. */
   const [transport, setTransport] = useState("");
+  const [sekali, setSekali] = useState(false);
   const [selam, setSelam] = useState({ ikut: false, jumlah: 2 });
   const [galat, setGalat] = useState("");
   const [sibuk, setSibuk] = useState(false);
@@ -152,7 +157,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: stri
     setGalat("");
     setSibuk(true);
     try {
-      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, minat: minatSah, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "", transport: perahuDipilih ? perahuDipilih.kunci : "", selam: selam.ikut ? penyelam : 0 }) });
+      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, minat: minatSah, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "", transport: perahuDipilih ? perahuDipilih.kunci : "", arah: satuArah ? "sekali" : "pp", selam: selam.ikut ? penyelam : 0 }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.galat ?? t.galatKirim);
       setSelesai(d);
@@ -164,8 +169,10 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: stri
   }
 
   const jumlahTamu = tamu.dewasa + tamu.anak + tamu.balita;
-  const pilihanPerahu = perahu.flatMap((p, i) => p.harga.map((h, j) => ({ kunci: `${i}-${j}`, judul: p.judul, rute: h.rute, harga: h.harga, muat: Number(p.muat.match(/\d+/)?.[0]) || 0 })));
+  const pilihanPerahu = perahu.flatMap((p, i) => p.harga.map((h, j) => ({ kunci: `${i}-${j}`, judul: p.judul, rute: h.rute, harga: h.harga, sekali: h.sekali, muat: Number(p.muat.match(/\d+/)?.[0]) || 0 })));
   const perahuDipilih = pilihanPerahu.find((x) => x.kunci === transport);
+  const satuArah = (sekali && !!perahuDipilih?.sekali) || (!!perahuDipilih && !perahuDipilih.harga);
+  const hargaPerahu = perahuDipilih ? (satuArah ? perahuDipilih.sekali : perahuDipilih.harga) : "";
   const penyelam = Math.min(selam.jumlah, jumlahTamu);
   const minatSelam = t.minatPilihan.slice(0, 3);
   const minatLain = t.minatPilihan.slice(3);
@@ -177,8 +184,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: stri
   const chip = (on: boolean, mati = false) => `flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-left transition ${mati ? "cursor-not-allowed border-malam/5 opacity-45" : on ? "border-emas-tua bg-busa/50" : "border-malam/10 bg-white/80 hover:border-emas-tua/50"}`;
   const teksWa = encodeURIComponent(t.pesanWaTanya(tgl_(tgl.masuk), tgl_(tgl.keluar), String(jumlahTamu)));
 
-  if (selesai) {
-    return (
+  const isiSelesai = selesai ? (
       <div className="rounded-[2rem] border border-white/70 bg-white/85 p-8 shadow-[0_20px_60px_rgba(10,36,64,.12)] backdrop-blur-xl sm:p-10" role="status">
         <p className={kelasLabel}>{t.diterima}</p>
         <h3 className="mt-2 font-display text-4xl text-malam">{t.terimaKasih(f.nama.split(" ")[0])}</h3>
@@ -188,22 +194,12 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: stri
         <p className="mt-4 font-display text-2xl text-malam">{t.perkiraan} {rupiah(selesai.total)}</p>
         {wa && <a className="mt-6 inline-flex items-center gap-2 rounded-full bg-emas-tua px-6 py-3 text-sm font-bold text-white" href={`https://wa.me/${wa}?text=${encodeURIComponent(t.pesanWaKode(selesai.kode))}`} target="_blank" rel="noreferrer">{t.kirimKode}</a>}
       </div>
-    );
-  }
+  ) : null;
 
-  return (
+  const isiForm = (
     <div className="rounded-[2rem] border border-white/70 bg-white/85 p-5 shadow-[0_20px_60px_rgba(10,36,64,.12)] backdrop-blur-xl sm:p-8">
       <form onSubmit={cek} className="grid gap-4">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="grid min-w-0 gap-1.5">
-            <label htmlFor={idTiba} className={kelasLabel}>{t.tiba}</label>
-            <PilihTanggal id={idTiba} tema="situs" bahasa={bahasa} min={hari} value={tgl.masuk} onChange={(v) => ubahTgl({ masuk: v, keluar: tgl.keluar <= v ? tambahHari(v, 1) : tgl.keluar })} />
-          </div>
-          <div className="grid min-w-0 gap-1.5">
-            <label htmlFor={idPulang} className={kelasLabel}>{t.pulang}</label>
-            <PilihTanggal id={idPulang} tema="situs" bahasa={bahasa} min={tambahHari(tgl.masuk, 1)} value={tgl.keluar} onChange={(v) => ubahTgl({ keluar: v })} />
-          </div>
-        </div>
+        <p data-tanggal-form className="rounded-2xl bg-[#F6F4EF] px-4 py-3 text-[14px] text-malam">{tgl.masuk && tgl.keluar ? <>{tgl_(tgl.masuk)} {t.sampai} {tgl_(tgl.keluar)} · {t.malam(jumlahMalam(tgl.masuk, tgl.keluar))}</> : <span className="text-malam/55">{tgl.masuk ? t.kalender.pilihPulang : t.kalender.pilihTiba}</span>}</p>
         <fieldset className="grid gap-2">
           <legend className={`${kelasLabel} mb-1.5`}>{t.tamu}</legend>
           <Penghitung label={t.dewasa} nilai={tamu.dewasa} min={1} maks={8} ubah={(n) => ubahTamu({ dewasa: n })} teks={t} />
@@ -225,12 +221,22 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: stri
                     <input type="radio" name="transport" disabled={mati} checked={transport === x.kunci} onChange={() => setTransport(x.kunci)} className="accent-[#0F6490]" />
                     <span className="min-w-0 leading-snug">
                       <span className="block text-[15px] text-malam">{x.judul} · {x.rute}</span>
-                      <span className="block text-xs text-malam/55">{x.harga}{x.muat ? ` · ${mati ? t.transportPenuh(jumlahTamu) : t.transportMuat(x.muat)}` : ""}</span>
+                      <span className="block text-xs text-malam/55">{[x.harga && `${t.pp} ${x.harga}`, x.sekali && `${t.sekaliJalan} ${x.sekali}`].filter(Boolean).join(" · ")}{x.muat ? ` · ${mati ? t.transportPenuh(jumlahTamu) : t.transportMuat(x.muat)}` : ""}</span>
                     </span>
                   </label>
                 );
               })}
             </div>
+            {perahuDipilih?.sekali && perahuDipilih.harga && (
+              <div data-pilih-arah className="grid grid-cols-2 gap-2">
+                {[false, true].map((v) => (
+                  <label key={String(v)} className={chip(sekali === v)}>
+                    <input type="radio" name="arah" checked={sekali === v} onChange={() => setSekali(v)} className="accent-[#0F6490]" />
+                    <span className="min-w-0 leading-snug"><span className="block text-[15px] text-malam">{v ? t.sekaliJalan : t.pp}</span><span className="block text-xs text-malam/55">{v ? perahuDipilih.sekali : perahuDipilih.harga}</span></span>
+                  </label>
+                ))}
+              </div>
+            )}
             <p className="text-xs text-malam/55">{t.transportKet}</p>
           </fieldset>
         )}
@@ -250,7 +256,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: stri
         </fieldset>
         <p className="rounded-2xl bg-busa/60 px-4 py-3 text-[13px] leading-relaxed text-malam/75"><b className="font-bold text-malam">{t.kebijakanJudul}.</b> {t.kebijakan} {t.termasukMakan}</p>
         {aktif ? (
-          <button type="submit" disabled={sibuk} className="justify-self-start rounded-full bg-emas-tua px-7 py-3.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60">{sibuk && !opsi ? t.mengecek : KAMUS[bahasa].cekKetersediaan}</button>
+          <button type="submit" disabled={sibuk || !tgl.masuk || !tgl.keluar} className="justify-self-start rounded-full bg-emas-tua px-7 py-3.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60">{sibuk && !opsi ? t.mengecek : !tgl.masuk || !tgl.keluar ? t.kalender.pilihDulu : KAMUS[bahasa].cekKetersediaan}</button>
         ) : (
           <a href={`https://wa.me/${wa}?text=${teksWa}`} target="_blank" rel="noreferrer" className="justify-self-start rounded-full bg-emas-tua px-7 py-3.5 text-center text-sm font-bold text-white">{t.tanyaWa}</a>
         )}
@@ -301,7 +307,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: stri
                   {tamu.balita > 0 && <div className="flex justify-between gap-3"><dt>{t.balitaGratis(tamu.balita)}</dt><dd>{t.gratis}</dd></div>}
                   {k.potongan > 0 && kupon?.ok && <div data-potongan className="flex justify-between gap-3 font-bold text-[#1E7A4C]"><dt>{t.potongan(kupon.kode)}</dt><dd className="angka">−{rupiah(k.potongan)}</dd></div>}
                   <div className="flex justify-between gap-3 border-t border-malam/10 pt-2 text-base font-bold text-malam"><dt>{t.total}</dt><dd className="angka">{rupiah(k.total)}</dd></div>
-                  {perahuDipilih && <div data-ringkas-transport className="flex justify-between gap-3 pt-1"><dt>{t.transportRingkas}<span className="block text-xs text-malam/55">{perahuDipilih.judul} · {perahuDipilih.rute}</span></dt><dd className="angka whitespace-nowrap">{perahuDipilih.harga}</dd></div>}
+                  {perahuDipilih && <div data-ringkas-transport className="flex justify-between gap-3 pt-1"><dt>{t.transportRingkas}<span className="block text-xs text-malam/55">{perahuDipilih.judul} · {perahuDipilih.rute} · {satuArah ? t.sekaliJalan : t.pp}</span></dt><dd className="angka whitespace-nowrap">{hargaPerahu}</dd></div>}
                   {selam.ikut && <div data-ringkas-selam className="pt-1"><dt>{t.selamRingkas(penyelam)}</dt></div>}
                 </dl>
                 <div className="mt-3 border-t border-malam/10 pt-3">
@@ -349,6 +355,16 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: stri
         </div>
       )}
       {galat && <p role="alert" className="mt-5 rounded-2xl bg-[#FBE4DE] px-4 py-3 text-sm text-[#B03826]">{galat}</p>}
+    </div>
+  );
+
+  return (
+    <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+      <div className="muncul">
+        {kiri}
+        {!selesai && <KalenderSedia bahasa={bahasa} sisa={sedia.sisa} awal={sedia.awal} akhir={sedia.akhir} masuk={tgl.masuk} keluar={tgl.keluar} pilih={(masuk, keluar) => ubahTgl({ masuk, keluar })} />}
+      </div>
+      <div className="muncul">{isiSelesai ?? isiForm}</div>
     </div>
   );
 }

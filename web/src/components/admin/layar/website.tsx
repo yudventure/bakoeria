@@ -287,7 +287,7 @@ export default function Website() {
       )}
       {bagian === "lokasi" && (
         <>
-          <Kartu judul="Perahu antar-jemput" ket="Kartu perahu di seksi Menginap, di bawah fasilitas (di bawah peta rute bila seksi Menginap dimatikan). Antar-jemput dibayar terpisah dari kamar. Harga ditulis bebas, misalnya Rp 4.000.000. Foto tiap perahu (karosel: luar, kabin, kursi) diatur di kotak foto perahu di bawah, urutannya sama dengan urutan perahu.">
+          <Kartu judul="Perahu antar-jemput" ket="Kartu perahu di seksi Menginap, di bawah fasilitas (di bawah peta rute bila seksi Menginap dimatikan). Antar-jemput dibayar terpisah dari kamar. Harga ditulis bebas, misalnya Rp 4.000.000. Harga sekali jalan boleh dikosongkan; bila diisi, tamu bisa memilih sekali jalan di formulir pesan. Foto tiap perahu (karosel: luar, kabin, kursi) diatur di kotak foto perahu di bawah, urutannya sama dengan urutan perahu.">
             <div className="grid gap-4 sm:grid-cols-2">
               <Bidang label="Judul"><input className={masukan} value={k.perahuJudul} onChange={(e) => set("perahuJudul", e.target.value)} /></Bidang>
               <Bidang label="Pengantar"><input className={masukan} value={k.perahuIsi} onChange={(e) => set("perahuIsi", e.target.value)} /></Bidang>
@@ -302,15 +302,17 @@ export default function Website() {
                     <Bidang label="Muatan"><input className={masukan} value={x.muat} placeholder="Maksimal 12 orang" onChange={(e) => ubah({ muat: e.target.value })} /></Bidang>
                     <Bidang label="Keterangan" className="sm:col-span-2"><input className={masukan} value={x.isi} onChange={(e) => ubah({ isi: e.target.value })} /></Bidang>
                     <div className="grid gap-2 sm:col-span-2">
-                      <span className="text-[13px] font-bold text-panel-tinta">Harga</span>
+                      <span className="text-[13px] font-bold text-panel-tinta">Harga per perahu</span>
+                      {x.harga.length > 0 && <div className="hidden grid-cols-[1fr_9.5rem_9.5rem_2.25rem] gap-2 text-xs text-panel-redup sm:grid"><span>Rute</span><span>Pulang pergi</span><span>Sekali jalan (boleh kosong)</span></div>}
                       {x.harga.map((h, r) => (
-                        <div key={r} className="grid grid-cols-[1fr_10rem_auto] gap-2">
-                          <input aria-label="Rute" className={masukan} value={h.rute} placeholder="Waisai, pulang pergi" onChange={(e) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, rute: e.target.value } : y)) })} />
-                          <input aria-label="Harga" className={masukan} value={h.harga} placeholder="Rp 4.000.000" onChange={(e) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, harga: e.target.value } : y)) })} />
-                          <button type="button" aria-label={`Hapus harga ${r + 1}`} onClick={() => ubah({ harga: x.harga.filter((_, q) => q !== r) })} className="grid size-9 place-items-center self-center rounded-full text-lg text-panel-redup hover:bg-panel-merah/10 hover:text-panel-merah">×</button>
+                        <div key={r} data-baris-perahu={r} className="grid grid-cols-2 gap-2 rounded-xl bg-white p-2 ring-1 ring-panel-garis sm:grid-cols-[1fr_9.5rem_9.5rem_2.25rem] sm:bg-transparent sm:p-0 sm:ring-0">
+                          <input aria-label="Rute" className={`${masukan} col-span-2 sm:col-span-1`} value={h.rute} placeholder="Waisai" onChange={(e) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, rute: e.target.value } : y)) })} />
+                          <input aria-label="Harga pulang pergi" className={masukan} value={h.harga} placeholder="Rp 4.000.000" onChange={(e) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, harga: e.target.value } : y)) })} />
+                          <input aria-label="Harga sekali jalan" className={masukan} value={h.sekali} placeholder="Rp 2.500.000" onChange={(e) => ubah({ harga: x.harga.map((y, q) => (q === r ? { ...y, sekali: e.target.value } : y)) })} />
+                          <button type="button" aria-label={`Hapus harga ${r + 1}`} onClick={() => ubah({ harga: x.harga.filter((_, q) => q !== r) })} className="col-span-2 grid size-9 place-items-center justify-self-end self-center sm:col-span-1 rounded-full text-lg text-panel-redup hover:bg-panel-merah/10 hover:text-panel-merah">×</button>
                         </div>
                       ))}
-                      <button type="button" className="justify-self-start text-sm font-bold text-panel-utama underline" onClick={() => ubah({ harga: [...x.harga, { rute: "", harga: "" }] })}>+ Tambah harga</button>
+                      <button type="button" className="justify-self-start text-sm font-bold text-panel-utama underline" onClick={() => ubah({ harga: [...x.harga, { rute: "", harga: "", sekali: "" }] })}>+ Tambah harga</button>
                     </div>
                     <button type="button" className="justify-self-start text-sm font-bold text-panel-merah underline" onClick={() => set("perahu", k.perahu.filter((_, j) => j !== i))}>Hapus perahu</button>
                   </div>

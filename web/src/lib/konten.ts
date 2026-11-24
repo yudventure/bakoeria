@@ -60,7 +60,7 @@ export interface Konten {
   /** Perahu antar-jemput yang bisa dipilih tamu (bayar terpisah), tampil sebagai kartu di bagian Cara menuju ke sini. */
   perahuJudul: string;
   perahuIsi: string;
-  perahu: { judul: string; mesin: string; /** Muatan, misalnya "Maksimal 12 orang". */ muat: string; isi: string; harga: { rute: string; harga: string }[] }[];
+  perahu: { judul: string; mesin: string; /** Muatan, misalnya "Maksimal 12 orang". */ muat: string; isi: string; harga: { rute: string; /** Harga pulang pergi. */ harga: string; /** Harga sekali jalan; kosong berarti tidak ditawarkan. */ sekali: string }[] }[];
   /** Aktivitas lain di luar selam (tiga yang pertama tampil bersama video). */
   aktivitasJudul: string;
   aktivitasIsi: string;
@@ -125,10 +125,10 @@ export const KONTEN_BAWAAN: Konten = {
   caraWaktuPerahu: "± 30 menit",
   caraCatatan: "Jadwal feri dan waktu perjalanan bisa berubah mengikuti cuaca dan operasional setempat. Speedboat privat perlu dipesan lebih dulu. Konfirmasikan rencana Anda dengan tim kami sebelum berangkat.",
   perahuJudul: "Perahu antar-jemput",
-  perahuIsi: "Antar-jemput tidak termasuk harga kamar. Harga per perahu, pulang pergi. Kabari jam tiba Anda dan kami siapkan perahunya.",
+  perahuIsi: "Antar-jemput tidak termasuk harga kamar. Harga per perahu, pulang pergi atau sekali jalan. Kabari jam tiba Anda dan kami siapkan perahunya.",
   perahu: [
-    { judul: "Longboat", mesin: "1 mesin 15 PK", muat: "Maksimal 5 orang", isi: "Longboat kayu kecil yang tenang, untuk menjemput di Waisai saat laut teduh.", harga: [{ rute: "Waisai, pulang pergi", harga: "Rp 2.000.000" }] },
-    { judul: "Speedboat", mesin: "2 mesin 150 PK", muat: "Maksimal 12 orang", isi: "Lebih cepat dan stabil. Menjemput di Waisai, atau langsung dari Sorong sekitar 1,5 jam.", harga: [{ rute: "Waisai, pulang pergi", harga: "Rp 4.000.000" }, { rute: "Sorong, pulang pergi", harga: "Rp 8.000.000" }] },
+    { judul: "Longboat", mesin: "1 mesin 15 PK", muat: "Maksimal 5 orang", isi: "Longboat kayu kecil yang tenang, untuk menjemput di Waisai saat laut teduh.", harga: [{ rute: "Waisai", harga: "Rp 2.000.000", sekali: "" }] },
+    { judul: "Speedboat", mesin: "2 mesin 150 PK", muat: "Maksimal 12 orang", isi: "Lebih cepat dan stabil. Menjemput di Waisai, atau langsung dari Sorong sekitar 1,5 jam.", harga: [{ rute: "Waisai", harga: "Rp 4.000.000", sekali: "" }, { rute: "Sorong", harga: "Rp 8.000.000", sekali: "" }] },
   ],
   aktivitasJudul: "Aktivitas lain",
   aktivitasIsi: "Hari di luar air juga bagian dari menginap. Tim kami mengaturnya mengikuti pasang surut, cuaca, dan rencana selam Anda.",
@@ -361,10 +361,10 @@ export const KONTEN_BAWAAN_EN: Konten = {
   caraWaktuPerahu: "± 30 min",
   caraCatatan: "Ferry schedules and travel times change with weather and local operations. The private speedboat must be booked in advance. Confirm your plans with our team before travelling.",
   perahuJudul: "Boat transfers",
-  perahuIsi: "Transfers are not included in the room rate. Prices are per boat, return trip. Send us your arrival time and we get the boat ready.",
+  perahuIsi: "Transfers are not included in the room rate. Prices are per boat, return or one way. Send us your arrival time and we get the boat ready.",
   perahu: [
-    { judul: "Longboat", mesin: "One 15 HP engine", muat: "Up to 5 people", isi: "A small, quiet wooden longboat for pick-ups in Waisai when the sea is calm.", harga: [{ rute: "Waisai, return", harga: "Rp 2,000,000" }] },
-    { judul: "Speedboat", mesin: "Twin 150 HP engines", muat: "Up to 12 people", isi: "Faster and more stable. Picks you up in Waisai, or straight from Sorong in about 1.5 hours.", harga: [{ rute: "Waisai, return", harga: "Rp 4,000,000" }, { rute: "Sorong, return", harga: "Rp 8,000,000" }] },
+    { judul: "Longboat", mesin: "One 15 HP engine", muat: "Up to 5 people", isi: "A small, quiet wooden longboat for pick-ups in Waisai when the sea is calm.", harga: [{ rute: "Waisai", harga: "Rp 2.000.000", sekali: "" }] },
+    { judul: "Speedboat", mesin: "Twin 150 HP engines", muat: "Up to 12 people", isi: "Faster and more stable. Picks you up in Waisai, or straight from Sorong in about 1.5 hours.", harga: [{ rute: "Waisai", harga: "Rp 4.000.000", sekali: "" }, { rute: "Sorong", harga: "Rp 8.000.000", sekali: "" }] },
   ],
   aktivitasJudul: "Other activities",
   aktivitasIsi: "Days out of the water are part of the stay. Our team arranges these around the tides, the weather, and your dive plan.",
@@ -600,14 +600,14 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     cara: arr(k.cara, b.cara, (x) => ({ judul: s(x.judul, "").slice(0, 80), isi: s(x.isi, "").slice(0, 400), waktu: s(x.waktu, "").slice(0, 40) })).map((x, i) => (i === 1 && (x.waktu === "± 2 jam" || x.waktu === "± 2 hours") ? { ...x, waktu: b.cara[1]?.waktu ?? x.waktu } : x)).filter((x) => x.judul.trim() !== "").slice(0, 4),
     caraCatatan: s(k.caraCatatan, b.caraCatatan),
     perahuJudul: s(k.perahuJudul, b.perahuJudul).slice(0, 80),
-    perahuIsi: s(k.perahuIsi, b.perahuIsi).slice(0, 400),
+    perahuIsi: s(k.perahuIsi, b.perahuIsi).replace("Harga per perahu, pulang pergi. ", "Harga per perahu, pulang pergi atau sekali jalan. ").replace("Prices are per boat, return trip. ", "Prices are per boat, return or one way. ").slice(0, 400),
     perahu: arr(k.perahu, b.perahu, (x) => ({
       judul: s(x.judul, "").slice(0, 60),
       mesin: s(x.mesin, "").slice(0, 60),
       /* Muatan ditambahkan kemudian: perahu tersimpan tanpa muatan mengambil muatan bawaan perahu yang namanya sama. */
       muat: s(x.muat, b.perahu.find((d) => d.judul.toLowerCase() === String(x.judul ?? "").trim().toLowerCase())?.muat ?? "").slice(0, 60),
       isi: s(x.isi, "").slice(0, 300),
-      harga: (Array.isArray(x.harga) ? x.harga : []).slice(0, 6).map((y) => { const r = (y ?? {}) as Record<string, unknown>; return { rute: s(r.rute, "").slice(0, 80), harga: s(r.harga, "").slice(0, 40) }; }).filter((y) => y.rute.trim() || y.harga.trim()),
+      harga: (Array.isArray(x.harga) ? x.harga : []).slice(0, 6).map((y) => { const r = (y ?? {}) as Record<string, unknown>; /* Harga sekali jalan ditambahkan kemudian; "pulang pergi" kini tertulis di kartu, jadi dibuang dari nama rute lama. */ return { rute: s(r.rute, "").replace(/,\s*(pulang pergi|return)\s*$/i, "").slice(0, 80), harga: s(r.harga, "").slice(0, 40), sekali: s(r.sekali, "").slice(0, 40) }; }).filter((y) => y.rute.trim() || y.harga.trim() || y.sekali.trim()),
     })).filter((x) => x.judul.trim() !== "").slice(0, 4),
     caraWaktuFeri: s(k.caraWaktuFeri, b.caraWaktuFeri).slice(0, 40),
     caraWaktuPerahu: s(k.caraWaktuPerahu, b.caraWaktuPerahu).slice(0, 40),

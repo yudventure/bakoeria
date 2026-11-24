@@ -1,3 +1,4 @@
+import { SKRIP_PERAMBAN_LAMA } from "@/lib/peramban-lama";
 import type { Metadata, Viewport } from "next";
 import "../globals.css";
 
@@ -34,7 +35,8 @@ export const viewport: Viewport = { themeColor: "#133250", width: "device-width"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: SKRIP_PERAMBAN_LAMA }} /></head>
       <body>{children}</body>
     </html>
   );

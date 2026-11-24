@@ -1,3 +1,4 @@
+import { SKRIP_PERAMBAN_LAMA } from "@/lib/peramban-lama";
 import type { Metadata, Viewport } from "next";
 import "../globals.css";
 
@@ -35,7 +36,8 @@ export const viewport: Viewport = { themeColor: "#133250", width: "device-width"
 /** Root layout bahasa Inggris (alamat /). Bahasa Indonesia dan dashboard memakai layout (id). */
 export default function RootLayoutEn({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: SKRIP_PERAMBAN_LAMA }} /></head>
       <body>{children}</body>
     </html>
   );

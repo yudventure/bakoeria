@@ -9,6 +9,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
+import { bukaLayer } from "./buka-layer.mjs";
 
 const root = process.cwd();
 const standalone = join(root, ".next", "standalone");
@@ -23,6 +24,13 @@ const mb = (b) => `${(b / 1048576).toFixed(1)} MB`;
    harus ada di samping server. Tanpa ini situs tampil tanpa gaya dan foto. */
 cpSync(join(root, "public"), join(standalone, "public"), { recursive: true });
 cpSync(join(root, ".next", "static"), join(standalone, ".next", "static"), { recursive: true });
+
+/* Safari sebelum 15.4 (iPhone lama) tidak mengenal @layer dan membuang semua gaya
+   Tailwind. Tiap CSS dibuatkan salinan tanpa @layer, dimuat hanya oleh peramban itu. */
+{
+  const dirCss = join(standalone, ".next", "static", "css");
+  if (existsSync(dirCss)) for (const f of readdirSync(dirCss)) if (f.endsWith(".css") && !f.endsWith(".lama.css")) writeFileSync(join(dirCss, f.replace(/\.css$/, ".lama.css")), bukaLayer(readFileSync(join(dirCss, f), "utf8")));
+}
 
 /* /version.json: commit mana yang sedang tayang. Dipakai workflow untuk
    menunggu sampai deploy benar-benar mendarat. */

@@ -84,7 +84,10 @@ export async function POST(req: Request) {
   const rutePilih = perahuPilih?.harga[jp_];
   const muatPerahu = Number(perahuPilih?.muat.match(/\d+/)?.[0]) || 0;
   if (rutePilih && muatPerahu && tamu > muatPerahu) return gagal(m(`${perahuPilih!.judul} memuat paling banyak ${muatPerahu} orang. Pilih perahu lain.`, `The ${perahuPilih!.judul} carries up to ${muatPerahu} people. Please choose another boat.`));
-  const teksTransport = perahuPilih && rutePilih ? `${perahuPilih.judul}, ${rutePilih.rute}, ${rutePilih.harga} (dibayar terpisah)` : "";
+  /* Sekali jalan hanya bila harganya diisi; rute yang hanya punya harga sekali jalan selalu sekali jalan. */
+  const sekaliJalan = !!rutePilih?.sekali && (o.arah === "sekali" || !rutePilih.harga);
+  const arahTim = sekaliJalan ? "sekali jalan" : "pulang pergi";
+  const teksTransport = perahuPilih && rutePilih ? `${perahuPilih.judul}, ${rutePilih.rute}, ${arahTim}, ${sekaliJalan ? rutePilih.sekali : rutePilih.harga} (dibayar terpisah)` : "";
   const penyelam = Math.min(tamu, bulat(o.selam, 20));
   const kamarId = o.kamar;
   const terisi = (await bookingDalam(masuk, keluar)).some((b) => b.roomId === kamarId && (MENEMPATI.includes(b.status) || b.status === "TENTATIVE") && tumpang(b.checkIn, b.checkOut, masuk, keluar));
@@ -117,7 +120,8 @@ export async function POST(req: Request) {
     if (email) {
       const tb = (d: string) => tglBahasa(d, en ? "en" : "id");
       const kt = perahuPilih && en ? await bacaKonten("en") : kontenTim;
-      const pt = kt?.perahu[ip_]?.harga[jp_] ? `${kt.perahu[ip_].judul}, ${kt.perahu[ip_].harga[jp_].rute}, ${kt.perahu[ip_].harga[jp_].harga}` : teksTransport;
+      const hk = kt?.perahu[ip_]?.harga[jp_];
+      const pt = hk ? `${kt!.perahu[ip_].judul}, ${hk.rute}, ${sekaliJalan ? (en ? "one way" : "sekali jalan") : en ? "return" : "pulang pergi"}, ${(sekaliJalan ? hk.sekali : hk.harga) || (sekaliJalan ? rutePilih!.sekali : rutePilih!.harga)}` : teksTransport;
       const tambahan = [perahuPilih && rutePilih ? (en ? `Boat transfer (paid separately): ${pt}` : `Antar-jemput perahu (dibayar terpisah): ${pt}`) : "", penyelam ? (en ? `Diving for ${penyelam} ${penyelam === 1 ? "person" : "people"}: we will send dive packages and prices` : `Diving untuk ${penyelam} orang: paket dan harga selam kami kirimkan`) : ""].filter(Boolean).map((x) => `\n${x}`).join("");
       if (en)
         await kirimEmail(email, `Booking request ${p.code} received`, `Hello ${nama},\n\nThank you. We have received your request:\n${p.roomName}, ${tb(masuk)} to ${tb(keluar)}\nEstimated total ${rupiah(bayar)}${kode ? ` (coupon ${kode}: -${rupiah(potongan)})` : ""}${tambahan}\n\nWe will reply with a confirmation and payment details. Your booking code is ${p.code}.\n\nWarm regards,\n${set.namaResort}`);
