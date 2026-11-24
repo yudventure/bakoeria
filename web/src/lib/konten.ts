@@ -621,6 +621,20 @@ export const nomorWa = (s: string) => {
   return d.startsWith("0") ? "62" + d.slice(1) : d;
 };
 
+/**
+ * Nomor telepon untuk dibaca dan dicatat pengunjung: "+62 851-8616-6922".
+ * Nomor Indonesia (0… atau 62…) dikelompokkan dengan tanda hubung; nomor lain dibiarkan apa adanya.
+ */
+export function nomorTampil(s: string): string {
+  const d = nomorWa(s);
+  if (!d.startsWith("62") || d.length < 10 || d.length > 15) return s.trim();
+  const n = d.slice(2);
+  /* Kelompok menyesuaikan panjang supaya tidak ada sisa yang terlalu pendek. */
+  const pola = ({ 8: [3, 3, 2], 9: [3, 3, 3], 10: [3, 3, 4], 11: [3, 4, 4], 12: [4, 4, 4] } as Record<number, number[]>)[n.length] ?? [4, 4, n.length - 8];
+  const a = n.slice(0, pola[0]), b = n.slice(pola[0], pola[0] + pola[1]), c = n.slice(pola[0] + pola[1]);
+  return `+62 ${a}-${b}-${c}`;
+}
+
 /** Tautan profil Instagram dari "@nama", "nama", atau alamat lengkap. Kosong berarti halaman awal Instagram. */
 export const tautanInstagram = (v: string) => {
   const t = v.trim();

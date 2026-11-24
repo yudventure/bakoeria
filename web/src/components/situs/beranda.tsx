@@ -7,7 +7,7 @@ import Galeri from "./galeri";
 import { KAMAR_DEMO, pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
-import { tautanPeta, idYoutube, nomorWa, sumberVideo, titikResort } from "@/lib/konten";
+import { tautanPeta, idYoutube, nomorTampil, nomorWa, sumberVideo, titikResort } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
@@ -99,7 +99,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         <img src="/brand/bakoeria-logo-stacked-warna.svg" alt="Bakoeria Dive Resort" className="w-[min(340px,78vw)]" />
         <p className="mt-10 font-display text-3xl">{t.sedangBerbenah}</p>
         {k.pengumuman && <p className="mt-3 max-w-md text-malam/65">{k.pengumuman}</p>}
-        <p className="mt-8 text-sm text-malam/65">WhatsApp <span className="select-all font-bold text-malam">{k.kontak.whatsapp}</span> · {k.kontak.email}</p>
+        <p className="mt-8 text-sm text-malam/65">WhatsApp <span className="select-all font-bold text-malam">{nomorTampil(k.kontak.whatsapp)}</span> · {k.kontak.email}</p>
       </main>
     );
   }
@@ -331,7 +331,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               <h2 className="font-display text-[clamp(40px,5vw,58px)] font-normal leading-[0.98] tracking-[-0.02em]">{t.rencanakan}</h2>
               <p className="mt-4 max-w-sm text-[14px] text-malam/65">{k.pesanIsi}</p>
               <dl className="mt-6 grid max-w-sm gap-2 text-[14px]">
-                {[["wa", "WhatsApp", k.kontak.whatsapp], ["surat", "Email", k.kontak.email], ["ig", "Instagram", k.kontak.instagram]].filter(([, , dd]) => dd.trim()).map(([ikon, dt, dd]) => (
+                {[["wa", "WhatsApp", nomorTampil(k.kontak.whatsapp)], ["surat", "Email", k.kontak.email], ["ig", "Instagram", k.kontak.instagram]].filter(([, , dd]) => dd.trim()).map(([ikon, dt, dd]) => (
                   <div key={dt} className="flex items-center gap-3 rounded-full bg-white/85 px-4 py-2.5 ring-1 ring-malam/8 backdrop-blur">
                     <Ikon nama={ikon} className="size-5 text-emas-tua" />
                     <dt className="sr-only">{dt}</dt>

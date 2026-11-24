@@ -1,4 +1,4 @@
-import { nomorWa, tautanInstagram, tautanPeta, titikResort, type Konten, type SeksiId } from "@/lib/konten";
+import { nomorTampil, nomorWa, tautanInstagram, tautanPeta, titikResort, type Konten, type SeksiId } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { Ikon } from "./ikon";
 
@@ -62,7 +62,7 @@ export default function Footer({ k, namaResort, bahasa }: { k: Konten; namaResor
               <li>
                 <a href={`https://wa.me/${wa}?text=${pesanWa}`} target="_blank" rel="noopener noreferrer" className="inline-flex max-w-full items-center gap-2.5 font-bold text-white/85 hover:text-white">
                   <Ikon nama="wa" className="size-5 flex-none text-emas" />
-                  {kontak.whatsapp}
+                  {nomorTampil(kontak.whatsapp)}
                 </a>
               </li>
             )}
