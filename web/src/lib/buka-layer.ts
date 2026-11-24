@@ -1,10 +1,10 @@
-/* Salinan CSS tanpa @layer untuk Safari sebelum 15.4 (lihat src/lib/peramban-lama.ts). */
+/* CSS tanpa @layer untuk Safari sebelum 15.4 (lihat src/lib/peramban-lama.ts dan /api/css-lama). */
 /** `@layer` dibuka: blok `@layer x{...}` diganti isinya, pernyataan `@layer a,b;` dibuang. */
-export function bukaLayer(css) {
+export function bukaLayer(css: string): string {
   let hasil = "";
   let i = 0;
   const n = css.length;
-  const tutupan = []; // per kurung kurawal terbuka: true bila kurung itu milik @layer
+  const tutupan: boolean[] = []; // per kurung kurawal terbuka: true bila kurung itu milik @layer
   while (i < n) {
     const c = css[i];
     if (c === '"' || c === "'") {

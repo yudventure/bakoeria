@@ -6,7 +6,7 @@
  * 1. Fungsi yang belum ada di Safari 15.3 ke bawah (structuredClone, .at(), Object.hasOwn,
  *    findLast) diisi versi sederhana. Tanpa itu router Next berhenti dan halaman mati.
  * 2. Safari tanpa @layer (sebelum 15.4) mengabaikan semua gaya Tailwind. Untuknya dimuat
- *    salinan CSS tanpa @layer (`/css-lama/<nama>.css`, dibuat scripts/package.mjs).
+ *    salinan CSS tanpa @layer (`/api/css-lama/<nama>.css`, dibuat server dari CSS aslinya).
  * 3. Kelas `peramban-lama` di <html> untuk iOS 15 ke bawah, supaya komponen berat
  *    (pemutar TikTok dan YouTube) tidak dimuat di ponsel bermemori kecil.
  * Peramban modern hanya menjalankan beberapa pemeriksaan singkat.
@@ -27,6 +27,6 @@ var lapis=!!(window.CSS&&CSS.supports&&CSS.supports("selector(:has(a))"));
 if(safari&&!lapis){h.classList.add("peramban-lama");
 var muat=function(){var l=document.querySelectorAll('link[rel="stylesheet"][href*="/_next/static/css/"]');
 for(var i=0;i<l.length;i++){var a=l[i].getAttribute("href");if(l[i].getAttribute("data-lama"))continue;l[i].setAttribute("data-lama","1");
-var b=document.createElement("link");b.rel="stylesheet";b.href="/css-lama/"+a.split("?")[0].split("/").pop();b.setAttribute("data-lama","1");document.head.appendChild(b)}};
+var b=document.createElement("link");b.rel="stylesheet";b.href="/api/css-lama/"+a.split("?")[0].split("/").pop();b.setAttribute("data-lama","1");document.head.appendChild(b)}};
 muat();document.addEventListener("DOMContentLoaded",muat);}
 }catch(e){}})();`;
