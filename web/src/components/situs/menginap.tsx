@@ -28,7 +28,7 @@ const Ikon = ({ d, className = "" }: { d: string; className?: string }) => (
   <svg viewBox="0 0 24 24" className={`size-5 shrink-0 ${className}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={d} /></svg>
 );
 
-export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, poster, pesan = "#pesan", katalog = [] }: { /** Katalog fasilitas kamar: ikon pilihan pemilik untuk tiap fasilitas. */ katalog?: Fasilitas[]; /** Foto galeri menginap, berurutan; jumlahnya bebas. */ galeri: Gambar[]; poster: Gambar; jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "" (tombol disembunyikan). */ pesan?: string; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
+export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, poster, pesan = "#pesan", katalog = [], perahu }: { /** Kartu perahu antar-jemput, di bawah fasilitas. */ perahu?: React.ReactNode; /** Katalog fasilitas kamar: ikon pilihan pemilik untuk tiap fasilitas. */ katalog?: Fasilitas[]; /** Foto galeri menginap, berurutan; jumlahnya bebas. */ galeri: Gambar[]; poster: Gambar; jenis: { r: Kamar; unit: number }[]; isi: string; bahasa: Bahasa; /** Tujuan tombol pesan: "#pesan", WhatsApp, atau "" (tombol disembunyikan). */ pesan?: string; tanda: React.ReactNode; /** Id video YouTube, atau "" bila belum diisi. */ video: string }) {
   const t = KAMUS[bahasa];
   const g = t.galeri;
   const fitur = (r: Kamar) => (bahasa === "id" ? (r.featuresId.length ? r.featuresId : r.featuresEn) : r.featuresEn.length ? r.featuresEn : r.featuresId);
@@ -119,6 +119,8 @@ export default function Menginap({ jenis, isi, bahasa, tanda, video, galeri, pos
             </ul>
           </div>
         )}
+
+        {perahu}
 
         <p className="muncul mt-8 rounded-2xl bg-busa/60 px-5 py-4 text-[14px] leading-relaxed text-malam/75">{t.kebijakanAnak}</p>
       </div>

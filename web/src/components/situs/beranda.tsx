@@ -1,5 +1,6 @@
 import { PencatatKunjungan } from "./pencatat";
 import Menginap from "./menginap";
+import PerahuJemput from "./perahu";
 import HargaSelam from "./harga-selam";
 import Aktivitas from "./aktivitas";
 import PetaRute from "./peta-rute";
@@ -190,7 +191,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
 
         {/* MENGINAP: sorotan dan galeri; tanpa kamar di database memakai isi dari menu Website */}
         {on.menginap && (
-          <Menginap katalog={katalog.kamar} galeri={galeri.menginap.map(gambarItem)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
+          <Menginap perahu={<PerahuJemput tata="menginap" judul={k.perahuJudul} isi={k.perahuIsi} perahu={k.perahu} foto={(["perahu1", "perahu2", "perahu3"] as const).map(g)} />} katalog={katalog.kamar} galeri={galeri.menginap.map(gambarItem)} poster={g("video")} jenis={jenis.length ? jenis : JENIS_CADANGAN} isi={k.cottageIsi} bahasa={bahasa} pesan={tautanPesan} video={idYoutube(k.kontak.video)} tanda={<Bintang className="block text-[26px]" />} />
         )}
 
         {/* PROGRAM SELAM: kartu yang membuka dan menampilkan harganya saat ditunjuk kursor */}
@@ -298,41 +299,8 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 </div>
               </div>
 
-              {/* Perahu antar-jemput: kartu tiap perahu dengan mesin dan harga pulang pergi (bayar terpisah dari kamar). */}
-              {k.perahu.length > 0 && (
-                <div data-perahu className="mt-12">
-                  <div className="muncul grid gap-3 lg:grid-cols-[1fr_1.1fr] lg:items-end">
-                    <h3 className="font-display text-[clamp(24px,3vw,32px)] font-normal leading-tight">{k.perahuJudul}</h3>
-                    {k.perahuIsi && <p className="max-w-xl text-[14px] leading-relaxed text-malam/65 lg:justify-self-end">{k.perahuIsi}</p>}
-                  </div>
-                  <ul className={`mt-6 grid gap-4 ${k.perahu.length > 1 ? "sm:grid-cols-2" : ""} ${k.perahu.length > 2 ? "lg:grid-cols-3" : ""}`}>
-                    {k.perahu.map((x, i) => (
-                      <li key={x.judul + i} style={{ "--tunda": i } as React.CSSProperties} className={`muncul flex overflow-hidden rounded-[1.4rem] bg-white shadow-[0_10px_30px_rgba(10,36,64,.07)] ring-1 ring-malam/5 ${k.perahu.length === 1 ? "flex-col sm:flex-row" : "flex-col"}`}>
-                        <div className={`relative overflow-hidden bg-busa ${k.perahu.length === 1 ? "aspect-[16/10] sm:w-1/2" : "aspect-[16/10]"}`}>
-                          <img {...atribut(g((["perahu1", "perahu2", "perahu3"] as const)[i] ?? "perahu2"), "(min-width: 640px) 45vw, 100vw")} alt={x.judul} loading="lazy" className="absolute inset-0 size-full object-cover" />
-                        </div>
-                        <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <h4 className="font-display text-[24px] leading-tight">{x.judul}</h4>
-                            {x.mesin && <span className="inline-flex items-center gap-1.5 rounded-full bg-busa px-3 py-1 text-[12.5px] font-bold text-malam/80"><svg viewBox="0 0 24 24" className="size-4 text-emas-tua" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z" /></svg>{x.mesin}</span>}
-                          </div>
-                          {x.isi && <p className="text-[14px] leading-relaxed text-malam/65">{x.isi}</p>}
-                          {x.harga.length > 0 && (
-                            <dl className="mt-auto grid gap-2 pt-1">
-                              {x.harga.map((h, j) => (
-                                <div key={h.rute + j} className="flex items-baseline justify-between gap-3 rounded-xl bg-[#F6F4EF] px-3.5 py-2.5">
-                                  <dt className="text-[13.5px] text-malam/70">{h.rute}</dt>
-                                  <dd className="angka whitespace-nowrap text-[15px] font-bold text-emas-tua">{h.harga}</dd>
-                                </div>
-                              ))}
-                            </dl>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {/* Perahu antar-jemput tampil di sini hanya bila seksi Menginap dimatikan; biasanya di seksi Menginap, dekat fasilitas antar-jemput. */}
+              {!on.menginap && <PerahuJemput judul={k.perahuJudul} isi={k.perahuIsi} perahu={k.perahu} foto={(["perahu1", "perahu2", "perahu3"] as const).map(g)} />}
             </div>
           </section>
         )}

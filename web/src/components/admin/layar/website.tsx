@@ -287,7 +287,7 @@ export default function Website() {
       )}
       {bagian === "lokasi" && (
         <>
-          <Kartu judul="Perahu antar-jemput" ket="Kartu perahu di bawah peta rute. Antar-jemput dibayar terpisah dari kamar. Harga ditulis bebas, misalnya Rp 4.000.000. Fotonya diganti di kotak Foto perahu di bawah (urutan foto sama dengan urutan perahu).">
+          <Kartu judul="Perahu antar-jemput" ket="Kartu perahu di seksi Menginap, di bawah fasilitas (di bawah peta rute bila seksi Menginap dimatikan). Antar-jemput dibayar terpisah dari kamar. Harga ditulis bebas, misalnya Rp 4.000.000. Fotonya diganti di kotak Foto perahu di bawah (urutan foto sama dengan urutan perahu).">
             <div className="grid gap-4 sm:grid-cols-2">
               <Bidang label="Judul"><input className={masukan} value={k.perahuJudul} onChange={(e) => set("perahuJudul", e.target.value)} /></Bidang>
               <Bidang label="Pengantar"><input className={masukan} value={k.perahuIsi} onChange={(e) => set("perahuIsi", e.target.value)} /></Bidang>
