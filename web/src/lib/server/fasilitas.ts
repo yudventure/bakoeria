@@ -9,12 +9,27 @@ import { bacaJson, ubahJson } from "./gudang";
  * tersimpan dan dicentang di semua kamar. Tanda di "migrasi-fasilitas.json" mencegahnya
  * berjalan lagi, jadi centang yang nanti dilepas pemilik tidak dipasang ulang.
  */
+/* Tiap tambahan fasilitas untuk semua kamar dijalankan sekali, ditandai namanya. */
+const MIGRASI: { tanda: string; kunci: string[] }[] = [
+  { tanda: "kayakSnorkel", kunci: ["kayak", "snorkel"] },
+  /* November 2026, permintaan pemilik: antar-jemput perahu juga fasilitas setiap cottage. */
+  { tanda: "boatTransfer", kunci: ["transfer"] },
+];
 let migrasi: Promise<void> | undefined;
 export function pastikanFasilitasTamu(): Promise<void> {
   migrasi ??= (async () => {
+    for (const m of MIGRASI) await jalankanMigrasi(m);
+  })()
+    .catch((e) => console.error("[fasilitas] gagal menambah fasilitas tamu", e))
+    .finally(() => { migrasi = undefined; });
+  return migrasi;
+}
+
+async function jalankanMigrasi(m: { tanda: string; kunci: string[] }) {
+  {
     const tanda = await bacaJson<Record<string, string> | null>("migrasi-fasilitas.json", null);
-    if (tanda?.kayakSnorkel) return;
-    const baru = KATALOG_BAWAAN.kamar.filter((x) => x.kunci === "kayak" || x.kunci === "snorkel");
+    if (tanda?.[m.tanda]) return;
+    const baru = KATALOG_BAWAAN.kamar.filter((x) => m.kunci.includes(x.kunci));
     const tersimpan = await bacaJson<Record<string, unknown> | null>("fasilitas.json", null);
     if (tersimpan && Array.isArray(tersimpan.kamar)) {
       const kat = rapikanKatalog(tersimpan);
@@ -31,11 +46,8 @@ export function pastikanFasilitasTamu(): Promise<void> {
       }
       if (kamar.length === 0) return; // belum ada kamar: dicoba lagi nanti, tanda belum ditulis
     }
-    await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), kayakSnorkel: new Date().toISOString() }), 0o644);
-  })()
-    .catch((e) => console.error("[fasilitas] gagal menambah kayak dan snorkel", e))
-    .finally(() => { migrasi = undefined; });
-  return migrasi;
+    await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), [m.tanda]: new Date().toISOString() }), 0o644);
+  }
 }
 
 export const bacaKatalog = async (): Promise<KatalogFasilitas> => rapikanKatalog(await bacaJson<unknown>("fasilitas.json", null));
