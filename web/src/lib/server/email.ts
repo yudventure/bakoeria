@@ -57,3 +57,34 @@ export async function kirimEmail(ke: string, subjek: string, teks: string, balas
 
 /** Alamat email dari "Nama <alamat>" atau alamat polos. */
 export const alamatSaja = (s: string) => (s.match(/<([^>]+)>/)?.[1] ?? s).trim();
+
+/**
+ * Email uji dari dashboard: kirim sungguhan dan kembalikan alasan gagal yang bisa dibaca
+ * pemilik (tanpa sandi). Dipakai tombol "Kirim email uji" di Pengaturan.
+ */
+export async function ujiEmail(ke: string): Promise<{ ok: true; jalur: string } | { ok: false; galat: string }> {
+  const dari = pengirim();
+  if (!emailSiap()) return { ok: false, galat: "Email belum dipasang. Isi SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS (atau RESEND_API_KEY) di panel Node.js Hostinger, lalu mulai ulang aplikasinya." };
+  if (!ke) return { ok: false, galat: "Tidak ada alamat tujuan. Isi Email pemberitahuan pesanan di atas." };
+  const subjek = "Email uji dari dashboard Bakoeria";
+  const teks = `Email ini dikirim dari tombol Kirim email uji di dashboard Bakoeria (${new Date().toISOString()}).\nKalau email ini sampai, pemberitahuan pesanan dan pembayaran juga akan sampai ke alamat ini.`;
+  if (process.env.SMTP_HOST?.trim() && process.env.SMTP_USER?.trim() && process.env.SMTP_PASS) {
+    try {
+      await smtp().sendMail({ from: dari, to: ke, subject: subjek, text: teks });
+      return { ok: true, jalur: `SMTP ${process.env.SMTP_HOST.trim()}:${Number(process.env.SMTP_PORT) || 465}` };
+    } catch (e) {
+      transport = null;
+      const x = e as { code?: string; responseCode?: number; response?: string; message?: string };
+      const kode = x.code ?? "";
+      const alasan =
+        kode === "EAUTH" ? "Server email menolak SMTP_USER atau SMTP_PASS. Periksa sandi kotak surat di hPanel, Email."
+        : kode === "ECONNECTION" || kode === "ETIMEDOUT" || kode === "ESOCKET" ? `Tidak bisa terhubung ke ${process.env.SMTP_HOST.trim()} port ${Number(process.env.SMTP_PORT) || 465}. Periksa SMTP_HOST dan SMTP_PORT (Hostinger: smtp.hostinger.com, 465).`
+        : kode === "EENVELOPE" ? "Alamat pengirim atau tujuan ditolak. Pengirim harus kotak surat yang sama dengan SMTP_USER."
+        : "Server email menolak pengiriman.";
+      return { ok: false, galat: `${alasan} (${[kode, x.responseCode, (x.response ?? x.message ?? "").slice(0, 160)].filter(Boolean).join(" ")})` };
+    }
+  }
+  const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY!.trim()}`, "Content-Type": "application/json" }, body: JSON.stringify({ from: dari, to: [ke], subject: subjek, text: teks }), signal: AbortSignal.timeout(15000) }).catch(() => null);
+  if (!r) return { ok: false, galat: "Tidak bisa menghubungi Resend." };
+  return r.ok ? { ok: true, jalur: "Resend" } : { ok: false, galat: `Resend menolak (${r.status}): ${(await r.text().catch(() => "")).slice(0, 200)}` };
+}

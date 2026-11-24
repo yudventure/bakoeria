@@ -24,6 +24,7 @@ export default function Pengaturan() {
   const [p, setP] = useState<TPengaturan | null>(null);
   const [st, setSt] = useState<Status | null>(null);
   const [galat, setGalat] = useState("");
+  const [ujiEmail, setUjiEmail] = useState("");
   const boleh = akun.peran === "developer" || akun.peran === "pemilik";
   useEffect(() => {
     api<{ pengaturan: TPengaturan; status: Status }>("/api/pengaturan").then((r) => { setP(r.pengaturan); setSt(r.status); }).catch((e) => setGalat(e.message));
@@ -85,6 +86,13 @@ export default function Pengaturan() {
           {baris(st.penyiapanKunci, "PENYIAPAN_KUNCI", "Hanya untuk membuat akun pertama.")}
           {baris(st.sessionSecret, "SESSION_SECRET", "Opsional. Tanpa ini rahasia sesi dibuat sekali dan disimpan di folder data.")}
           {baris(st.email, "SMTP_HOST, SMTP_USER, SMTP_PASS", "Opsional. Email pemberitahuan pesanan website, misalnya lewat email Hostinger.")}
+          <li className="grid gap-2 py-3" data-email-uji>
+            <span className="text-sm text-panel-redup">Kirim email sungguhan ke {p.emailNotifikasi || "alamat pengirim (SMTP_USER)"} untuk memastikan pemberitahuan pesanan dan pembayaran sampai. Simpan dulu bila alamatnya baru diubah.</span>
+            <span className="flex flex-wrap items-center gap-3">
+              <Tombol kecil varian="garis" disabled={ujiEmail === "…"} onClick={async () => { setUjiEmail("…"); try { const r = await api<{ ke: string; jalur: string }>("/api/pengaturan/email-uji", { method: "POST" }); setUjiEmail(`Terkirim ke ${r.ke} lewat ${r.jalur}. Periksa kotak masuk, juga folder spam.`); } catch (e) { setUjiEmail(`Gagal: ${e instanceof Error ? e.message : "tidak diketahui"}`); } }}>{ujiEmail === "…" ? "Mengirim…" : "Kirim email uji"}</Tombol>
+              {ujiEmail && ujiEmail !== "…" && <span role="status" className={`text-sm ${ujiEmail.startsWith("Gagal") ? "text-panel-merah" : "text-panel-hijau"}`}>{ujiEmail}</span>}
+            </span>
+          </li>
           {baris(st.folderData, "BAKOERIA_DATA_DIR", "Opsional. Tanpa ini data akun dan isi website disimpan di ~/.bakoeria-data.")}
         </ul>
       </Kartu>
