@@ -107,10 +107,10 @@ export const IKON_KEUNGGULAN = ["selam", "rumah", "tenang", "orang", "perahu", "
 export const KONTEN_BAWAAN: Konten = {
   tagline: "Menyelam siang, bermalam di bawah bintang.",
   heroAwalan: "Datang untuk",
-  heroKata: ["menyelam di karang", "cottage kayu jati", "kelompok kecil", "malam berbintang"],
+  heroKata: ["menyelam di karang", "cottage kayu besi", "kelompok kecil", "malam berbintang"],
   introJudul: "Tempat laut menjadi rumah",
   introIsi:
-    "Bakoeria Dive Resort adalah resor selam butik yang tenang dan personal. Siang hari Anda ada di bawah air bersama pemandu yang mengenal lokasinya. Malam hari Anda pulang ke cottage kayu jati, dengan lampu gantung hangat dan pasir di bawah kaki.",
+    "Bakoeria Dive Resort adalah resor selam butik yang tenang dan personal. Siang hari Anda ada di bawah air bersama pemandu yang mengenal lokasinya. Malam hari Anda pulang ke cottage kayu besi, dengan lampu gantung hangat dan pasir di bawah kaki.",
   programCatatan: "Jadwal dan tarif disesuaikan dengan kondisi laut dan kemampuan tamu.",
   program: [
     { judul: "Fun Dive", isi: "Untuk penyelam bersertifikat. Briefing singkat, dua penyelaman per hari, dipandu dive master yang memahami titik selam setempat.", meta: "Bersertifikat · 2 selam per hari", harga: "" },
@@ -293,8 +293,8 @@ export const KONTEN_BAWAAN: Konten = {
       ]
     }
   ],
-  cottageJudul: "Cottage kayu jati",
-  cottageIsi: "Rumah panggung berdinding kayu jati dengan teras menghadap taman kelapa. Dibangun dari bahan lokal, dirancang untuk angin laut mengalir.",
+  cottageJudul: "Cottage kayu besi",
+  cottageIsi: "Rumah panggung berdinding kayu besi berkualitas dengan teras menghadap taman kelapa. Dibangun dari bahan lokal, dirancang untuk angin laut mengalir.",
   cottageFitur: ["Teras pribadi dengan kursi dan lampu hangat", "Tempat tidur dengan kelambu dan kamar mandi dalam", "Area bilas dan penyimpanan peralatan selam", "Beberapa langkah ke pantai dan dermaga"],
   jadwal: [
     { jam: "06.30", judul: "Sarapan", isi: "Kopi, buah, dan sarapan hangat di teras makan." },
@@ -319,19 +319,19 @@ export const KONTEN_BAWAAN: Konten = {
   ],
   pesanIsi: "Pilih tanggal dan cottage. Kami membalas dengan konfirmasi dan cara pembayaran.",
   kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "", alamat: "", peta: "", facebook: "", tiktok: "", youtube: "", video: "", aktivitasVideo: ["", "", ""] },
-  footerTentang: "Resor selam butik dengan cottage kayu jati di tepi pantai. Menyelam siang bersama pemandu yang mengenal lautnya, bermalam di bawah langit penuh bintang.",
+  footerTentang: "Resor selam butik dengan cottage kayu besi di tepi pantai. Menyelam siang bersama pemandu yang mengenal lautnya, bermalam di bawah langit penuh bintang.",
   pengumuman: "",
   tutup: false,
   sorotan: [
-    { nilai: "", label: "cottage kayu jati" },
+    { nilai: "", label: "cottage kayu besi" },
     { nilai: "", label: "program selam" },
     { nilai: "2", label: "selam per hari" },
   ],
-  pernyataan: "Kami merancang tempat menyelam dan beristirahat, di mana *laut*, *kayu jati*, dan *kehangatan tim* berjalan dalam keseimbangan",
+  pernyataan: "Kami merancang tempat menyelam dan beristirahat, di mana *laut*, *kayu besi*, dan *kehangatan tim* berjalan dalam keseimbangan",
   keunggulanJudul: "Kenapa memilih Bakoeria",
   keunggulan: [
     { ikon: "selam", judul: "Pemandu yang mengenal laut", isi: "Dive master yang hafal titik selam, arus, dan musimnya." },
-    { ikon: "rumah", judul: "Cottage kayu jati", isi: "Rumah panggung dari bahan lokal, dirancang untuk angin laut." },
+    { ikon: "rumah", judul: "Cottage kayu besi", isi: "Rumah panggung dari bahan lokal, dirancang untuk angin laut." },
     { ikon: "tenang", judul: "Tenang dan pribadi", isi: "Sedikit cottage, kelompok selam kecil, malam yang sunyi." },
     { ikon: "orang", judul: "Untuk semua tingkat", isi: "Dari selam pertama sampai penyelam berpengalaman." },
   ],
@@ -343,10 +343,10 @@ export const KONTEN_BAWAAN_EN: Konten = {
   ...KONTEN_BAWAAN,
   tagline: "Dive by day, sleep under the stars.",
   heroAwalan: "Here for",
-  heroKata: ["reef dives", "teak cottages", "small groups", "starry nights"],
+  heroKata: ["reef dives", "ironwood cottages", "small groups", "starry nights"],
   introJudul: "Where the sea feels like home",
   introIsi:
-    "Bakoeria Dive Resort is a small, quiet dive resort. By day you are underwater with guides who know these sites well. By night you come home to a teak cottage, with warm hanging lights and sand under your feet.",
+    "Bakoeria Dive Resort is a small, quiet dive resort. By day you are underwater with guides who know these sites well. By night you come home to an ironwood cottage, with warm hanging lights and sand under your feet.",
   programCatatan: "Schedules and prices follow sea conditions and each guest's experience.",
   program: [
     { judul: "Fun Dive", isi: "For certified divers. A short briefing and two dives a day, led by a dive master who knows the local sites.", meta: "Certified · 2 dives a day", harga: "" },
@@ -529,8 +529,8 @@ export const KONTEN_BAWAAN_EN: Konten = {
       ]
     }
   ],
-  cottageJudul: "Teak cottages",
-  cottageIsi: "Stilt houses with teak walls and a terrace facing the coconut garden. Built from local materials and designed to let the sea breeze through.",
+  cottageJudul: "Ironwood cottages",
+  cottageIsi: "Stilt houses with walls of quality ironwood and a terrace facing the coconut garden. Built from local materials and designed to let the sea breeze through.",
   cottageFitur: ["Private terrace with chairs and warm lights", "Bed with mosquito net and en-suite bathroom", "Rinse area and storage for dive gear", "A few steps to the beach and jetty"],
   jadwal: [
     { jam: "06.30", judul: "Breakfast", isi: "Coffee, fruit, and a warm breakfast on the dining terrace." },
@@ -554,17 +554,17 @@ export const KONTEN_BAWAAN_EN: Konten = {
     { t: "What should I bring?", j: "Light clothing, reef-safe sunscreen, personal medicine, and your logbook if you have one. Also bring enough cash from Sorong or Waisai: there are no ATMs in the villages and card payment may not work. Dive gear can be rented at the resort." },
   ],
   pesanIsi: "Choose your dates and cottage. We'll reply with a confirmation and payment details.",
-  pernyataan: "We built a place to dive and to rest, where *the sea*, *teak wood*, and *a warm team* are in balance",
+  pernyataan: "We built a place to dive and to rest, where *the sea*, *ironwood*, and *a warm team* are in balance",
   keunggulanJudul: "Why Bakoeria",
   keunggulan: [
     { ikon: "selam", judul: "Guides who know the sea", isi: "Dive masters who know every site, current, and season." },
-    { ikon: "rumah", judul: "Teak cottages", isi: "Stilt houses of local materials, built for the sea breeze." },
+    { ikon: "rumah", judul: "Ironwood cottages", isi: "Stilt houses of local materials, built for the sea breeze." },
     { ikon: "tenang", judul: "Quiet and private", isi: "Few cottages, small dive groups, and silent nights." },
     { ikon: "orang", judul: "For every level", isi: "From a first dive to seasoned divers." },
   ],
-  footerTentang: "A small dive resort with teak cottages by the beach. Dive by day with guides who know the sea, and sleep under a sky full of stars.",
+  footerTentang: "A small dive resort with ironwood cottages by the beach. Dive by day with guides who know the sea, and sleep under a sky full of stars.",
   sorotan: [
-    { nilai: "", label: "teak cottages" },
+    { nilai: "", label: "ironwood cottages" },
     { nilai: "", label: "dive programmes" },
     { nilai: "2", label: "dives a day" },
   ],

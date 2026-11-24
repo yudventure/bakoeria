@@ -4,7 +4,7 @@ import "../globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL?.trim() || "http://localhost:3000"),
   title: { default: "Bakoeria Dive Resort", template: "%s · Bakoeria Dive Resort" },
-  description: "Resor selam butik dengan cottage kayu jati di tepi pantai. Menyelam siang, bermalam di bawah bintang.",
+  description: "Resor selam butik dengan cottage kayu besi di tepi pantai. Menyelam siang, bermalam di bawah bintang.",
   /* ?v= dinaikkan tiap kali ikon berganti: browser menyimpan favicon sangat lama dan tidak mengambil ulang bila alamatnya sama. */
   icons: {
     icon: [
@@ -19,14 +19,14 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Bakoeria Dive Resort",
     title: "Bakoeria Dive Resort · Raja Ampat",
-    description: "Resort selam kecil dengan cottage kayu jati di tepi pantai Raja Ampat. Menyelam siang, bermalam di bawah bintang.",
+    description: "Resort selam kecil dengan cottage kayu besi di tepi pantai Raja Ampat. Menyelam siang, bermalam di bawah bintang.",
     url: "/id",
     locale: "id_ID",
     alternateLocale: ["en_GB"],
     /* JPEG kecil (< 200 KB): WhatsApp tidak menampilkan gambar yang besar. ?v= memaksa pratinjau lama diperbarui. */
-    images: [{ url: "/img/og-id.jpg?v=3", width: 1200, height: 630, alt: "Bakoeria Dive Resort, cottage kayu jati di bawah langit malam", type: "image/jpeg" }],
+    images: [{ url: "/img/og-id.jpg?v=3", width: 1200, height: 630, alt: "Bakoeria Dive Resort, cottage kayu besi di bawah langit malam", type: "image/jpeg" }],
   },
-  twitter: { card: "summary_large_image", title: "Bakoeria Dive Resort · Raja Ampat", description: "Resort selam kecil dengan cottage kayu jati di tepi pantai Raja Ampat. Menyelam siang, bermalam di bawah bintang.", images: ["/img/og-id.jpg?v=3"] },
+  twitter: { card: "summary_large_image", title: "Bakoeria Dive Resort · Raja Ampat", description: "Resort selam kecil dengan cottage kayu besi di tepi pantai Raja Ampat. Menyelam siang, bermalam di bawah bintang.", images: ["/img/og-id.jpg?v=3"] },
   alternates: { canonical: "/id", languages: { en: "/", id: "/id" } },
 };
 

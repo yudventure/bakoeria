@@ -22,6 +22,8 @@ interface Opsi {
   /** Nama musim bila ada malam bertarif musiman. */
   musim: string | null;
 }
+/** Perahu antar-jemput dari isi situs; harganya teks yang ditulis pemilik. */
+export interface PerahuPesan { judul: string; muat: string; harga: { rute: string; harga: string }[] }
 type HasilKupon = { kode: string; ok: true } | { kode: string; ok: false; alasan: keyof (typeof KAMUS)["en"]["form"]["kuponTolak"]; batas: number | string | null } | null;
 /** Cottage dengan jenis yang sama ditawarkan sebagai satu pilihan; unitnya dipilihkan yang kosong. */
 interface Jenis { kunci: string; nama: string; ket: string | null; unit: Opsi[]; kosong: Opsi[]; contoh: Opsi }
@@ -53,7 +55,7 @@ function Penghitung({ label, ket, nilai, ubah, min, maks, teks }: { label: strin
  * tahanan. Anak di bawah 5 tahun gratis; 5 tahun ke atas 50% harga kamar per
  * malam dengan extra bed. Harga dihitung di server.
  */
-export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: boolean; bahasa: Bahasa }) {
+export default function Pemesanan({ wa, aktif, bahasa, perahu = [] }: { wa: string; aktif: boolean; bahasa: Bahasa; perahu?: PerahuPesan[] }) {
   const t = KAMUS[bahasa].form;
   const tgl_ = (s: string) => tglBahasa(s, bahasa);
   const hari = hariIniWit();
@@ -64,7 +66,10 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
   const [opsi, setOpsi] = useState<Opsi[] | null>(null);
   const [malam, setMalam] = useState(0);
   const [pilih, setPilih] = useState<string>("");
-  const [f, setF] = useState({ nama: "", telepon: "", email: "", asal: "", minat: t.minatPilihan[0], sertifikat: t.sertifikatPilihan[0], jamTiba: "", catatan: "", situs: "" });
+  const [f, setF] = useState({ nama: "", telepon: "", email: "", asal: "", minat: t.minatPilihan[0], sertifikat: t.sertifikatPilihan[t.sertifikatPilihan.length - 1], jamTiba: "", catatan: "", situs: "" });
+  /* Pilihan perahu "i-j" (perahu ke-i, rute ke-j) atau "" bila tamu mengatur sendiri. */
+  const [transport, setTransport] = useState("");
+  const [selam, setSelam] = useState({ ikut: false, jumlah: 2 });
   const [galat, setGalat] = useState("");
   const [sibuk, setSibuk] = useState(false);
   const [selesai, setSelesai] = useState<{ kode: string; total: number; jamTahanan: number; persenDp: number } | null>(null);
@@ -147,7 +152,7 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
     setGalat("");
     setSibuk(true);
     try {
-      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "" }) });
+      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, minat: minatSah, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "", transport: perahuDipilih ? perahuDipilih.kunci : "", selam: selam.ikut ? penyelam : 0 }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.galat ?? t.galatKirim);
       setSelesai(d);
@@ -159,6 +164,17 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
   }
 
   const jumlahTamu = tamu.dewasa + tamu.anak + tamu.balita;
+  const pilihanPerahu = perahu.flatMap((p, i) => p.harga.map((h, j) => ({ kunci: `${i}-${j}`, judul: p.judul, rute: h.rute, harga: h.harga, muat: Number(p.muat.match(/\d+/)?.[0]) || 0 })));
+  const perahuDipilih = pilihanPerahu.find((x) => x.kunci === transport);
+  const penyelam = Math.min(selam.jumlah, jumlahTamu);
+  const minatSelam = t.minatPilihan.slice(0, 3);
+  const minatLain = t.minatPilihan.slice(3);
+  const minatSah = (selam.ikut ? minatSelam : minatLain).includes(f.minat) ? f.minat : (selam.ikut ? minatSelam : minatLain)[0];
+  const aturSelam = (ikut: boolean) => {
+    setSelam({ ikut, jumlah: Math.max(1, Math.min(selam.jumlah, jumlahTamu)) });
+    setF({ ...f, minat: (ikut ? minatSelam : minatLain)[0], sertifikat: ikut ? t.sertifikatPilihan[0] : t.sertifikatPilihan[t.sertifikatPilihan.length - 1] });
+  };
+  const chip = (on: boolean, mati = false) => `flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-left transition ${mati ? "cursor-not-allowed border-malam/5 opacity-45" : on ? "border-emas-tua bg-busa/50" : "border-malam/10 bg-white/80 hover:border-emas-tua/50"}`;
   const teksWa = encodeURIComponent(t.pesanWaTanya(tgl_(tgl.masuk), tgl_(tgl.keluar), String(jumlahTamu)));
 
   if (selesai) {
@@ -193,6 +209,44 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
           <Penghitung label={t.dewasa} nilai={tamu.dewasa} min={1} maks={8} ubah={(n) => ubahTamu({ dewasa: n })} teks={t} />
           <Penghitung label={t.anak} ket={t.ketAnak} nilai={tamu.anak} min={0} maks={4} ubah={(n) => ubahTamu({ anak: n })} teks={t} />
           <Penghitung label={t.balita} ket={t.ketBalita} nilai={tamu.balita} min={0} maks={4} ubah={(n) => ubahTamu({ balita: n })} teks={t} />
+        </fieldset>
+        {pilihanPerahu.length > 0 && (
+          <fieldset className="grid gap-2" data-pilih-transport>
+            <legend className={`${kelasLabel} mb-1.5`}>{t.transport}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <label className={chip(transport === "")}>
+                <input type="radio" name="transport" checked={transport === ""} onChange={() => setTransport("")} className="accent-[#0F6490]" />
+                <span className="text-[15px] text-malam">{t.transportTidak}</span>
+              </label>
+              {pilihanPerahu.map((x) => {
+                const mati = x.muat > 0 && jumlahTamu > x.muat;
+                return (
+                  <label key={x.kunci} className={chip(transport === x.kunci, mati)}>
+                    <input type="radio" name="transport" disabled={mati} checked={transport === x.kunci} onChange={() => setTransport(x.kunci)} className="accent-[#0F6490]" />
+                    <span className="min-w-0 leading-snug">
+                      <span className="block text-[15px] text-malam">{x.judul} · {x.rute}</span>
+                      <span className="block text-xs text-malam/55">{x.harga}{x.muat ? ` · ${mati ? t.transportPenuh(jumlahTamu) : t.transportMuat(x.muat)}` : ""}</span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <p className="text-xs text-malam/55">{t.transportKet}</p>
+          </fieldset>
+        )}
+        <fieldset className="grid gap-2" data-pilih-selam>
+          <legend className={`${kelasLabel} mb-1.5`}>{t.selam}</legend>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className={chip(selam.ikut)}>
+              <input type="radio" name="selam" checked={selam.ikut} onChange={() => aturSelam(true)} className="accent-[#0F6490]" />
+              <span className="text-[15px] text-malam">{t.selamYa}</span>
+            </label>
+            <label className={chip(!selam.ikut)}>
+              <input type="radio" name="selam" checked={!selam.ikut} onChange={() => aturSelam(false)} className="accent-[#0F6490]" />
+              <span className="text-[15px] text-malam">{t.selamTidak}</span>
+            </label>
+          </div>
+          {selam.ikut && <Penghitung label={t.penyelam} ket={t.selamKet} nilai={penyelam} min={1} maks={jumlahTamu} ubah={(n) => setSelam({ ...selam, jumlah: n })} teks={t} />}
         </fieldset>
         <p className="rounded-2xl bg-busa/60 px-4 py-3 text-[13px] leading-relaxed text-malam/75"><b className="font-bold text-malam">{t.kebijakanJudul}.</b> {t.kebijakan} {t.termasukMakan}</p>
         {aktif ? (
@@ -247,6 +301,8 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
                   {tamu.balita > 0 && <div className="flex justify-between gap-3"><dt>{t.balitaGratis(tamu.balita)}</dt><dd>{t.gratis}</dd></div>}
                   {k.potongan > 0 && kupon?.ok && <div data-potongan className="flex justify-between gap-3 font-bold text-[#1E7A4C]"><dt>{t.potongan(kupon.kode)}</dt><dd className="angka">−{rupiah(k.potongan)}</dd></div>}
                   <div className="flex justify-between gap-3 border-t border-malam/10 pt-2 text-base font-bold text-malam"><dt>{t.total}</dt><dd className="angka">{rupiah(k.total)}</dd></div>
+                  {perahuDipilih && <div data-ringkas-transport className="flex justify-between gap-3 pt-1"><dt>{t.transportRingkas}<span className="block text-xs text-malam/55">{perahuDipilih.judul} · {perahuDipilih.rute}</span></dt><dd className="angka whitespace-nowrap">{perahuDipilih.harga}</dd></div>}
+                  {selam.ikut && <div data-ringkas-selam className="pt-1"><dt>{t.selamRingkas(penyelam)}</dt></div>}
                 </dl>
                 <div className="mt-3 border-t border-malam/10 pt-3">
                   {kupon?.ok ? (
@@ -271,16 +327,16 @@ export default function Pemesanan({ wa, aktif, bahasa }: { wa: string; aktif: bo
               <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.whatsapp}</span><input className={kelasMasukan} inputMode="tel" autoComplete="tel" value={f.telepon} onChange={(e) => setF({ ...f, telepon: e.target.value })} /></label>
               <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.email}</span><input className={kelasMasukan} type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></label>
               <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.asal}</span><input className={kelasMasukan} autoComplete="country-name" value={f.asal} onChange={(e) => setF({ ...f, asal: e.target.value })} /></label>
-              <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.minat}</span>
-                <select className={kelasMasukan} value={f.minat} onChange={(e) => setF({ ...f, minat: e.target.value })}>
-                  {t.minatPilihan.map((m) => <option key={m}>{m}</option>)}
+              <label className={`grid min-w-0 gap-1.5 ${selam.ikut ? "" : "sm:col-span-2"}`}><span className={kelasLabel}>{t.minat}</span>
+                <select className={kelasMasukan} value={minatSah} onChange={(e) => setF({ ...f, minat: e.target.value })}>
+                  {(selam.ikut ? minatSelam : minatLain).map((m) => <option key={m}>{m}</option>)}
                 </select>
               </label>
-              <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.sertifikat}</span>
+              {selam.ikut && <label className="grid min-w-0 gap-1.5"><span className={kelasLabel}>{t.sertifikat}</span>
                 <select className={kelasMasukan} value={f.sertifikat} onChange={(e) => setF({ ...f, sertifikat: e.target.value })}>
-                  {t.sertifikatPilihan.map((m) => <option key={m}>{m}</option>)}
+                  {t.sertifikatPilihan.slice(0, -1).map((m) => <option key={m}>{m}</option>)}
                 </select>
-              </label>
+              </label>}
               <label className="grid min-w-0 gap-1.5 sm:col-span-2"><span className={kelasLabel}>{t.jamTiba}</span><input className={kelasMasukan} placeholder={t.jamTibaKet} value={f.jamTiba} onChange={(e) => setF({ ...f, jamTiba: e.target.value })} /></label>
               <label className="grid gap-1.5 sm:col-span-2"><span className={kelasLabel}>{t.catatan}</span><textarea rows={2} className={kelasMasukan} value={f.catatan} onChange={(e) => setF({ ...f, catatan: e.target.value })} /></label>
               <input type="text" name="situs" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" value={f.situs} onChange={(e) => setF({ ...f, situs: e.target.value })} />

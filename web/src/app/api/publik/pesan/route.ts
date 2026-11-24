@@ -7,7 +7,7 @@ import { ambilKamar, BentrokError, bookingDalam, buatBooking, hargaOtomatis } fr
 import { MENEMPATI, tumpang } from "@/lib/booking";
 import { alamatSaja, kirimEmail, pengirim } from "@/lib/server/email";
 import { badan, gagal, ok } from "@/lib/server/rute";
-import { bacaPengaturan } from "@/lib/server/simpanan";
+import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
 import { hitungKupon, rapikanKode, teksKupon } from "@/lib/tarif";
 import { KAMUS } from "@/lib/kamus";
 import { kuponDenganKode, KuponHabisError, pastikanKuotaKupon } from "@/lib/server/kupon";
@@ -77,6 +77,15 @@ export async function POST(req: Request) {
     potongan = hk.potongan;
   }
   const bayar = harga.total - potongan;
+  /* Antar-jemput perahu dan diving hanya permintaan: tidak masuk total cottage. Perahu dicocokkan dengan isi situs (versi Indonesia untuk tim). */
+  const [ip_, jp_] = typeof o.transport === "string" && /^\d+-\d+$/.test(o.transport) ? o.transport.split("-").map(Number) : [-1, -1];
+  const kontenTim = ip_ >= 0 ? await bacaKonten("id") : null;
+  const perahuPilih = kontenTim?.perahu[ip_];
+  const rutePilih = perahuPilih?.harga[jp_];
+  const muatPerahu = Number(perahuPilih?.muat.match(/\d+/)?.[0]) || 0;
+  if (rutePilih && muatPerahu && tamu > muatPerahu) return gagal(m(`${perahuPilih!.judul} memuat paling banyak ${muatPerahu} orang. Pilih perahu lain.`, `The ${perahuPilih!.judul} carries up to ${muatPerahu} people. Please choose another boat.`));
+  const teksTransport = perahuPilih && rutePilih ? `${perahuPilih.judul}, ${rutePilih.rute}, ${rutePilih.harga} (dibayar terpisah)` : "";
+  const penyelam = Math.min(tamu, bulat(o.selam, 20));
   const kamarId = o.kamar;
   const terisi = (await bookingDalam(masuk, keluar)).some((b) => b.roomId === kamarId && (MENEMPATI.includes(b.status) || b.status === "TENTATIVE") && tumpang(b.checkIn, b.checkOut, masuk, keluar));
   if (terisi) return gagal(m("Cottage itu baru saja terisi untuk tanggal tersebut. Pilih cottage lain.", "That cottage has just been booked for those dates. Please choose another."), 409);
@@ -96,21 +105,24 @@ export async function POST(req: Request) {
         totalAmount: bayar,
         couponCode: potongan || kode ? kode : null,
         discountAmount: kode ? potongan : null,
-        notes: [`Tamu: ${dewasa} dewasa${anak ? `, ${anak} anak 5 tahun ke atas (50%, extra bed)` : ""}${balita ? `, ${balita} balita di bawah 5 tahun (gratis)` : ""}`, anak ? `Harga: kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)}` : "", kode && kupon ? `Kupon ${kode} (${teksKupon(kupon)}): potongan ${rupiah(potongan)} dari ${rupiah(harga.total)}` : "", jamTiba && `Perkiraan tiba: ${jamTiba}`, minat && `Minat: ${minat}`, `Bahasa situs: ${en ? "Inggris" : "Indonesia"}`, catatan].filter(Boolean).join("\n") || null,
+        notes: [`Tamu: ${dewasa} dewasa${anak ? `, ${anak} anak 5 tahun ke atas (50%, extra bed)` : ""}${balita ? `, ${balita} balita di bawah 5 tahun (gratis)` : ""}`, anak ? `Harga: kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)}` : "", kode && kupon ? `Kupon ${kode} (${teksKupon(kupon)}): potongan ${rupiah(potongan)} dari ${rupiah(harga.total)}` : "", `Antar-jemput: ${teksTransport || "tidak, tamu atur sendiri"}`, `Diving: ${penyelam ? `ya, ${penyelam} penyelam` : "tidak"}`, jamTiba && `Perkiraan tiba: ${jamTiba}`, minat && `Minat: ${minat}`, `Bahasa situs: ${en ? "Inggris" : "Indonesia"}`, catatan].filter(Boolean).join("\n") || null,
         holdExpiresAt: new Date(kini + set.jamTahanan * 3600000).toISOString(),
         guest: { name: nama, phone: telepon || null, email: email || null, origin: asal || null, diveCert: sertifikat || null },
       },
       "Situs web",
       kode ? { sebelumSimpan: (k) => pastikanKuotaKupon(k, kode) } : {},
     );
-    const ringkas = `${p.code}\n${nama} (${dewasa} dewasa${anak ? `, ${anak} anak 5+` : ""}${balita ? `, ${balita} balita` : ""})\n${p.roomName}, ${tglPanjang(masuk)} sampai ${tglPanjang(keluar)} (${jumlahMalam(masuk, keluar)} malam)\nPerkiraan ${rupiah(bayar)}${anak ? ` (kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)})` : ""}${kode ? `\nKupon ${kode}: potongan ${rupiah(potongan)}` : ""}\nAsal: ${asal || "-"} · Sertifikat: ${sertifikat || "-"}${jamTiba ? ` · Tiba: ${jamTiba}` : ""}\nWhatsApp: ${telepon || "-"}\nEmail: ${email || "-"}\n${minat ? "Minat: " + minat + "\n" : ""}${catatan ? "Catatan: " + catatan + "\n" : ""}\nTahanan berlaku ${set.jamTahanan} jam. Konfirmasi di dashboard /kelola.`;
+    const ringkas = `${p.code}\n${nama} (${dewasa} dewasa${anak ? `, ${anak} anak 5+` : ""}${balita ? `, ${balita} balita` : ""})\n${p.roomName}, ${tglPanjang(masuk)} sampai ${tglPanjang(keluar)} (${jumlahMalam(masuk, keluar)} malam)\nPerkiraan ${rupiah(bayar)}${anak ? ` (kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)})` : ""}${kode ? `\nKupon ${kode}: potongan ${rupiah(potongan)}` : ""}\nAsal: ${asal || "-"} · Sertifikat: ${sertifikat || "-"}${jamTiba ? ` · Tiba: ${jamTiba}` : ""}\nAntar-jemput: ${teksTransport || "tidak"}\nDiving: ${penyelam ? `ya, ${penyelam} penyelam` : "tidak"}\nWhatsApp: ${telepon || "-"}\nEmail: ${email || "-"}\n${minat ? "Minat: " + minat + "\n" : ""}${catatan ? "Catatan: " + catatan + "\n" : ""}\nTahanan berlaku ${set.jamTahanan} jam. Konfirmasi di dashboard /kelola.`;
     await kirimEmail(set.emailNotifikasi || alamatSaja(pengirim()), `Pesanan baru ${p.code} dari website`, ringkas, email || undefined);
     if (email) {
       const tb = (d: string) => tglBahasa(d, en ? "en" : "id");
+      const kt = perahuPilih && en ? await bacaKonten("en") : kontenTim;
+      const pt = kt?.perahu[ip_]?.harga[jp_] ? `${kt.perahu[ip_].judul}, ${kt.perahu[ip_].harga[jp_].rute}, ${kt.perahu[ip_].harga[jp_].harga}` : teksTransport;
+      const tambahan = [perahuPilih && rutePilih ? (en ? `Boat transfer (paid separately): ${pt}` : `Antar-jemput perahu (dibayar terpisah): ${pt}`) : "", penyelam ? (en ? `Diving for ${penyelam} ${penyelam === 1 ? "person" : "people"}: we will send dive packages and prices` : `Diving untuk ${penyelam} orang: paket dan harga selam kami kirimkan`) : ""].filter(Boolean).map((x) => `\n${x}`).join("");
       if (en)
-        await kirimEmail(email, `Booking request ${p.code} received`, `Hello ${nama},\n\nThank you. We have received your request:\n${p.roomName}, ${tb(masuk)} to ${tb(keluar)}\nEstimated total ${rupiah(bayar)}${kode ? ` (coupon ${kode}: -${rupiah(potongan)})` : ""}\n\nWe will reply with a confirmation and payment details. Your booking code is ${p.code}.\n\nWarm regards,\n${set.namaResort}`);
+        await kirimEmail(email, `Booking request ${p.code} received`, `Hello ${nama},\n\nThank you. We have received your request:\n${p.roomName}, ${tb(masuk)} to ${tb(keluar)}\nEstimated total ${rupiah(bayar)}${kode ? ` (coupon ${kode}: -${rupiah(potongan)})` : ""}${tambahan}\n\nWe will reply with a confirmation and payment details. Your booking code is ${p.code}.\n\nWarm regards,\n${set.namaResort}`);
       else
-        await kirimEmail(email, `Permintaan pemesanan ${p.code} diterima`, `Halo ${nama},\n\nTerima kasih. Permintaan Anda sudah kami terima:\n${p.roomName}, ${tb(masuk)} sampai ${tb(keluar)}\nPerkiraan ${rupiah(bayar)}${kode ? ` (kupon ${kode}: -${rupiah(potongan)})` : ""}\n\nKami akan membalas dengan konfirmasi dan cara pembayaran. Kode pesanan Anda: ${p.code}.\n\nSalam hangat,\n${set.namaResort}`);
+        await kirimEmail(email, `Permintaan pemesanan ${p.code} diterima`, `Halo ${nama},\n\nTerima kasih. Permintaan Anda sudah kami terima:\n${p.roomName}, ${tb(masuk)} sampai ${tb(keluar)}\nPerkiraan ${rupiah(bayar)}${kode ? ` (kupon ${kode}: -${rupiah(potongan)})` : ""}${tambahan}\n\nKami akan membalas dengan konfirmasi dan cara pembayaran. Kode pesanan Anda: ${p.code}.\n\nSalam hangat,\n${set.namaResort}`);
     }
     return ok({ kode: p.code, total: bayar, potongan, jamTahanan: set.jamTahanan, persenDp: set.persenDp }, 201);
   } catch (e) {

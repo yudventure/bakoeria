@@ -150,8 +150,8 @@ export default function LayarKamar() {
             <Bidang label="Luas (m²)" ket="Kosongkan bila belum tahu."><input className={masukan} type="number" min={0} value={f.sizeM2} onChange={(e) => setF({ ...f, sizeM2: e.target.value === "" ? "" : Number(e.target.value) })} /></Bidang>
             <div className="hidden sm:block" />
             <p className="text-sm font-bold sm:col-span-2">Untuk website <span className="font-normal text-panel-redup">— ditampilkan di kartu kamar sesuai bahasa pengunjung</span></p>
-            <Bidang label="Deskripsi (Inggris)"><textarea className={masukan} rows={3} value={f.descEn} onChange={(e) => setF({ ...f, descEn: e.target.value })} placeholder="A teak cottage on stilts, steps from the sand." /></Bidang>
-            <Bidang label="Deskripsi (Indonesia)"><textarea className={masukan} rows={3} value={f.descId} onChange={(e) => setF({ ...f, descId: e.target.value })} placeholder="Cottage jati panggung, beberapa langkah dari pasir." /></Bidang>
+            <Bidang label="Deskripsi (Inggris)"><textarea className={masukan} rows={3} value={f.descEn} onChange={(e) => setF({ ...f, descEn: e.target.value })} placeholder="An ironwood cottage on stilts, steps from the sand." /></Bidang>
+            <Bidang label="Deskripsi (Indonesia)"><textarea className={masukan} rows={3} value={f.descId} onChange={(e) => setF({ ...f, descId: e.target.value })} placeholder="Cottage panggung kayu besi, beberapa langkah dari pasir." /></Bidang>
             {/* Fasilitas dicentang dari katalog bersama; label Inggris dan Indonesia terisi sendiri. */}
             {katalog && (() => {
               const en = f.featuresEn.split("\n").map((x) => x.trim()).filter(Boolean);

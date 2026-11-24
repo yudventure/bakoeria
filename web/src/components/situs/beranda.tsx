@@ -23,8 +23,8 @@ import Pemesanan from "@/components/situs/pemesanan";
 import Footer from "@/components/situs/footer";
 
 const ALT = {
-  en: { hero: "Bakoeria teak cottages with warm lights at night", foto: ["Teak cottage with glowing windows", "Cottage terrace at night", "Sandy path with hanging lights"], cottage: "Teak cottage" },
-  id: { hero: "Cottage kayu jati Bakoeria dengan lampu hangat di malam hari", foto: ["Cottage kayu jati dengan jendela menyala", "Teras cottage di malam hari", "Jalan berpasir dengan lampu gantung"], cottage: "Cottage kayu jati" },
+  en: { hero: "Bakoeria ironwood cottages with warm lights at night", foto: ["Ironwood cottage with glowing windows", "Cottage terrace at night", "Sandy path with hanging lights"], cottage: "Ironwood cottage" },
+  id: { hero: "Cottage kayu besi Bakoeria dengan lampu hangat di malam hari", foto: ["Cottage kayu besi dengan jendela menyala", "Teras cottage di malam hari", "Jalan berpasir dengan lampu gantung"], cottage: "Cottage kayu besi" },
 };
 
 
@@ -337,7 +337,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
               {/* Kontak tidak diulang di sini: sudah ada di footer (permintaan pemilik). */}
             </div>
             <div className="muncul">
-              <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} />
+              <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} perahu={k.perahu.map((p) => ({ judul: p.judul, muat: p.muat, harga: p.harga }))} />
             </div>
           </div>
         </section>}
