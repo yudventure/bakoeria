@@ -123,7 +123,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_22%_52%,rgba(10,36,64,.62)_0%,rgba(10,36,64,0)_58%)]" />
             <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-5 pb-16 pt-12">
               <JudulHero awalan={k.heroAwalan} kata={k.heroKata} />
-              <p className="muncul-lambat mt-6 max-w-[19rem] text-[15px] leading-snug text-white [text-shadow:0_1px_12px_rgba(10,36,64,.6)]" style={{ "--tunda-ms": "1250ms" } as React.CSSProperties}>{k.tagline}</p>
+              <div data-hero-pudar className="mt-6"><p className="muncul-lambat max-w-[19rem] text-[15px] leading-snug text-white [text-shadow:0_1px_12px_rgba(10,36,64,.6)]" style={{ "--tunda-ms": "1250ms" } as React.CSSProperties}>{k.tagline}</p></div>
               {k.pengumuman && <p className="mt-5 max-w-md rounded-2xl border border-white/30 bg-white/10 px-4 py-3 text-sm text-white backdrop-blur-md">{k.pengumuman}</p>}
             </div>
           </div>

@@ -48,7 +48,8 @@ export function JudulHero({ awalan, kata }: { awalan: string; kata: string[] }) 
 /**
  * Efek scroll untuk seluruh beranda, satu pengendali dengan requestAnimationFrame:
  * - [data-hero-foto]  foto hero membesar dan turun sedikit saat hero digulir keluar
- * - [data-hero-teks]  judul naik dan memudar
+ * - [data-hero-teks]  judul naik dan memudar, habis sebelum menyentuh menu atas
+ * - [data-hero-pudar] memudar sebelum menyentuh menu atas (tagline hero)
  * - [data-parallax]   bergerak vertikal dengan faktor itu relatif terhadap layar
  * - [data-geser]      bergeser mendatar dengan faktor itu
  * - [data-kemajuan]   garis kemajuan baca (skala horizontal)
@@ -61,6 +62,8 @@ export function Gerak() {
     const q = <T extends HTMLElement>(s: string) => [...document.querySelectorAll<T>(s)];
     const heroFoto = q("[data-hero-foto]");
     const heroTeks = q("[data-hero-teks]");
+    const heroPudar = q("[data-hero-pudar]");
+    const kepala = document.querySelector("header");
     const parallax = q("[data-parallax]");
     const geser = q("[data-geser]");
     const kemajuan = q("[data-kemajuan]");
@@ -71,10 +74,15 @@ export function Gerak() {
       const tinggi = window.innerHeight;
       const hero = Math.min(1, Math.max(0, y / (tinggi * 0.9)));
       for (const el of heroFoto) el.style.transform = `translate3d(0, ${hero * 12}%, 0) scale(${1.04 + hero * 0.1})`;
+      /* Teks hero sudah pudar penuh sebelum menyentuh tepi bawah menu yang menempel,
+         supaya tidak pernah tampak terpotong setengah di bawah menu (terutama di ponsel). */
+      const batas = kepala ? kepala.getBoundingClientRect().bottom : 0;
+      const dekatMenu = (el: HTMLElement) => Math.min(1, Math.max(0, (el.getBoundingClientRect().top - batas - 8) / 90));
       for (const el of heroTeks) {
         el.style.transform = `translate3d(0, ${-hero * 90}px, 0)`;
-        el.style.opacity = String(1 - hero * 1.1);
+        el.style.opacity = String(Math.max(0, Math.min(1 - hero * 1.1, dekatMenu(el))));
       }
+      for (const el of heroPudar) el.style.opacity = String(dekatMenu(el));
       for (const el of parallax) {
         const r = el.parentElement!.getBoundingClientRect();
         if (r.bottom < -tinggi || r.top > tinggi * 2) continue;
