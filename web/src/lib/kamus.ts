@@ -47,7 +47,14 @@ const en = {
   tanyaJawab: "Questions",
   rencanakan: "Plan your stay",
   sedangBerbenah: "We're tidying up for a little while.",
-  footer: { jelajahi: "Explore", kontak: "Contact", ikuti: "Follow us", hak: "All rights reserved.", masuk: "Staff sign-in", program: "Dive programmes" },
+  izinIklan: {
+    meta: "We use Meta (Facebook and Instagram) cookies to measure our ads. Is that OK?",
+    google: "We use Google Ads cookies to measure our ads. Is that OK?",
+    keduanya: "We use Meta (Facebook and Instagram) and Google Ads cookies to measure our ads. Is that OK?",
+    boleh: "Allow",
+    tidak: "No thanks",
+  },
+  footer: { jelajahi: "Explore", kontak: "Contact", ikuti: "Follow us", hak: "All rights reserved.", cookie: "Ad cookies", masuk: "Staff sign-in", program: "Dive programmes" },
   pesanWaUmum: "Hello Bakoeria Dive Resort, I'd like to ask about a stay.",
   form: {
     tiba: "Arrival",
@@ -215,7 +222,14 @@ const id: typeof en = {
   tanyaJawab: "Tanya jawab",
   rencanakan: "Rencanakan perjalanan Anda",
   sedangBerbenah: "Kami sedang berbenah sebentar.",
-  footer: { jelajahi: "Jelajahi", kontak: "Kontak", ikuti: "Ikuti kami", hak: "Hak cipta dilindungi.", masuk: "Masuk staf", program: "Program selam" },
+  izinIklan: {
+    meta: "Kami memakai cookie Meta (Facebook dan Instagram) untuk mengukur iklan kami. Boleh?",
+    google: "Kami memakai cookie Google Ads untuk mengukur iklan kami. Boleh?",
+    keduanya: "Kami memakai cookie Meta (Facebook dan Instagram) dan Google Ads untuk mengukur iklan kami. Boleh?",
+    boleh: "Boleh",
+    tidak: "Tidak",
+  },
+  footer: { jelajahi: "Jelajahi", kontak: "Kontak", ikuti: "Ikuti kami", hak: "Hak cipta dilindungi.", cookie: "Cookie iklan", masuk: "Masuk staf", program: "Program selam" },
   pesanWaUmum: "Halo Bakoeria Dive Resort, saya ingin bertanya tentang menginap.",
   form: {
     tiba: "Tiba",

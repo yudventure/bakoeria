@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import KalenderSedia from "./kalender-sedia";
 import type { PaketGrup } from "@/lib/konten";
 import { opsiSelam } from "@/lib/selam";
+import { asalKunjungan, lacakIklan } from "@/lib/iklan-klien";
 import { hariIniWit, jumlahMalam, rupiah, tambahHari } from "@/lib/booking";
 import { KAMUS, tglBahasa, type Bahasa } from "@/lib/kamus";
 
@@ -96,7 +97,10 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
     const st = q.get("transaction_status") ?? "";
     let ulang = null;
     try { const x = JSON.parse(sessionStorage.getItem("bakoeria-bayar") ?? "null"); if (x?.kode === kode) ulang = x; } catch { /* penyimpanan tidak tersedia */ }
-    setHasilBayar({ kode, status: st === "settlement" || st === "capture" ? "lunas" : st === "pending" ? "tunda" : "gagal", ulang });
+    const status = st === "settlement" || st === "capture" ? "lunas" : st === "pending" ? "tunda" : "gagal";
+    setHasilBayar({ kode, status, ulang });
+    /* Purchase sekali per pesanan: dicatat di peramban supaya muat ulang tidak menghitung dua kali. */
+    if (status === "lunas") { try { if (!localStorage.getItem(`bakoeria-beli-${kode}`)) { localStorage.setItem(`bakoeria-beli-${kode}`, "1"); setTimeout(() => lacakIklan("Purchase", { nilai: ulang?.total, id: kode }), 800); } } catch { /* penyimpanan tidak tersedia */ } }
     window.history.replaceState(null, "", window.location.pathname + window.location.hash);
   }, []);
   /** Buka halaman bayar Midtrans untuk total pesanan. */
@@ -141,6 +145,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
     setOpsi(null);
     setPilih("");
     setSibuk(true);
+    lacakIklan("InitiateCheckout");
     try {
       const d = await ambil(kupon?.ok ? kupon.kode : "");
       setOpsi(d.kamar);
@@ -199,10 +204,11 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
     setGalat("");
     setSibuk(true);
     try {
-      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, minat: minatSah, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "", tarif: fleks ? "fleksibel" : "standar", transport: perahuDipilih ? perahuDipilih.kunci : "", arah: satuArah ? "sekali" : "pp", selam: selam.ikut ? penyelam : 0, paketSelam: selam.ikut ? paketSah : "" }) });
+      const r = await fetch("/api/publik/pesan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, masuk: tgl.masuk, keluar: tgl.keluar, ...tamu, minat: minatSah, kamar: k.id, bahasa, kupon: kupon?.ok ? kupon.kode : "", tarif: fleks ? "fleksibel" : "standar", transport: perahuDipilih ? perahuDipilih.kunci : "", arah: satuArah ? "sekali" : "pp", selam: selam.ikut ? penyelam : 0, paketSelam: selam.ikut ? paketSah : "", asalKunjungan: asalKunjungan() }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.galat ?? t.galatKirim);
       setSelesai(d);
+      lacakIklan("Lead", { nilai: d.total, id: d.kode });
     } catch (err) {
       setGalat(err instanceof Error ? err.message : "Gagal.");
     } finally {

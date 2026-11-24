@@ -1,8 +1,9 @@
+import { bacaPengaturan } from "@/lib/server/simpanan";
 import { SKRIP_PERAMBAN_LAMA } from "@/lib/peramban-lama";
 import type { Metadata, Viewport } from "next";
 import "../globals.css";
 
-export const metadata: Metadata = {
+const METADATA: Metadata = {
   metadataBase: new URL(process.env.SITE_URL?.trim() || "http://localhost:3000"),
   title: { default: "Bakoeria Dive Resort", template: "%s · Bakoeria Dive Resort" },
   description: "A small dive resort with ironwood cottages by the beach. Dive by day, sleep under the stars.",
@@ -30,6 +31,12 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: "Bakoeria Dive Resort · Raja Ampat", description: "A small dive resort with ironwood cottages by the beach in Raja Ampat. Dive by day, sleep under the stars.", images: ["/img/og-en.jpg?v=3"] },
   alternates: { canonical: "/", languages: { en: "/", id: "/id" } },
 };
+
+/** Kode verifikasi Google Search Console dan domain Meta dari dashboard (Pengaturan, Promosi). */
+export async function generateMetadata(): Promise<Metadata> {
+  const i = (await bacaPengaturan()).iklan;
+  return { ...METADATA, verification: { ...(i.googleVerifikasi ? { google: i.googleVerifikasi } : {}), ...(i.metaVerifikasi ? { other: { "facebook-domain-verification": i.metaVerifikasi } } : {}) } };
+}
 
 export const viewport: Viewport = { themeColor: "#133250", width: "device-width", initialScale: 1 };
 

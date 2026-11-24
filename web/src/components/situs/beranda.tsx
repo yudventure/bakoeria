@@ -21,6 +21,7 @@ import { Nav } from "@/components/situs/interaksi";
 import { Gerak, JudulHero } from "@/components/situs/gerak";
 import Pemesanan from "@/components/situs/pemesanan";
 import Footer from "@/components/situs/footer";
+import Promosi from "@/components/situs/promosi";
 
 const ALT = {
   en: { hero: "Bakoeria ironwood cottages with warm lights at night", foto: ["Ironwood cottage with glowing windows", "Cottage terrace at night", "Sandy path with hanging lights"], cottage: "Ironwood cottage" },
@@ -338,7 +339,8 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         </section>}
       </main>
 
-      <Footer k={k} namaResort={set.namaResort} bahasa={bahasa} />
+      <Footer k={k} namaResort={set.namaResort} bahasa={bahasa} iklan={Boolean(set.iklan.metaPixel || set.iklan.googleAds)} />
+      <Promosi konfig={{ metaPixel: set.iklan.metaPixel, googleAds: set.iklan.googleAds, labelLead: set.iklan.labelLead, labelBeli: set.iklan.labelBeli, labelKontak: set.iklan.labelKontak }} teks={t.izinIklan} />
     </div>
   );
 }

@@ -25,6 +25,8 @@ export default function Pengaturan() {
   const [st, setSt] = useState<Status | null>(null);
   const [galat, setGalat] = useState("");
   const [ujiEmail, setUjiEmail] = useState("");
+  const [asal, setAsal] = useState("https://bakoeria.com");
+  useEffect(() => setAsal(window.location.origin), []);
   const boleh = akun.peran === "developer" || akun.peran === "pemilik";
   useEffect(() => {
     api<{ pengaturan: TPengaturan; status: Status }>("/api/pengaturan").then((r) => { setP(r.pengaturan); setSt(r.status); }).catch((e) => setGalat(e.message));
@@ -69,6 +71,34 @@ export default function Pengaturan() {
         </div>
       </Kartu>
       <PengaturanMidtrans boleh={boleh} />
+      <Kartu judul="Promosi: Google Search Console, Meta Ads, Google Ads" ket="Kode dan ID di bawah boleh ditempel utuh (tag meta atau potongan kode); yang dipakai diambil sendiri. Pixel Meta dan tag Google Ads baru dimuat setelah pengunjung menekan Boleh di bilah persetujuan cookie. Simpan dengan tombol Simpan di atas.">
+        <div className="grid gap-5">
+          <div className="grid gap-3">
+            <b className="text-sm">Google Search Console</b>
+            <ol className="grid list-decimal gap-1 pl-5 text-sm text-panel-redup">
+              <li>Di search.google.com/search-console, tambahkan properti jenis Awalan URL: <span className="font-mono">{asal}/</span></li>
+              <li>Pilih verifikasi Tag HTML, salin tag meta-nya, tempel di bawah, Simpan, lalu klik Verifikasi di Search Console.</li>
+              <li>Di menu Peta situs, kirim <span className="font-mono">{asal}/sitemap.xml</span></li>
+            </ol>
+            <Bidang label="Kode verifikasi Google"><input className={`${masukan} font-mono text-sm`} disabled={!boleh} placeholder='<meta name="google-site-verification" content="...">' value={p.iklan.googleVerifikasi} onChange={(e) => setP({ ...p, iklan: { ...p.iklan, googleVerifikasi: e.target.value } })} /></Bidang>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <b className="text-sm sm:col-span-2">Meta (Facebook dan Instagram) Ads</b>
+            <Bidang label="ID Pixel" ket="Events Manager, Sumber data, pilih Pixel. Angka 15 sampai 16 digit."><input className={`${masukan} font-mono`} disabled={!boleh} placeholder="123456789012345" value={p.iklan.metaPixel} onChange={(e) => setP({ ...p, iklan: { ...p.iklan, metaPixel: e.target.value } })} /></Bidang>
+            <Bidang label="Kode verifikasi domain" ket="Business Settings, Keamanan merek, Domain, Tag meta."><input className={`${masukan} font-mono text-sm`} disabled={!boleh} placeholder='<meta name="facebook-domain-verification" ...>' value={p.iklan.metaVerifikasi} onChange={(e) => setP({ ...p, iklan: { ...p.iklan, metaVerifikasi: e.target.value } })} /></Bidang>
+            <p className="text-xs text-panel-redup sm:col-span-2">Kejadian yang dikirim: InitiateCheckout (cek ketersediaan), Lead (permintaan pesanan masuk), Purchase (pembayaran Midtrans lunas), Contact (tautan WhatsApp diketuk). Nama, nomor, dan email tamu tidak pernah dikirim.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <b className="text-sm sm:col-span-2">Google Ads</b>
+            <Bidang label="ID Google Ads" ket="Tujuan, Konversi, buka satu konversi, Tag: AW-…"><input className={`${masukan} font-mono`} disabled={!boleh} placeholder="AW-123456789" value={p.iklan.googleAds} onChange={(e) => setP({ ...p, iklan: { ...p.iklan, googleAds: e.target.value } })} /></Bidang>
+            <Bidang label="Label konversi: permintaan pesanan" ket="Bagian setelah garis miring di send_to. Boleh ditempel utuh."><input className={`${masukan} font-mono`} disabled={!boleh} placeholder="AW-123456789/AbCdEf12" value={p.iklan.labelLead} onChange={(e) => setP({ ...p, iklan: { ...p.iklan, labelLead: e.target.value } })} /></Bidang>
+            <Bidang label="Label konversi: pembayaran lunas"><input className={`${masukan} font-mono`} disabled={!boleh} value={p.iklan.labelBeli} onChange={(e) => setP({ ...p, iklan: { ...p.iklan, labelBeli: e.target.value } })} /></Bidang>
+            <Bidang label="Label konversi: klik WhatsApp"><input className={`${masukan} font-mono`} disabled={!boleh} value={p.iklan.labelKontak} onChange={(e) => setP({ ...p, iklan: { ...p.iklan, labelKontak: e.target.value } })} /></Bidang>
+          </div>
+          <p className="text-xs text-panel-redup">Asal kunjungan (utm, gclid, fbclid, atau situs perujuk) dicatat di catatan tiap pesanan dari website, jadi terlihat iklan mana yang menghasilkan. Untuk tautan iklan, tambahkan misalnya <span className="font-mono">?utm_source=instagram&amp;utm_medium=iklan&amp;utm_campaign=desember</span>.</p>
+        </div>
+      </Kartu>
+
       <Kartu judul="Perkiraan komisi per sumber" ket="Dipakai bila komisi pesanan dikosongkan. Persen dari total.">
         <div className="grid gap-4 sm:grid-cols-3">
           {(["BOOKING_COM", "AGODA", "TRAVELOKA", "AIRBNB", "AGEN"] as Channel[]).map((c) => (

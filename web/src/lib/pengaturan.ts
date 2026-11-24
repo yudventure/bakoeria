@@ -1,5 +1,6 @@
 import type { Channel } from "@/lib/booking";
 import { KOMISI_BAWAAN } from "@/lib/booking";
+import { IKLAN_KOSONG, rapikanIklan, type Iklan } from "@/lib/iklan";
 
 export interface Pengaturan {
   namaResort: string;
@@ -18,6 +19,8 @@ export interface Pengaturan {
    * Keduanya sampai `batasHari` hari sebelum check-in.
    */
   tarifFleksibel: { aktif: boolean; persen: number; batasHari: number };
+  /** Google Search Console, Meta Pixel, dan Google Ads (lihat lib/iklan.ts). */
+  iklan: Iklan;
 }
 
 export const PENGATURAN_BAWAAN: Pengaturan = {
@@ -28,6 +31,7 @@ export const PENGATURAN_BAWAAN: Pengaturan = {
   emailNotifikasi: "",
   terimaPesananWeb: true,
   tarifFleksibel: { aktif: true, persen: 20, batasHari: 7 },
+  iklan: IKLAN_KOSONG,
 };
 
 export function rapikanPengaturan(o: Partial<Pengaturan> | null | undefined): Pengaturan {
@@ -43,6 +47,7 @@ export function rapikanPengaturan(o: Partial<Pengaturan> | null | undefined): Pe
     komisi,
     emailNotifikasi: typeof k.emailNotifikasi === "string" ? k.emailNotifikasi.trim().slice(0, 120) : b.emailNotifikasi,
     terimaPesananWeb: typeof k.terimaPesananWeb === "boolean" ? k.terimaPesananWeb : b.terimaPesananWeb,
+    iklan: rapikanIklan(k.iklan),
     tarifFleksibel: (() => {
       const t = (k.tarifFleksibel && typeof k.tarifFleksibel === "object" ? k.tarifFleksibel : {}) as Record<string, unknown>;
       return { aktif: typeof t.aktif === "boolean" ? t.aktif : b.tarifFleksibel.aktif, persen: n(t.persen, b.tarifFleksibel.persen, 1, 100), batasHari: Math.round(n(t.batasHari, b.tarifFleksibel.batasHari, 1, 60)) };

@@ -1,6 +1,7 @@
 import { nomorTampil, nomorWa, tautanInstagram, tautanPeta, titikResort, type Konten, type SeksiId } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { Ikon } from "./ikon";
+import { TombolIzinIklan } from "./promosi";
 
 /**
  * Footer lengkap, disusun seperti Fantasea: logo dan paragraf tentang, menu
@@ -13,7 +14,7 @@ const Judul = ({ children, className = "" }: { children: React.ReactNode; classN
   <p className={`text-[12px] font-bold uppercase tracking-[0.22em] text-emas ${className}`}>{children}</p>
 );
 
-export default function Footer({ k, namaResort, bahasa }: { k: Konten; namaResort: string; bahasa: Bahasa }) {
+export default function Footer({ k, namaResort, bahasa, iklan = false }: { k: Konten; namaResort: string; bahasa: Bahasa; /** Pixel atau Google Ads terpasang: tampilkan tautan pengaturan cookie iklan. */ iklan?: boolean }) {
   const t = KAMUS[bahasa];
   const { kontak } = k;
   const MENU = [
@@ -95,7 +96,7 @@ export default function Footer({ k, namaResort, bahasa }: { k: Konten; namaResor
       </div>
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-6 text-[13.5px] text-white/55">
-          <span>© {new Date().getFullYear()} {namaResort}. {t.footer.hak}</span>
+          <span>© {new Date().getFullYear()} {namaResort}. {t.footer.hak}{iklan && <> · <TombolIzinIklan label={t.footer.cookie} /></>}</span>
           <a href="/kelola" rel="nofollow" className="inline-flex items-center gap-1.5 font-bold hover:text-white">
             <Ikon nama="kunci" className="size-4" /> {t.footer.masuk}
           </a>

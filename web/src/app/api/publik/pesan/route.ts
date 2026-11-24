@@ -51,6 +51,8 @@ export async function POST(req: Request) {
   const asal = s(o.asal, 80);
   const sertifikat = s(o.sertifikat, 80);
   const jamTiba = s(o.jamTiba, 40);
+  /* Asal kunjungan dari peramban (utm, gclid, fbclid, atau situs perujuk), untuk melihat iklan mana yang menghasilkan. */
+  const asalKunjungan = s(o.asalKunjungan, 160).replace(/[\r\n]+/g, " ");
   if (!nama) return gagal(m("Isi nama Anda.", "Please enter your name."));
   if (!telepon && !email) return gagal(m("Isi nomor WhatsApp atau email supaya kami bisa membalas.", "Please enter a WhatsApp number or email so we can reply."));
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return gagal(m("Alamat email tidak sah.", "That email address is not valid."));
@@ -127,7 +129,7 @@ export async function POST(req: Request) {
         totalAmount: bayar,
         couponCode: potongan || kode ? kode : null,
         discountAmount: kode ? potongan : null,
-        notes: [`Tamu: ${dewasa} dewasa${anak ? `, ${anak} anak 5 tahun ke atas (50%, extra bed)` : ""}${balita ? `, ${balita} balita di bawah 5 tahun (gratis)` : ""}`, anak ? `Harga: kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)}` : "", kode && kupon ? `Kupon ${kode} (${teksKupon(kupon)}): potongan ${rupiah(potongan)} dari ${rupiah(harga.total)}` : "", teksTarifTim, `Antar-jemput: ${teksTransport || "tidak, tamu atur sendiri"}`, `Diving: ${penyelam ? `ya, ${penyelam} penyelam, ${sertifikat || "sertifikat belum diisi"}, ${teksSelamTim}` : "tidak"}`, jamTiba && `Perkiraan tiba: ${jamTiba}`, minat && `Minat: ${minat}`, `Bahasa situs: ${en ? "Inggris" : "Indonesia"}`, catatan].filter(Boolean).join("\n") || null,
+        notes: [`Tamu: ${dewasa} dewasa${anak ? `, ${anak} anak 5 tahun ke atas (50%, extra bed)` : ""}${balita ? `, ${balita} balita di bawah 5 tahun (gratis)` : ""}`, anak ? `Harga: kamar ${rupiah(harga.kamar)} + anak ${rupiah(harga.tambahanAnak)}` : "", kode && kupon ? `Kupon ${kode} (${teksKupon(kupon)}): potongan ${rupiah(potongan)} dari ${rupiah(harga.total)}` : "", teksTarifTim, `Antar-jemput: ${teksTransport || "tidak, tamu atur sendiri"}`, `Diving: ${penyelam ? `ya, ${penyelam} penyelam, ${sertifikat || "sertifikat belum diisi"}, ${teksSelamTim}` : "tidak"}`, jamTiba && `Perkiraan tiba: ${jamTiba}`, minat && `Minat: ${minat}`, `Bahasa situs: ${en ? "Inggris" : "Indonesia"}`, asalKunjungan && `Asal kunjungan: ${asalKunjungan}`, catatan].filter(Boolean).join("\n") || null,
         holdExpiresAt: new Date(kini + set.jamTahanan * 3600000).toISOString(),
         guest: { name: nama, phone: telepon || null, email: email || null, origin: asal || null, diveCert: sertifikat || null },
       },
