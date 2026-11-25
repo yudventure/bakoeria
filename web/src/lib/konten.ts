@@ -137,7 +137,7 @@ export const KONTEN_BAWAAN: Konten = {
   aktivitasIsi: "Hari di luar air juga bagian dari menginap. Tim kami mengaturnya mengikuti pasang surut, cuaca, dan rencana selam Anda.",
   aktivitas: [{"judul": "Mengamati burung", "isi": "Berjalan sebelum matahari terbit bersama pemandu lokal untuk mencari cenderawasih dan burung hutan lainnya."}, {"judul": "Kayak ke sungai di belakang resort", "isi": "Mendayung pelan menyusuri sungai di belakang resort, di antara pepohonan, dengan tempo Anda sendiri."}, {"judul": "Island trip", "isi": "Sehari naik perahu ke pulau-pulau di sekitar resort: laguna karst Piaynemo, Batanta, Kali Biru, dan tempat lain sesuai cuaca. Naik ke puncak pandang, berenang di air jernih, lalu makan siang di pantai yang sepi."}],
   paketJudul: "Harga dan paket dive trip",
-  paketCatatan: "Harga dalam Rupiah dan bisa berubah. Jadwal selam menyesuaikan cuaca dan kondisi laut.",
+  paketCatatan: "Harga dalam Rupiah dan bisa berubah. Semua harga diving belum termasuk perahu selam. Jadwal selam menyesuaikan cuaca dan kondisi laut.",
   paket: [
     ...GRUP_SELAM_ID,
     {
@@ -280,7 +280,7 @@ export const KONTEN_BAWAAN_EN: Konten = {
   aktivitasIsi: "Days out of the water are part of the stay. Our team arranges these around the tides, the weather, and your dive plan.",
   aktivitas: [{"judul": "Bird watching", "isi": "Walk out before sunrise with a local guide to look for birds of paradise and other forest birds."}, {"judul": "Kayaking the river behind the resort", "isi": "Paddle quietly up the river at the back of the resort, through the trees, at your own pace."}, {"judul": "Island trips", "isi": "A day by boat to the islands around the resort: the karst lagoons of Piaynemo, Batanta, Kali Biru, and more, depending on the weather. Climb to a viewpoint, swim in clear water, and have lunch on a quiet beach."}],
   paketJudul: "Prices and dive trip packages",
-  paketCatatan: "Prices in Indonesian Rupiah and may change. Dive plans follow the weather and sea conditions.",
+  paketCatatan: "Prices in Indonesian Rupiah and may change. All dive prices exclude the dive boat. Dive plans follow the weather and sea conditions.",
   paket: [
     ...GRUP_SELAM_EN,
     {

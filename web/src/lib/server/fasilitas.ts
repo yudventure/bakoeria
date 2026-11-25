@@ -3,7 +3,7 @@ import { cariLabel, KATALOG_BAWAAN, rapikanKatalog, sidikDaftar, type JenisFasil
 import { databaseReady, jalankan, kueri } from "@/lib/db";
 import { bacaJson, ubahJson } from "./gudang";
 import { gantiKayuDalam } from "@/lib/kayu";
-import { CATATAN_LAMA, gantiHargaSelam, HARGA_PROGRAM, VERSI_HARGA_SELAM } from "@/lib/harga-selam";
+import { CATATAN_LAMA, CATATAN_PAKET, GANTI_TANPA_PERAHU, gantiHargaSelam, HARGA_PROGRAM, VERSI_HARGA_SELAM, VERSI_TANPA_PERAHU } from "@/lib/harga-selam";
 import type { PaketGrup } from "@/lib/konten";
 
 /**
@@ -61,6 +61,7 @@ export function pastikanFasilitasTamu(): Promise<void> {
     for (const g of GANTI_LABEL) await gantiLabel(g);
     await gantiKayuTersimpan();
     await gantiHargaSelamTersimpan();
+    await selamTanpaPerahu();
   })()
     .catch((e) => console.error("[fasilitas] gagal menambah fasilitas tamu", e))
     .finally(() => { migrasi = undefined; });
@@ -182,4 +183,26 @@ async function gantiHargaSelamTersimpan() {
     }, 0o644);
   }
   await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), [VERSI_HARGA_SELAM]: new Date().toISOString() }), 0o644);
+}
+
+/** Sekali: teks harga diving tersimpan diubah menjadi "belum termasuk perahu selam" (hanya teks bawaan yang belum diubah pemilik). */
+async function selamTanpaPerahu() {
+  const tanda = await bacaJson<Record<string, string> | null>("migrasi-fasilitas.json", null);
+  if (tanda?.[VERSI_TANPA_PERAHU]) return;
+  const ganti = (t: string) => GANTI_TANPA_PERAHU.reduce((x, [a, b]) => (x.includes(b) ? x : x.split(a).join(b)), t);
+  const ubahSisi = (sisi: Record<string, unknown> | undefined, b: "en" | "id") => {
+    if (!sisi || typeof sisi !== "object") return sisi;
+    const x = { ...sisi };
+    if (Array.isArray(x.paket)) x.paket = (x.paket as PaketGrup[]).map((g) => ({ ...g, catatan: ganti(String(g.catatan ?? "")), isi: Array.isArray(g.isi) ? g.isi.map((y) => ({ ...y, ket: ganti(String(y.ket ?? "")) })) : g.isi }));
+    if (x.paketCatatan === CATATAN_PAKET[b][0]) x.paketCatatan = CATATAN_PAKET[b][1];
+    return x;
+  };
+  if (await bacaJson<Record<string, unknown> | null>("konten.json", null)) {
+    await ubahJson<Record<string, unknown> | null>("konten.json", null, (l) => {
+      if (!l) return l;
+      if ("tagline" in l && !("en" in l) && !("id" in l)) return ubahSisi(l, "id") ?? l;
+      return { ...l, ...(l.en ? { en: ubahSisi(l.en as Record<string, unknown>, "en") } : {}), ...(l.id ? { id: ubahSisi(l.id as Record<string, unknown>, "id") } : {}) };
+    }, 0o644);
+  }
+  await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), [VERSI_TANPA_PERAHU]: new Date().toISOString() }), 0o644);
 }

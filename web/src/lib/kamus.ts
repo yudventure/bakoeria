@@ -108,6 +108,7 @@ const en = {
     selamKet: "Everyone in your group who will dive.",
     selamRingkas: (n: number) => `Diving for ${n} ${n === 1 ? "person" : "people"}`,
     selamKali: (n: number, harga: string) => `${n} × ${harga}`,
+    tanpaPerahuSelam: "excl. dive boat",
     selamDiTempat: (n: number) => `Diving for ${n} ${n === 1 ? "person" : "people"}, paid at the resort`,
     ketDiTempat: "No package chosen yet. We will advise you and you pay at the resort.",
     kalender: {
@@ -132,7 +133,7 @@ const en = {
     kursusOw: "Open Water course, price sent with your confirmation",
     grupKursus: "Courses",
     ketPemula: "No certification yet? Join a try dive with an instructor, or take a course.",
-    ketPaketSelam: "The package is added to your booking total. Prices are per diver unless stated otherwise. Not sure yet? Choose \"Not sure yet\" and pay at the resort.",
+    ketPaketSelam: "The package is added to your booking total. Dive boat not included. Prices are per diver unless stated otherwise. Not sure yet? Choose \"Not sure yet\" and pay at the resort.",
     tarifJudul: "Choose a rate",
     tarifStandar: "Standard",
     tarifFleksibel: "Flexible",
@@ -299,6 +300,7 @@ const id: typeof en = {
     selamKet: "Semua orang di rombongan Anda yang ikut menyelam.",
     selamRingkas: (n: number) => `Diving untuk ${n} orang`,
     selamKali: (n: number, harga: string) => `${n} × ${harga}`,
+    tanpaPerahuSelam: "belum termasuk perahu selam",
     selamDiTempat: (n: number) => `Diving untuk ${n} orang, dibayar di tempat`,
     ketDiTempat: "Paket belum dipilih. Kami bantu sarankan dan dibayar di resort.",
     kalender: {
@@ -323,7 +325,7 @@ const id: typeof en = {
     kursusOw: "Kursus Open Water, harga kami kirim bersama konfirmasi",
     grupKursus: "Kursus",
     ketPemula: "Belum bersertifikat? Ikut try dive bersama instruktur, atau ambil kursus.",
-    ketPaketSelam: "Paket masuk ke total pesanan. Harga per penyelam kecuali disebut lain. Belum yakin? Pilih \"Belum tahu\" dan bayar di tempat.",
+    ketPaketSelam: "Paket masuk ke total pesanan. Belum termasuk perahu selam. Harga per penyelam kecuali disebut lain. Belum yakin? Pilih \"Belum tahu\" dan bayar di tempat.",
     tarifJudul: "Pilih tarif",
     tarifStandar: "Standar",
     tarifFleksibel: "Fleksibel",
