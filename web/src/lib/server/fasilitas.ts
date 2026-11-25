@@ -142,7 +142,8 @@ export async function simpanKatalog(jenis: JenisFasilitas, daftar: unknown, asal
 /** Sekali: sebutan kayu jati / teak di isi situs dan deskripsi kamar yang sudah tersimpan diganti kayu besi. */
 async function gantiKayuTersimpan() {
   const tanda = await bacaJson<Record<string, string> | null>("migrasi-fasilitas.json", null);
-  if (tanda?.kayuBesi) return;
+  /* kayuBesi2: diulang sekali, karena teks lama sempat tersimpan lagi dari tab dashboard yang masih memuat versi sebelumnya. */
+  if (tanda?.kayuBesi2) return;
   const konten = await bacaJson<unknown>("konten.json", null);
   if (konten && JSON.stringify(gantiKayuDalam(konten)) !== JSON.stringify(konten)) await ubahJson<unknown>("konten.json", null, (l) => gantiKayuDalam(l), 0o644);
   if (databaseReady()) {
@@ -153,7 +154,7 @@ async function gantiKayuTersimpan() {
       if (en !== r.desc_en || id !== r.desc_id) await jalankan("UPDATE rooms SET desc_en = ?, desc_id = ? WHERE id = ?", [en, id, r.id]);
     }
   }
-  await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), kayuBesi: new Date().toISOString() }), 0o644);
+  await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), kayuBesi: l?.kayuBesi ?? new Date().toISOString(), kayuBesi2: new Date().toISOString() }), 0o644);
 }
 
 /**
