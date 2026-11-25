@@ -8,7 +8,7 @@ import Galeri from "./galeri";
 import { KAMAR_DEMO, pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
-import { tautanPeta, idYoutube, nomorTampil, nomorWa, sumberVideo, titikResort } from "@/lib/konten";
+import { tautanPeta, idYoutube, nomorTampil, nomorWa, sumberVideo, titikResort, type Konten } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
@@ -112,6 +112,8 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
       <Nav bahasa={bahasa} seksi={on} pesan={tautanPesan} />
       <Gerak />
       <PencatatKunjungan />
+      {/* Data terstruktur untuk Google: nama situs, logo resmi, dan data resort (alamat, titik peta, kontak). */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: dataTerstruktur(k, set.namaResort, bahasa, wa) }} />
 
       <main id="isi">
         {/* HERO */}
@@ -343,4 +345,34 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
       <Promosi konfig={{ metaPixel: set.iklan.metaPixel, googleAds: set.iklan.googleAds, labelLead: set.iklan.labelLead, labelBeli: set.iklan.labelBeli, labelKontak: set.iklan.labelKontak }} teks={t.izinIklan} />
     </div>
   );
+}
+
+/** JSON-LD schema.org: WebSite (nama situs di hasil Google), Organization (logo), dan Resort. */
+function dataTerstruktur(k: Konten, nama: string, bahasa: Bahasa, wa: string): string {
+  const asal = (process.env.SITE_URL?.trim() || "https://bakoeria.com").replace(/\/+$/, "");
+  const titik = titikResort(k);
+  const logo = `${asal}/brand/favicon-512.png`;
+  const data = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebSite", "@id": `${asal}/#situs`, url: `${asal}/`, name: nama, alternateName: "Bakoeria", inLanguage: bahasa === "id" ? "id" : "en" },
+      { "@type": "Organization", "@id": `${asal}/#organisasi`, name: nama, url: `${asal}/`, logo, ...(k.kontak.email ? { email: k.kontak.email } : {}) },
+      {
+        "@type": "Resort",
+        "@id": `${asal}/#resort`,
+        name: nama,
+        url: bahasa === "id" ? `${asal}/id` : `${asal}/`,
+        logo,
+        image: `${asal}/img/og-${bahasa === "id" ? "id" : "en"}.jpg`,
+        description: k.tagline,
+        ...(wa ? { telephone: `+${wa}` } : {}),
+        ...(k.kontak.email ? { email: k.kontak.email } : {}),
+        address: { "@type": "PostalAddress", streetAddress: "Yenbeser, Gam Island", addressLocality: "Waigeo Selatan", addressRegion: "Papua Barat Daya", addressCountry: "ID" },
+        geo: { "@type": "GeoCoordinates", latitude: titik.lat, longitude: titik.lon },
+        parentOrganization: { "@id": `${asal}/#organisasi` },
+      },
+    ],
+  };
+  /* "<" di-escape supaya isi teks tidak bisa menutup tag script. */
+  return JSON.stringify(data).replace(/</g, "\\u003c");
 }
