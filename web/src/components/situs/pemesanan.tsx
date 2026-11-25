@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import KalenderSedia from "./kalender-sedia";
 import type { PaketGrup } from "@/lib/konten";
 import { opsiSelam } from "@/lib/selam";
+import { hitungTambahan } from "@/lib/tambahan-pesan";
 import { asalKunjungan, lacakIklan } from "@/lib/iklan-klien";
 import { hariIniWit, jumlahMalam, rupiah, tambahHari } from "@/lib/booking";
 import { KAMUS, tglBahasa, type Bahasa } from "@/lib/kamus";
@@ -214,7 +215,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
   const k = j?.kosong.find((o) => o.dewasa >= tamu.dewasa && o.anak >= tamu.anak) ?? j?.kosong[0];
   const melebihi = k ? tamu.dewasa > k.dewasa || tamu.anak > k.anak : false;
   const fleks = pilihTarif === "fleksibel" && !!tarif?.fleksibel && !!k?.kenaikanFleksibel;
-  const totalAkhir = k ? k.total + (fleks ? k.kenaikanFleksibel : 0) : 0;
+  const totalCottage = k ? k.total + (fleks ? k.kenaikanFleksibel : 0) : 0;
 
   async function kirim(e: React.FormEvent) {
     e.preventDefault();
@@ -249,6 +250,9 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
   const grupSelam = [...new Set(opsi_.map((x) => x.grup))];
   const paketDipilih = opsi_.find((x) => x.kunci === selam.paket);
   const paketSah = paketDipilih || (kursusCadangan && selam.paket === "kursus-ow") ? selam.paket : "";
+  /* Perahu dan paket diving yang dipilih masuk total; diving tanpa paket dibayar di tempat. */
+  const ekstra = hitungTambahan({ hargaPerahu: perahuDipilih ? hargaPerahu : null, paket: selam.ikut && paketDipilih ? paketDipilih : null, penyelam });
+  const totalAkhir = totalCottage + ekstra.jumlah;
   const namaPaketSelam = paketDipilih ? `${paketDipilih.nama}${paketDipilih.harga ? ` · ${paketDipilih.harga}` : ""}` : paketSah === "kursus-ow" ? t.kursusOw : t.paketBelumTahu;
   const minatSah = selam.ikut ? (paketDipilih ? `${paketDipilih.grup}: ${paketDipilih.nama}` : paketSah === "kursus-ow" ? t.minatPilihan[1] : t.minatPilihan[0]) : minatLain.includes(f.minat) ? f.minat : minatLain[0];
   const aturSelam = (ikut: boolean) => {
@@ -461,9 +465,11 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
                   {tamu.balita > 0 && <div className="flex justify-between gap-3"><dt>{t.balitaGratis(tamu.balita)}</dt><dd>{t.gratis}</dd></div>}
                   {k.potongan > 0 && kupon?.ok && <div data-potongan className="flex justify-between gap-3 font-bold text-[#1E7A4C]"><dt>{t.potongan(kupon.kode)}</dt><dd className="angka">−{rupiah(k.potongan)}</dd></div>}
                   {fleks && <div data-baris-fleksibel className="flex justify-between gap-3"><dt>{t.barisFleksibel(tarif!.persen)}</dt><dd className="angka">{rupiah(k.kenaikanFleksibel)}</dd></div>}
+                  {perahuDipilih && ekstra.perahu > 0 && <div data-ringkas-transport className="flex justify-between gap-3"><dt>{t.transportRingkas}<span className="block text-xs text-malam/55">{perahuDipilih.judul} · {perahuDipilih.rute} · {satuArah ? t.sekaliJalan : t.pp}</span></dt><dd className="angka whitespace-nowrap">{rupiah(ekstra.perahu)}</dd></div>}
+                  {selam.ikut && ekstra.selam > 0 && <div data-ringkas-selam className="flex justify-between gap-3"><dt>{t.selamRingkas(penyelam)}<span className="block text-xs text-malam/55">{f.sertifikat} · {paketDipilih!.nama} · {t.selamKali(ekstra.kali, rupiah(ekstra.satuanSelam))}</span></dt><dd className="angka whitespace-nowrap">{rupiah(ekstra.selam)}</dd></div>}
                   <div className="flex justify-between gap-3 border-t border-malam/10 pt-2 text-base font-bold text-malam"><dt>{t.total}</dt><dd className="angka">{rupiah(totalAkhir)}</dd></div>
-                  {perahuDipilih && <div data-ringkas-transport className="flex justify-between gap-3 pt-1"><dt>{t.transportRingkas}<span className="block text-xs text-malam/55">{perahuDipilih.judul} · {perahuDipilih.rute} · {satuArah ? t.sekaliJalan : t.pp}</span></dt><dd className="angka whitespace-nowrap">{hargaPerahu}</dd></div>}
-                  {selam.ikut && <div data-ringkas-selam className="flex justify-between gap-3 pt-1"><dt>{t.selamRingkas(penyelam)}<span className="block text-xs text-malam/55">{f.sertifikat} · {paketDipilih ? paketDipilih.nama : namaPaketSelam}</span></dt>{paketDipilih?.harga && <dd className="angka whitespace-nowrap">{paketDipilih.harga}</dd>}</div>}
+                  {perahuDipilih && ekstra.perahu === 0 && <div data-ringkas-transport className="flex justify-between gap-3 pt-1"><dt>{t.transportRingkas}<span className="block text-xs text-malam/55">{perahuDipilih.judul} · {perahuDipilih.rute}</span></dt></div>}
+                  {selam.ikut && ekstra.selam === 0 && <div data-ringkas-selam className="pt-1"><dt>{t.selamDiTempat(penyelam)}<span className="block text-xs text-malam/55">{f.sertifikat} · {paketSah === "kursus-ow" ? t.kursusOw : t.ketDiTempat}</span></dt></div>}
                 </dl>
                 <div className="mt-3 border-t border-malam/10 pt-3">
                   {kupon?.ok ? (

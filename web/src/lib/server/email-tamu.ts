@@ -30,8 +30,10 @@ export interface RincianPesanan {
   kenaikan: number;
   /** Batas batal (Fleksibel) atau ganti tanggal (Standar), YYYY-MM-DD. */
   batas: string;
-  /** Tambahan yang dibayar terpisah, dalam bahasa tamu (perahu, diving). */
+  /** Tambahan yang dibayar di tempat, dalam bahasa tamu (diving tanpa paket). */
   tambahan: string[];
+  /** Tambahan yang masuk total pesanan (perahu, paket diving): label dalam bahasa tamu dan jumlahnya. */
+  ekstra?: [string, number][];
 }
 const BERKAS = "rincian-pesanan.json";
 export const simpanRincian = (id: string, r: RincianPesanan) => ubahJson<Record<string, RincianPesanan>>(BERKAS, {}, (l) => ({ ...l, [id]: r }), 0o600);
@@ -61,7 +63,7 @@ const T = {
     standar: "Standard", fleksibel: "Flexible",
     kebStandar: (t: string) => `<b>Standard rate.</b> Non-refundable. The dates can be changed once, until ${t}.`,
     kebFleksibel: (t: string) => `<b>Flexible rate.</b> Cancel until ${t} and get 100% back. The cost of sending the money back is paid by the guest and depends on the payment method and exchange rate.`,
-    terpisah: "Paid separately", makan: "All rates include three meals a day.",
+    terpisah: "Paid at the resort", termasuk: "Included in your total", makan: "All rates include three meals a day.",
     salam: "Warm regards,", tim: "The Bakoeria Dive Resort team",
     wa: "Chat with us on WhatsApp", bayar: (j: string) => `Pay now · ${j}`,
     diterima: { label: "Booking request received", judul: (n: string) => `Thank you, ${n}`, sub: "We have received your booking request. Here are the details.", subjek: (k: string) => `Booking request ${k} received · Bakoeria Dive Resort`, langkah: (jam: number, online: boolean) => online ? `<b>Next step.</b> Pay online now to confirm your booking right away. We hold the cottage for ${jam} hours. You can also wait for our team, who will reply with a confirmation and payment details.` : `<b>Next step.</b> We hold the cottage for ${jam} hours. Our team will reply shortly with a confirmation and payment details.`, pratinjau: (k: string) => `Your booking request ${k} at Bakoeria Dive Resort` },
@@ -77,7 +79,7 @@ const T = {
     standar: "Standar", fleksibel: "Fleksibel",
     kebStandar: (t: string) => `<b>Tarif Standar.</b> Tidak bisa refund. Tanggal bisa diganti sekali, sampai ${t}.`,
     kebFleksibel: (t: string) => `<b>Tarif Fleksibel.</b> Bisa batal sampai ${t} dengan uang kembali 100%. Biaya kirim kembali uang ditanggung tamu, besarnya tergantung cara bayar dan nilai tukar.`,
-    terpisah: "Dibayar terpisah", makan: "Semua tarif sudah termasuk makan 3 kali sehari.",
+    terpisah: "Dibayar di tempat", termasuk: "Termasuk dalam total", makan: "Semua tarif sudah termasuk makan 3 kali sehari.",
     salam: "Salam hangat,", tim: "Tim Bakoeria Dive Resort",
     wa: "Chat lewat WhatsApp", bayar: (j: string) => `Bayar sekarang · ${j}`,
     diterima: { label: "Permintaan pesanan diterima", judul: (n: string) => `Terima kasih, ${n}`, sub: "Permintaan pesanan Anda sudah kami terima. Berikut rinciannya.", subjek: (k: string) => `Permintaan pesanan ${k} diterima · Bakoeria Dive Resort`, langkah: (jam: number, online: boolean) => online ? `<b>Langkah berikutnya.</b> Bayar online sekarang supaya pesanan langsung terkonfirmasi. Cottage kami tahan ${jam} jam. Anda juga bisa menunggu tim kami membalas dengan konfirmasi dan cara pembayaran.` : `<b>Langkah berikutnya.</b> Cottage kami tahan ${jam} jam. Tim kami akan segera membalas dengan konfirmasi dan cara pembayaran.`, pratinjau: (k: string) => `Permintaan pesanan ${k} di Bakoeria Dive Resort` },
@@ -109,10 +111,11 @@ const kebijakan = (d: DataEmail) => {
   if (!r?.batas) return "";
   return kotak(`${r.tarif === "fleksibel" ? t.kebFleksibel(esc(tb(r.batas, d.en))) : t.kebStandar(esc(tb(r.batas, d.en)))} ${esc(t.makan)}`, WARNA.kertas);
 };
-const tambahan = (d: DataEmail) => {
+const tambahan = (d: DataEmail, denganTermasuk = true) => {
   const r = d.rincian;
-  if (!r?.tambahan.length) return "";
-  return subjudul(teks(d.en).terpisah) + ringkasan(r.tambahan.map((x) => { const i = x.indexOf(":"); return i > 0 ? [x.slice(0, i), x.slice(i + 1).trim()] : ["", x]; }));
+  const termasuk = denganTermasuk && r?.ekstra?.length ? subjudul(teks(d.en).termasuk) + ringkasan(r.ekstra.map(([l, v]) => [l, rupiah(v)])) : "";
+  if (!r?.tambahan.length) return termasuk;
+  return termasuk + subjudul(teks(d.en).terpisah) + ringkasan(r.tambahan.map((x) => { const i = x.indexOf(":"); return i > 0 ? [x.slice(0, i), x.slice(i + 1).trim()] : ["", x]; }));
 };
 const tombolWa = (d: DataEmail) => (d.kontak.wa ? tombol(`https://wa.me/${d.kontak.wa}?text=${encodeURIComponent(`${d.en ? "Hello, my booking code is" : "Halo, kode pesanan saya"} ${d.kode}.`)}`, teks(d.en).wa, WARNA.wa) : "");
 
@@ -146,6 +149,7 @@ export function blokInvoice(d: DataEmail, bayar: Bayaran[]) {
         [`${d.cottage} · ${teks(d.en).malam(r.malam)} (${tb(d.masuk, d.en)} – ${tb(d.keluar, d.en)})`, r.hargaKamar],
         ...(r.tambahanAnak ? [[t.anak(r.anak), r.tambahanAnak] as [string, number]] : []),
         ...(r.kenaikan ? [[t.fleks(r.persen), r.kenaikan] as [string, number]] : []),
+        ...(r.ekstra ?? []),
         ...(r.potongan ? [[t.kupon(r.kupon), -r.potongan] as [string, number]] : []),
       ]
     : [[`${d.cottage} (${tb(d.masuk, d.en)} – ${tb(d.keluar, d.en)})`, d.total]];
@@ -181,7 +185,7 @@ export function emailLunas(d: DataEmail, bayar: Bayaran[], tautanInvoice: string
   const isi = `${kepala(t.lunas.label, t.lunas.judul, t.lunas.sub(sapa))}
           ${blokInvoice(d, bayar)}
           ${kebijakan(d)}
-          ${tambahan(d)}
+          ${tambahan(d, false)}
           ${kotak(t.tiba)}
           ${deretTombol(`${tombol(tautanInvoice, t.lunas.cetak, WARNA.malam)}${tombolWa(d)}`)}
           ${salam(t.salam, t.tim)}`;
@@ -208,7 +212,7 @@ export function emailTerkonfirmasi(d: DataEmail, o: { sudahLunas: boolean; bayar
 /** Halaman invoice yang bisa dicetak atau disimpan sebagai PDF dari peramban. */
 export function halamanInvoice(d: DataEmail, bayar: Bayaran[]) {
   const t = teks(d.en).inv;
-  const isi = `${blokInvoice(d, bayar)}${tambahan(d)}`;
+  const isi = `${blokInvoice(d, bayar)}${tambahan(d, false)}`;
   return kerangka({ asal: d.asal, en: d.en, pratinjau: `${t.judul} ${d.kode}`, isi, kontak: d.kontak })
     .replace("</head>", `<style>@media print{.cetak{display:none!important}body{background:#fff!important}}</style></head>`)
     .replace(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARNA.pasir};">`, `<div class="cetak" style="text-align:center;padding:16px 0 0;"><button onclick="window.print()" style="padding:12px 22px;border:0;border-radius:999px;background:${WARNA.malam};color:#fff;font:700 14px ${HURUF};cursor:pointer;">${esc(t.cetak)}</button></div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${WARNA.pasir};">`);
