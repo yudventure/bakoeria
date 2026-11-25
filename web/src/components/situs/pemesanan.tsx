@@ -31,6 +31,8 @@ interface InfoTarif { fleksibel: boolean; aktif: boolean; persen: number; batasH
 /** Perahu antar-jemput dari isi situs; harganya teks yang ditulis pemilik. */
 export interface PerahuPesan { judul: string; muat: string; harga: { rute: string; harga: string; sekali: string }[] }
 type HasilKupon = { kode: string; ok: true } | { kode: string; ok: false; alasan: keyof (typeof KAMUS)["en"]["form"]["kuponTolak"]; batas: number | string | null } | null;
+/** Jenis cottage untuk dipilih sebelum cek ketersediaan: harga per malam terendah dan muatannya. */
+export interface CottagePesan { kunci: string; nama: string; ket: string | null; dewasa: number; anak: number; harga: number; normal: number | null; unit: number }
 /** Cottage dengan jenis yang sama ditawarkan sebagai satu pilihan; unitnya dipilihkan yang kosong. */
 interface Jenis { kunci: string; nama: string; ket: string | null; unit: Opsi[]; kosong: Opsi[]; contoh: Opsi }
 
@@ -61,21 +63,25 @@ function Penghitung({ label, ket, nilai, ubah, min, maks, teks }: { label: strin
  * tahanan. Anak di bawah 5 tahun gratis; 5 tahun ke atas 50% harga kamar per
  * malam dengan extra bed. Harga dihitung di server.
  */
-export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], selamAktif = true, kiri }: { wa: string; aktif: boolean; bahasa: Bahasa; perahu?: PerahuPesan[]; /** Daftar harga selam (isi situs) untuk pilihan paket diving. */ paket?: PaketGrup[]; /** Seksi Program selam menyala; bila mati, pertanyaan diving tidak ditampilkan. */ selamAktif?: boolean; /** Judul dan keterangan kolom kiri; kalender ketersediaan ditaruh di bawahnya. */ kiri: ReactNode }) {
+export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], selamAktif = true, kiri, cottage = [] }: { wa: string; aktif: boolean; bahasa: Bahasa; /** Jenis cottage yang bisa dipesan, dipilih sebelum cek ketersediaan. */ cottage?: CottagePesan[]; perahu?: PerahuPesan[]; /** Daftar harga selam (isi situs) untuk pilihan paket diving. */ paket?: PaketGrup[]; /** Seksi Program selam menyala; bila mati, pertanyaan diving tidak ditampilkan. */ selamAktif?: boolean; /** Judul dan keterangan kolom kiri; kalender ketersediaan ditaruh di bawahnya. */ kiri: ReactNode }) {
   const t = KAMUS[bahasa].form;
   const tgl_ = (s: string) => tglBahasa(s, bahasa);
   const hari = hariIniWit();
   /* Tanggal dipilih di kalender ketersediaan; mulai kosong. */
   const [tgl, setTgl] = useState({ masuk: "", keluar: "" });
-  const [sedia, setSedia] = useState<{ awal: string; akhir: string; sisa: Record<string, number> }>({ awal: hari, akhir: tambahHari(hari, 400), sisa: {} });
+  const [sedia, setSedia] = useState<{ awal: string; akhir: string; sisa: Record<string, number>; jenis: Record<string, Record<string, number>> }>({ awal: hari, akhir: tambahHari(hari, 400), sisa: {}, jenis: {} });
   useEffect(() => {
     if (!aktif) return;
-    fetch("/api/publik/kalender").then((r) => (r.ok ? r.json() : null)).then((d) => d && setSedia({ awal: d.dari, akhir: d.sampai, sisa: d.sisa ?? {} })).catch(() => undefined);
+    fetch("/api/publik/kalender").then((r) => (r.ok ? r.json() : null)).then((d) => d && setSedia({ awal: d.dari, akhir: d.sampai, sisa: d.sisa ?? {}, jenis: d.jenis ?? {} })).catch(() => undefined);
   }, [aktif]);
+  /* Alur: "rencana" (cottage, tanggal, tamu, tambahan) lalu "konfirmasi" (rincian, tarif, data tamu), dengan tombol Kembali. */
+  const [langkah, setLangkah] = useState<"rencana" | "konfirmasi">("rencana");
+  /* Cottage yang dipilih penuh di tanggal itu: jenis lain yang masih kosong ditawarkan. */
+  const [penuh, setPenuh] = useState<{ nama: string; lain: string[] } | null>(null);
   const [tamu, setTamu] = useState({ dewasa: 2, anak: 0, balita: 0 });
   const [opsi, setOpsi] = useState<Opsi[] | null>(null);
   const [malam, setMalam] = useState(0);
-  const [pilih, setPilih] = useState<string>("");
+  const [pilih, setPilih] = useState<string>(cottage.length === 1 ? cottage[0].kunci : "");
   const [f, setF] = useState({ nama: "", telepon: "", email: "", asal: "", minat: t.minatPilihan[0], sertifikat: t.sertifikatPilihan[t.sertifikatPilihan.length - 1], jamTiba: "", catatan: "", situs: "" });
   /* Pilihan perahu "i-j" (perahu ke-i, rute ke-j) atau "" bila tamu mengatur sendiri. */
   const [transport, setTransport] = useState("");
@@ -129,8 +135,10 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
   };
 
   /* Mengubah tanggal atau tamu membuat hasil cek lama tidak berlaku. */
-  const ubahTgl = (x: Partial<typeof tgl>) => { setTgl({ ...tgl, ...x }); setOpsi(null); };
-  const ubahTamu = (x: Partial<typeof tamu>) => { setTamu({ ...tamu, ...x }); setOpsi(null); };
+  const ulang = () => { setOpsi(null); setLangkah("rencana"); setPenuh(null); };
+  const ubahTgl = (x: Partial<typeof tgl>) => { setTgl({ ...tgl, ...x }); ulang(); };
+  const ubahTamu = (x: Partial<typeof tamu>) => { setTamu({ ...tamu, ...x }); ulang(); };
+  const pilihJenis = (kunci: string) => { setPilih(kunci); ulang(); };
 
   /** Ambil cottage yang kosong beserta harganya; dengan kode kupon, harga sudah dipotong. */
   async function ambil(kode: string) {
@@ -139,11 +147,12 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
     if (!r.ok) throw new Error(d.galat ?? t.galatCek);
     return d as { kamar: Opsi[]; malam: number; kupon: HasilKupon; tarif?: InfoTarif };
   }
-  async function cek(e: React.FormEvent) {
-    e.preventDefault();
+  async function cek(e?: React.FormEvent, jenisDipilih = pilih) {
+    e?.preventDefault();
+    if (!jenisDipilih) return;
     setGalat("");
     setOpsi(null);
-    setPilih("");
+    setPenuh(null);
     setSibuk(true);
     lacakIklan("InitiateCheckout");
     try {
@@ -153,9 +162,17 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
       setTarif(d.tarif ?? null);
       if (!d.tarif?.fleksibel) setPilihTarif("standar");
       setKupon(d.kupon?.ok ? d.kupon : null);
-      const muat = (k: Opsi) => k.tersedia && k.dewasa >= tamu.dewasa && k.anak >= tamu.anak;
-      const pertama = d.kamar.find(muat) ?? d.kamar.find((k) => k.tersedia);
-      if (pertama) setPilih(pertama.tipe ?? pertama.nama);
+      const jenisDari = (o: Opsi) => o.tipe ?? o.nama;
+      const kosong = d.kamar.filter((o) => o.tersedia && jenisDari(o) === jenisDipilih);
+      const nama = cottage.find((c) => c.kunci === jenisDipilih)?.nama ?? jenisDipilih;
+      if (!kosong.length) {
+        setPenuh({ nama, lain: [...new Set(d.kamar.filter((o) => o.tersedia).map(jenisDari))] });
+      } else if (!kosong.some((o) => o.dewasa >= tamu.dewasa && o.anak >= tamu.anak)) {
+        setGalat(t.tidakMuat(nama, kosong[0].dewasa, kosong[0].anak));
+      } else {
+        setLangkah("konfirmasi");
+        requestAnimationFrame(() => document.querySelector("[data-konfirmasi]")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+      }
     } catch (err) {
       setGalat(err instanceof Error ? err.message : "Gagal.");
     } finally {
@@ -193,7 +210,8 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
     return [...peta.values()];
   }, [opsi]);
   const j = jenis.find((x) => x.kunci === pilih && x.kosong.length > 0);
-  const k = j?.kosong[0];
+  /* Unit yang dipesan: yang kosong dan muat untuk rombongan. */
+  const k = j?.kosong.find((o) => o.dewasa >= tamu.dewasa && o.anak >= tamu.anak) ?? j?.kosong[0];
   const melebihi = k ? tamu.dewasa > k.dewasa || tamu.anak > k.anak : false;
   const fleks = pilihTarif === "fleksibel" && !!tarif?.fleksibel && !!k?.kenaikanFleksibel;
   const totalAkhir = k ? k.total + (fleks ? k.kenaikanFleksibel : 0) : 0;
@@ -274,7 +292,30 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
 
   const isiForm = (
     <div className="rounded-[2rem] border border-white/70 bg-white/85 p-5 shadow-[0_20px_60px_rgba(10,36,64,.12)] backdrop-blur-xl sm:p-8">
-      <form onSubmit={cek} className="grid gap-4">
+      {langkah === "rencana" && <form onSubmit={cek} className="grid gap-4">
+        {cottage.length > 0 && (
+          <fieldset className="grid gap-2" data-pilih-cottage>
+            <legend className={`${kelasLabel} mb-1.5`}>{t.cottageJudul}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {cottage.map((c) => (
+                <label key={c.kunci} className={`flex cursor-pointer flex-col gap-2 rounded-2xl border p-4 transition ${pilih === c.kunci ? "border-emas-tua bg-busa/50" : "border-malam/10 bg-white/80 hover:border-emas-tua/50"}`}>
+                  <span className="flex items-start gap-3">
+                    <input type="radio" name="cottage" value={c.kunci} checked={pilih === c.kunci} onChange={() => pilihJenis(c.kunci)} className="mt-1.5 accent-[#0F6490]" />
+                    <span className="min-w-0">
+                      <span className="block font-display text-xl text-malam">{c.nama}</span>
+                      {c.ket && <span className="mt-0.5 block text-[13px] leading-snug text-malam/60">{c.ket}</span>}
+                      <span className="mt-1 block text-xs text-malam/55">{t.muatCottage(c.dewasa, c.anak)}</span>
+                    </span>
+                  </span>
+                  <span className="mt-auto flex flex-wrap items-baseline justify-end gap-x-2">
+                    {c.normal != null && c.normal > c.harga && <s className="whitespace-nowrap text-xs text-malam/45">{rupiah(c.normal)}</s>}
+                    <span className="whitespace-nowrap text-sm font-bold text-malam">{t.mulaiDari(rupiah(c.harga))}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
         <p data-tanggal-form className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 text-[15px] font-bold ${tgl.masuk && tgl.keluar ? "bg-malam text-white" : "bg-emas-tua/10 text-emas-tua ring-1 ring-emas-tua/30"}`}>
           <svg viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
           <span>{tgl.masuk && tgl.keluar ? <>{tgl_(tgl.masuk)} {t.sampai} {tgl_(tgl.keluar)} · {t.malam(jumlahMalam(tgl.masuk, tgl.keluar))}</> : tgl.masuk ? t.kalender.pilihPulang : t.kalender.pilihTiba}</span>
@@ -359,47 +400,36 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
         </fieldset>}
         <p className="rounded-2xl bg-busa/60 px-4 py-3 text-[13px] leading-relaxed text-malam/75"><b className="font-bold text-malam">{t.kebijakanJudul}.</b> {t.kebijakan} {t.termasukMakan}</p>
         {aktif ? (
-          <button type="submit" disabled={sibuk || !tgl.masuk || !tgl.keluar} className="justify-self-start rounded-full bg-emas-tua px-7 py-3.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60">{sibuk && !opsi ? t.mengecek : !tgl.masuk || !tgl.keluar ? t.kalender.pilihDulu : KAMUS[bahasa].cekKetersediaan}</button>
+          <button type="submit" disabled={sibuk || !tgl.masuk || !tgl.keluar || !pilih} className="justify-self-start rounded-full bg-emas-tua px-7 py-3.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60">{sibuk ? t.mengecek : !pilih ? t.pilihCottageDulu : !tgl.masuk || !tgl.keluar ? t.kalender.pilihDulu : KAMUS[bahasa].cekKetersediaan}</button>
         ) : (
           <a href={`https://wa.me/${wa}?text=${teksWa}`} target="_blank" rel="noreferrer" className="justify-self-start rounded-full bg-emas-tua px-7 py-3.5 text-center text-sm font-bold text-white">{t.tanyaWa}</a>
         )}
-      </form>
+        {penuh && (
+          <div role="alert" data-penuh-jenis className="grid gap-2 rounded-2xl bg-[#FFF4D6] px-4 py-3 text-sm text-[#6B4A0B]">
+            <p className="font-bold">{t.penuhJenis(penuh.nama)}</p>
+            {penuh.lain.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <span>{t.cobaLain}</span>
+                {penuh.lain.map((x) => <button key={x} type="button" onClick={() => { setPilih(x); void cek(undefined, x); }} className="rounded-full bg-white px-3 py-1 font-bold text-malam ring-1 ring-malam/15 hover:ring-emas-tua">{cottage.find((c) => c.kunci === x)?.nama ?? x}</button>)}
+              </div>
+            ) : (
+              <p>{t.semuaTerisi} <a className="font-bold underline" href={`https://wa.me/${wa}?text=${teksWa}`} target="_blank" rel="noreferrer">{t.tanyaKami}</a>.</p>
+            )}
+          </div>
+        )}
+      </form>}
 
-      {opsi && (
-        <div className="mt-8 border-t border-malam/10 pt-7">
-          <p className="text-sm text-malam/60">{t.malam(malam)} · {t.pilihCottage}</p>
-          {jenis.every((x) => x.kosong.length === 0) ? (
-            <p className="mt-3 text-malam/70">{t.semuaTerisi} <a className="text-emas-tua underline" href={`https://wa.me/${wa}?text=${teksWa}`} target="_blank" rel="noreferrer">{t.tanyaKami}</a>.</p>
-          ) : (
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {jenis.map((x) => {
-                const ada = x.kosong.length > 0;
-                const c = x.kosong[0] ?? x.contoh;
-                return (
-                  <label key={x.kunci} className={`flex cursor-pointer flex-col gap-3 rounded-2xl border p-4 transition ${!ada ? "cursor-not-allowed border-malam/5 opacity-45" : pilih === x.kunci ? "border-emas-tua bg-busa/50" : "border-malam/10 bg-white/70 hover:border-emas-tua/50"}`}>
-                    <span className="flex items-start gap-3">
-                      <input type="radio" name="jenis" value={x.kunci} disabled={!ada} checked={pilih === x.kunci} onChange={() => setPilih(x.kunci)} className="mt-1.5 accent-[#0F6490]" />
-                      <span className="min-w-0">
-                        <span className="block font-display text-xl text-malam">{x.nama}</span>
-                        {x.ket && <span className="mt-0.5 block text-[13px] leading-snug text-malam/60">{x.ket}</span>}
-                        <span className="mt-1 block text-xs font-bold text-emas-tua">{ada ? t.tersisa(x.kosong.length) : t.terisi}{ada && c.musim ? <span className="ml-2 rounded-full bg-busa px-2 py-0.5 font-bold text-malam/70">{c.musim}</span> : null}</span>
-                      </span>
-                    </span>
-                    {ada && (
-                      <span className="mt-auto flex flex-wrap items-baseline justify-end gap-x-2 gap-y-1">
-                        {c.normal != null && <span className="mr-auto rounded-full bg-emas-tua px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">{t.promo}</span>}
-                        {c.normal != null && <s className="whitespace-nowrap text-sm text-malam/45">{rupiah(c.normal)}</s>}
-                        <span className="whitespace-nowrap font-display text-xl text-malam">{rupiah(c.total)}</span>
-                      </span>
-                    )}
-                  </label>
-                );
-              })}
+      {langkah === "konfirmasi" && opsi && (
+        <div data-konfirmasi className="scroll-mt-28">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="font-display text-3xl text-malam">{t.konfirmasiJudul}</p>
+              <p className="mt-1 text-sm text-malam/60">{t.konfirmasiKet}</p>
             </div>
-          )}
-          {k && j && melebihi && <p role="alert" className="mt-4 rounded-2xl bg-[#FFF4D6] px-4 py-3 text-sm text-[#6B4A0B]">{t.melebihi(k.dewasa, k.anak)}</p>}
+            <button type="button" data-kembali onClick={() => setLangkah("rencana")} className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold text-malam ring-1 ring-malam/15 transition hover:ring-emas-tua">← {t.kembaliUbah}</button>
+          </div>
           {k && j && !melebihi && (
-            <form onSubmit={kirim} className="mt-8 grid gap-4 sm:grid-cols-2">
+            <form onSubmit={kirim} className="mt-6 grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl bg-[#F6F4EF] p-4 sm:col-span-2">
                 <p className={kelasLabel}>{t.ringkasan}</p>
                 <p className="mt-1 text-[15px] text-malam"><b className="font-bold">{j.nama}</b> · {tgl_(tgl.masuk)} {t.sampai} {tgl_(tgl.keluar)} · {t.malam(malam)}</p>
@@ -467,7 +497,8 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
               <label className="grid gap-1.5 sm:col-span-2"><span className={kelasLabel}>{t.catatan}</span><textarea rows={2} className={kelasMasukan} value={f.catatan} onChange={(e) => setF({ ...f, catatan: e.target.value })} /></label>
               <input type="text" name="situs" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" value={f.situs} onChange={(e) => setF({ ...f, situs: e.target.value })} />
               <div className="flex flex-wrap items-center justify-between gap-4 sm:col-span-2">
-                <p className="text-sm text-malam/60">{t.total} <b className="font-bold text-malam">{rupiah(totalAkhir)}</b></p>
+                <button type="button" onClick={() => setLangkah("rencana")} className="text-sm font-bold text-malam/70 underline underline-offset-4 hover:text-malam">← {t.kembaliUbah}</button>
+                <p className="ml-auto text-sm text-malam/60">{t.total} <b className="font-bold text-malam">{rupiah(totalAkhir)}</b></p>
                 <button type="submit" disabled={sibuk} className="inline-flex items-center gap-3 rounded-full bg-emas-tua py-2 pl-6 pr-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60">{sibuk ? t.mengirim : t.kirim}<span className="grid size-9 place-items-center rounded-full bg-white/20">→</span></button>
               </div>
             </form>
@@ -482,7 +513,7 @@ export default function Pemesanan({ wa, aktif, bahasa, perahu = [], paket = [], 
     <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
       <div className="muncul">
         {kiri}
-        {!selesai && !hasilBayar && <KalenderSedia bahasa={bahasa} sisa={sedia.sisa} awal={sedia.awal} akhir={sedia.akhir} masuk={tgl.masuk} keluar={tgl.keluar} pilih={(masuk, keluar) => ubahTgl({ masuk, keluar })} />}
+        {!selesai && !hasilBayar && <KalenderSedia bahasa={bahasa} sisa={pilih ? sedia.jenis[pilih] ?? {} : sedia.sisa} awal={sedia.awal} akhir={sedia.akhir} masuk={tgl.masuk} keluar={tgl.keluar} pilih={(masuk, keluar) => ubahTgl({ masuk, keluar })} />}
       </div>
       <div className="muncul">{isiHasilBayar ?? isiSelesai ?? isiForm}</div>
     </div>

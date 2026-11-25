@@ -31,12 +31,12 @@ function smtp() {
   return transport;
 }
 
-export async function kirimEmail(ke: string, subjek: string, teks: string, balasKe?: string): Promise<boolean> {
+export async function kirimEmail(ke: string, subjek: string, teks: string, balasKe?: string, html?: string): Promise<boolean> {
   const dari = pengirim();
   if (!ke || !dari) return false;
   try {
     if (process.env.SMTP_HOST?.trim() && process.env.SMTP_USER?.trim() && process.env.SMTP_PASS) {
-      await smtp().sendMail({ from: dari, to: ke, subject: subjek, text: teks, ...(balasKe ? { replyTo: balasKe } : {}) });
+      await smtp().sendMail({ from: dari, to: ke, subject: subjek, text: teks, ...(html ? { html } : {}), ...(balasKe ? { replyTo: balasKe } : {}) });
       return true;
     }
     const kunci = process.env.RESEND_API_KEY?.trim();
@@ -44,7 +44,7 @@ export async function kirimEmail(ke: string, subjek: string, teks: string, balas
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${kunci}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: dari, to: [ke], subject: subjek, text: teks, ...(balasKe ? { reply_to: balasKe } : {}) }),
+      body: JSON.stringify({ from: dari, to: [ke], subject: subjek, text: teks, ...(html ? { html } : {}), ...(balasKe ? { reply_to: balasKe } : {}) }),
       signal: AbortSignal.timeout(15000),
     });
     if (!r.ok) console.error("[email] Resend menjawab", r.status, await r.text().catch(() => ""));

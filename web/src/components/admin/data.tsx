@@ -73,8 +73,11 @@ export function PenyediaData({ akun, children, layarAwal }: { akun: AkunSaya; ch
 
   useEffect(() => {
     const dariHash = () => {
-      const h = window.location.hash.slice(1) as Layar;
-      if (h && bolehLayar(akun.peran, h)) setLayar(h);
+      const h = window.location.hash.slice(1);
+      /* Tautan dari email pesanan baru: #pesanan=<id> membuka laci pesanan itu. */
+      const m = /^pesanan=([A-Za-z0-9_-]{4,40})$/.exec(h);
+      if (m && bolehLayar(akun.peran, "pesanan")) { setLayar("pesanan"); bukaPesanan(m[1]); history.replaceState(null, "", "#pesanan"); return; }
+      if (h && bolehLayar(akun.peran, h as Layar)) setLayar(h as Layar);
     };
     dariHash();
     window.addEventListener("hashchange", dariHash);

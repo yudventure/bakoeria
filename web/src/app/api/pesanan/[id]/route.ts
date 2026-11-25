@@ -1,6 +1,8 @@
 import { bolehCatat } from "@/lib/peran";
 import { wajib } from "@/lib/server/akses";
 import { hapusBooking, riwayat, satuBooking, ubahBooking } from "@/lib/server/buku";
+import { kirimEmailTerkonfirmasi } from "@/lib/server/kabar-pesanan";
+import { konfigMidtrans } from "@/lib/server/midtrans";
 import { bacaBooking, badan, gagal, jawabBentrok, ok, sensor, tanpaDb } from "@/lib/server/rute";
 
 type Ctx = { params: Promise<{ id: string }> };
@@ -26,7 +28,13 @@ export async function PATCH(req: Request, ctx: Ctx) {
   const r = bacaBooking(await badan(req), true);
   if ("galat" in r) return gagal(r.galat);
   try {
-    return ok({ pesanan: sensor(await ubahBooking(id, r.data, a.nama), a.peran) });
+    const sebelum = r.data.status === "CONFIRMED" ? await satuBooking(id) : null;
+    const baru = await ubahBooking(id, r.data, a.nama);
+    /* Pesanan dari website yang dikonfirmasi admin: tamu otomatis menerima email konfirmasi. */
+    if (sebelum && sebelum.status === "TENTATIVE" && baru.status === "CONFIRMED" && baru.source === "WEBSITE" && baru.guest?.email) {
+      await kirimEmailTerkonfirmasi(id, Boolean(await konfigMidtrans())).catch((e) => console.error("[pesanan] email konfirmasi gagal", e));
+    }
+    return ok({ pesanan: sensor(baru, a.peran) });
   } catch (e) {
     return jawabBentrok(e);
   }

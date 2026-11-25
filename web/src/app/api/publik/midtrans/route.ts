@@ -4,6 +4,8 @@ import { BentrokError, satuBooking, tambahBayar, ubahBooking } from "@/lib/serve
 import { alamatSaja, kirimEmail, pengirim } from "@/lib/server/email";
 import { catatKabar, kodeDariOrder, konfigMidtrans, lunas, statusTransaksi, tandaTanganSah } from "@/lib/server/midtrans";
 import { bacaPengaturan } from "@/lib/server/simpanan";
+import { asalSitus, kirimEmailLunas, kontakEmail } from "@/lib/server/kabar-pesanan";
+import { deretTombol, esc, kepala, kerangka, kotak, ringkasan, tombol, WARNA } from "@/lib/server/email-kerangka";
 
 /**
  * Payment Notification URL Midtrans (Dashboard, Settings, Payment, Notification URL):
@@ -46,7 +48,12 @@ export async function POST(req: Request) {
     } else if (p && p.status !== "CONFIRMED") catatan = `\nPerhatian: status pesanan ${p.status}, pembayaran tetap dicatat. Periksa di dashboard.`;
     await catatKabar({ orderId, hasil: "dicatat" });
     const set = await bacaPengaturan();
-    await kirimEmail(set.emailNotifikasi || alamatSaja(pengirim()), `Pembayaran ${kode} diterima lewat Midtrans`, `${kode}\n${p?.guest?.name ?? "-"} · ${p?.roomName ?? ""}, ${p?.checkIn ?? ""} sampai ${p?.checkOut ?? ""}\nDibayar ${rupiah(st.jumlah)} (${st.metode})\nOrder ${orderId}, transaksi ${st.idTransaksi}${catatan}`).catch(() => undefined);
+    const asal = await asalSitus();
+    const teksAdmin = `${kode}\n${p?.guest?.name ?? "-"} · ${p?.roomName ?? ""}, ${p?.checkIn ?? ""} sampai ${p?.checkOut ?? ""}\nDibayar ${rupiah(st.jumlah)} (${st.metode})\nOrder ${orderId}, transaksi ${st.idTransaksi}${catatan}\nDashboard: ${asal}/kelola#pesanan=${id}`;
+    const htmlAdmin = kerangka({ asal, en: false, kontak: await kontakEmail(false), pratinjau: `${p?.guest?.name ?? ""} membayar ${rupiah(st.jumlah)}`, isi: `${kepala("Pembayaran diterima lewat Midtrans", `${kode} · ${p?.guest?.name ?? ""}`, `${p?.roomName ?? ""}, ${p?.checkIn ?? ""} sampai ${p?.checkOut ?? ""}`)}${ringkasan([["Dibayar", rupiah(st.jumlah)], ["Cara bayar", st.metode || "-"], ["Order ID", orderId], ["ID transaksi", st.idTransaksi || "-"], ["Status pesanan", p?.status === "CONFIRMED" ? "Terkonfirmasi otomatis" : String(p?.status ?? "-")]])}${catatan ? kotak(esc(catatan.trim()), "#FFF4D6") : ""}${deretTombol(tombol(`${asal}/kelola#pesanan=${id}`, "Buka di dashboard", WARNA.malam))}` });
+    await kirimEmail(set.emailNotifikasi || alamatSaja(pengirim()), `Pembayaran ${kode} diterima lewat Midtrans`, teksAdmin, undefined, htmlAdmin).catch(() => undefined);
+    /* Tamu menerima email pesanan terkonfirmasi beserta invoice. */
+    await kirimEmailLunas(id).catch((e) => console.error("[midtrans] email invoice gagal", e));
     return Response.json({ ok: true });
   } finally {
     sedang.delete(orderId);

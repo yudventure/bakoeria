@@ -19,7 +19,7 @@ import { atribut, gambar, gambarItem, type SlotFoto } from "@/lib/foto";
 import { Ikon } from "@/components/situs/ikon";
 import { Nav } from "@/components/situs/interaksi";
 import { Gerak, JudulHero } from "@/components/situs/gerak";
-import Pemesanan from "@/components/situs/pemesanan";
+import Pemesanan, { type CottagePesan } from "@/components/situs/pemesanan";
 import Footer from "@/components/situs/footer";
 import Promosi from "@/components/situs/promosi";
 
@@ -94,6 +94,13 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
     else peta.set(kunci, { r, unit: 1 });
     return peta;
   }, new Map<string, { r: Kamar; unit: number }>()).values()];
+
+  /* Jenis cottage untuk dipilih di formulir pesan: harga per malam terendah di antara unitnya. */
+  const cottagePesan: CottagePesan[] = jenis.map(({ r, unit }) => {
+    const sejenis = kamar.filter((x) => (x.roomType ?? x.name) === (r.roomType ?? r.name));
+    const termurah = sejenis.reduce((a, x) => (x.baseRate < a.baseRate ? x : a), r);
+    return { kunci: r.roomType ?? r.name, nama: r.roomType ?? r.name, ket: (bahasa === "en" ? r.descEn || r.descId : r.descId || r.descEn) || null, dewasa: Math.max(...sejenis.map((x) => x.capAdult)), anak: Math.max(...sejenis.map((x) => x.capChild)), harga: termurah.baseRate, normal: termurah.normalRate && termurah.normalRate > termurah.baseRate ? termurah.normalRate : null, unit };
+  });
 
   if (k.tutup) {
     return (
@@ -333,7 +340,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
         {/* PESAN */}
         {on.pesan && <section id="pesan" className="relative scroll-mt-24 overflow-hidden px-5 pb-56 pt-20 sm:pb-64">
           <img {...atribut(g("pesan"), "100vw")} alt="" loading="lazy" className="absolute inset-x-0 bottom-0 h-[46%] w-full object-cover object-[50%_80%] [mask-image:linear-gradient(180deg,transparent,#000_40%)]" />
-          <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} perahu={k.perahu.map((p) => ({ judul: p.judul, muat: p.muat, harga: p.harga }))} paket={k.paket} selamAktif={on.menyelam} kiri={<>
+          <Pemesanan wa={wa} aktif={databaseReady() && set.terimaPesananWeb} bahasa={bahasa} perahu={k.perahu.map((p) => ({ judul: p.judul, muat: p.muat, harga: p.harga }))} paket={k.paket} selamAktif={on.menyelam} cottage={cottagePesan} kiri={<>
             <h2 className="font-display text-[clamp(40px,5vw,58px)] font-normal leading-[0.98] tracking-[-0.02em]">{t.rencanakan}</h2>
             <p className="mt-4 max-w-sm text-[14px] text-malam/65">{k.pesanIsi}</p>
             {/* Kontak tidak diulang di sini: sudah ada di footer (permintaan pemilik). */}
