@@ -1,4 +1,5 @@
 import { seragamkanHarga } from "./rupiah-teks";
+import { GRUP_SELAM_EN, GRUP_SELAM_ID } from "./harga-selam";
 /**
  * Isi situs publik. Bawaan di sini; yang diubah dari tab Website disimpan di
  * `konten.json` di folder data dan langsung tayang tanpa build ulang.
@@ -115,9 +116,9 @@ export const KONTEN_BAWAAN: Konten = {
     "Bakoeria Dive Resort adalah resor selam butik yang tenang dan personal. Siang hari Anda ada di bawah air bersama pemandu yang mengenal lokasinya. Malam hari Anda pulang ke cottage kayu besi, dengan lampu gantung hangat dan pasir di bawah kaki.",
   programCatatan: "Jadwal dan tarif disesuaikan dengan kondisi laut dan kemampuan tamu.",
   program: [
-    { judul: "Fun Dive", isi: "Untuk penyelam bersertifikat. Briefing singkat, dua penyelaman per hari, dipandu dive master yang memahami titik selam setempat.", meta: "Bersertifikat · 2 selam per hari", harga: "" },
-    { judul: "Kursus Open Water", isi: "Belajar menyelam dari awal dengan kelompok kecil, tempo yang tenang, dan perhatian penuh pada keselamatan.", meta: "Pemula · kelompok kecil", harga: "" },
-    { judul: "Discover Scuba", isi: "Rasakan menyelam pertama Anda di perairan dangkal, tanpa perlu sertifikat, ditemani instruktur satu per satu.", meta: "Tanpa sertifikat · setengah hari", harga: "" },
+    { judul: "Fun Dive", isi: "Untuk penyelam bersertifikat. Briefing singkat, dua penyelaman per hari, dipandu dive master yang memahami titik selam setempat.", meta: "Bersertifikat · 2 selam per hari", harga: "Rp 2.100.000 per penyelam" },
+    { judul: "Kursus Open Water", isi: "Belajar menyelam dari awal dengan kelompok kecil, tempo yang tenang, dan perhatian penuh pada keselamatan.", meta: "Pemula · kelompok kecil", harga: "Rp 7.500.000 per orang" },
+    { judul: "Discover Scuba", isi: "Rasakan menyelam pertama Anda di perairan dangkal, tanpa perlu sertifikat, ditemani instruktur satu per satu.", meta: "Tanpa sertifikat · setengah hari", harga: "Rp 1.200.000 per orang" },
     { judul: "Snorkeling", isi: "Untuk keluarga dan tamu yang menunggu di permukaan. Peralatan tersedia dan pemandu ikut di air.", meta: "Semua usia · peralatan tersedia", harga: "" },
   ],
   caraJudul: "Cara menuju ke sini",
@@ -136,102 +137,9 @@ export const KONTEN_BAWAAN: Konten = {
   aktivitasIsi: "Hari di luar air juga bagian dari menginap. Tim kami mengaturnya mengikuti pasang surut, cuaca, dan rencana selam Anda.",
   aktivitas: [{"judul": "Mengamati burung", "isi": "Berjalan sebelum matahari terbit bersama pemandu lokal untuk mencari cenderawasih dan burung hutan lainnya."}, {"judul": "Kayak ke sungai di belakang resort", "isi": "Mendayung pelan menyusuri sungai di belakang resort, di antara pepohonan, dengan tempo Anda sendiri."}, {"judul": "Island trip", "isi": "Sehari naik perahu ke pulau-pulau di sekitar resort: laguna karst Piaynemo, Batanta, Kali Biru, dan tempat lain sesuai cuaca. Naik ke puncak pandang, berenang di air jernih, lalu makan siang di pantai yang sepi."}],
   paketJudul: "Harga dan paket dive trip",
-  paketCatatan: "Harga dalam Rupiah. Titik selam yang jauh bisa dikenai biaya bensin Rp 300.000 sampai 500.000 bila penyelam kurang dari 3.",
+  paketCatatan: "Harga dalam Rupiah dan bisa berubah. Jadwal selam menyesuaikan cuaca dan kondisi laut.",
   paket: [
-    {
-      "judul": "Fun dive",
-      "catatan": "Per penyelam. Peralatan termasuk, kecuali dive computer dan senter.",
-      "isi": [
-        {
-          "nama": "Satu kali fun dive",
-          "ket": "Titik selam lokal",
-          "harga": "Rp 900.000"
-        },
-        {
-          "nama": "Dua fun dive pagi",
-          "ket": "Titik selam lokal",
-          "harga": "Rp 1.600.000"
-        },
-        {
-          "nama": "Tiga kali menyelam dalam sehari",
-          "ket": "Titik selam lokal",
-          "harga": "Rp 2.250.000"
-        },
-        {
-          "nama": "Dua dive di cleaning station manta dan Arborek",
-          "ket": "Minimal 3 penyelam",
-          "harga": "Rp 1.900.000"
-        },
-        {
-          "nama": "Satu dive sore di cleaning station manta",
-          "ket": "Minimal 3 penyelam",
-          "harga": "Rp 1.000.000"
-        },
-        {
-          "nama": "Dive di house reef",
-          "ket": "Tanpa pemandu, khusus penyelam berpengalaman",
-          "harga": "Rp 400.000"
-        }
-      ]
-    },
-    {
-      "judul": "Night dive",
-      "catatan": "Per penyelam, minimal 2 penyelam.",
-      "isi": [
-        {
-          "nama": "Night dive, titik dekat",
-          "ket": "Satu kali night dive",
-          "harga": "Rp 1.100.000"
-        },
-        {
-          "nama": "Night dive, titik jauh",
-          "ket": "Satu kali night dive",
-          "harga": "Rp 1.200.000"
-        }
-      ]
-    },
-    {
-      "judul": "Paket dive trip",
-      "catatan": "Selam dihitung per penyelam; perahu dihitung per perahu dan dibagi satu grup.",
-      "isi": [
-        {
-          "nama": "Piaynemo, dua fun dive",
-          "ket": "Per penyelam, belum termasuk perahu",
-          "harga": "Rp 1.700.000"
-        },
-        {
-          "nama": "Yangefo, dua fun dive",
-          "ket": "Titik Citrus dan Mayhem, minimal 3 penyelam, belum termasuk perahu",
-          "harga": "Rp 2.200.000"
-        },
-        {
-          "nama": "Bangkai P47, Pulau Wai, dan Manta Way, dua fun dive",
-          "ket": "Minimal 3 penyelam, perahu dihitung terpisah",
-          "harga": "Rp 2.000.000"
-        },
-        {
-          "nama": "Perahu ekskursi: Piaynemo, Yangefo, atau air terjun Batanta",
-          "ket": "Per perahu, 5 penyelam dan 1 snorkeler, termasuk lunch box dan tiket masuk",
-          "harga": "Rp 7.000.000"
-        }
-      ]
-    },
-    {
-      "judul": "Kursus dan selam pertama",
-      "catatan": "Per orang. Biaya pengajar dibayar terpisah.",
-      "isi": [
-        {
-          "nama": "Try dive",
-          "ket": "Tanpa sertifikat selam",
-          "harga": "Rp 1.300.000"
-        },
-        {
-          "nama": "Penyegaran keterampilan selam",
-          "ket": "Untuk penyelam bersertifikat yang lama tidak menyelam",
-          "harga": "Rp 1.200.000"
-        }
-      ]
-    },
+    ...GRUP_SELAM_ID,
     {
       "judul": "Trip snorkeling",
       "catatan": "Per perahu. Pemandu snorkeling Rp 200.000 per trip.",
@@ -351,9 +259,9 @@ export const KONTEN_BAWAAN_EN: Konten = {
     "Bakoeria Dive Resort is a small, quiet dive resort. By day you are underwater with guides who know these sites well. By night you come home to an ironwood cottage, with warm hanging lights and sand under your feet.",
   programCatatan: "Schedules and prices follow sea conditions and each guest's experience.",
   program: [
-    { judul: "Fun Dive", isi: "For certified divers. A short briefing and two dives a day, led by a dive master who knows the local sites.", meta: "Certified · 2 dives a day", harga: "" },
-    { judul: "Open Water Course", isi: "Learn to dive from the start in a small group, at a calm pace, with full attention on safety.", meta: "Beginners · small groups", harga: "" },
-    { judul: "Discover Scuba", isi: "Try your first dive in shallow water, no certificate needed, one to one with an instructor.", meta: "No certificate · half day", harga: "" },
+    { judul: "Fun Dive", isi: "For certified divers. A short briefing and two dives a day, led by a dive master who knows the local sites.", meta: "Certified · 2 dives a day", harga: "Rp 2.100.000 per diver" },
+    { judul: "Open Water Course", isi: "Learn to dive from the start in a small group, at a calm pace, with full attention on safety.", meta: "Beginners · small groups", harga: "Rp 7.500.000 per person" },
+    { judul: "Discover Scuba", isi: "Try your first dive in shallow water, no certificate needed, one to one with an instructor.", meta: "No certificate · half day", harga: "Rp 1.200.000 per person" },
     { judul: "Snorkelling", isi: "For families and anyone staying on the surface. Gear provided and a guide in the water with you.", meta: "All ages · gear provided", harga: "" },
   ],
   caraJudul: "How to get here",
@@ -372,102 +280,9 @@ export const KONTEN_BAWAAN_EN: Konten = {
   aktivitasIsi: "Days out of the water are part of the stay. Our team arranges these around the tides, the weather, and your dive plan.",
   aktivitas: [{"judul": "Bird watching", "isi": "Walk out before sunrise with a local guide to look for birds of paradise and other forest birds."}, {"judul": "Kayaking the river behind the resort", "isi": "Paddle quietly up the river at the back of the resort, through the trees, at your own pace."}, {"judul": "Island trips", "isi": "A day by boat to the islands around the resort: the karst lagoons of Piaynemo, Batanta, Kali Biru, and more, depending on the weather. Climb to a viewpoint, swim in clear water, and have lunch on a quiet beach."}],
   paketJudul: "Prices and dive trip packages",
-  paketCatatan: "Prices in Indonesian Rupiah. Far sites may add a fuel charge of Rp 300.000 to 500.000 with fewer than 3 divers.",
+  paketCatatan: "Prices in Indonesian Rupiah and may change. Dive plans follow the weather and sea conditions.",
   paket: [
-    {
-      "judul": "Fun dives",
-      "catatan": "Per diver. Equipment included, except dive computer and torch.",
-      "isi": [
-        {
-          "nama": "One fun dive",
-          "ket": "Local dive site",
-          "harga": "Rp 900.000"
-        },
-        {
-          "nama": "Two morning fun dives",
-          "ket": "Local dive sites",
-          "harga": "Rp 1.600.000"
-        },
-        {
-          "nama": "Three dives in one day",
-          "ket": "Local dive sites",
-          "harga": "Rp 2.250.000"
-        },
-        {
-          "nama": "Two dives at the manta cleaning station and Arborek",
-          "ket": "Minimum 3 divers",
-          "harga": "Rp 1.900.000"
-        },
-        {
-          "nama": "One afternoon dive at the manta cleaning station",
-          "ket": "Minimum 3 divers",
-          "harga": "Rp 1.000.000"
-        },
-        {
-          "nama": "House reef dive",
-          "ket": "Without a guide, experienced divers only",
-          "harga": "Rp 400.000"
-        }
-      ]
-    },
-    {
-      "judul": "Night dives",
-      "catatan": "Per diver, minimum 2 divers.",
-      "isi": [
-        {
-          "nama": "Night dive, near site",
-          "ket": "One night dive",
-          "harga": "Rp 1.100.000"
-        },
-        {
-          "nama": "Night dive, far site",
-          "ket": "One night dive",
-          "harga": "Rp 1.200.000"
-        }
-      ]
-    },
-    {
-      "judul": "Dive trips",
-      "catatan": "Diving is priced per diver; the boat is priced per boat and shared by the group.",
-      "isi": [
-        {
-          "nama": "Piaynemo, two fun dives",
-          "ket": "Per diver, boat not included",
-          "harga": "Rp 1.700.000"
-        },
-        {
-          "nama": "Yangefo, two fun dives",
-          "ket": "Citrus and Mayhem sites, minimum 3 divers, boat not included",
-          "harga": "Rp 2.200.000"
-        },
-        {
-          "nama": "P47 wreck, Wai Island and Manta Way, two fun dives",
-          "ket": "Minimum 3 divers, boat charged separately",
-          "harga": "Rp 2.000.000"
-        },
-        {
-          "nama": "Excursion boat: Piaynemo, Yangefo or Batanta waterfall",
-          "ket": "Per boat, 5 divers and 1 snorkeller, lunch box and entrance fee included",
-          "harga": "Rp 7.000.000"
-        }
-      ]
-    },
-    {
-      "judul": "Courses and first dives",
-      "catatan": "Per person. Instructor fee is paid separately.",
-      "isi": [
-        {
-          "nama": "Try dive",
-          "ket": "No certification needed",
-          "harga": "Rp 1.300.000"
-        },
-        {
-          "nama": "Skill update and refresh",
-          "ket": "For certified divers who have not dived for a while",
-          "harga": "Rp 1.200.000"
-        }
-      ]
-    },
+    ...GRUP_SELAM_EN,
     {
       "judul": "Snorkelling trips",
       "catatan": "Per boat. Snorkelling guide Rp 200.000 per trip.",

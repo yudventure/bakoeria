@@ -3,6 +3,8 @@ import { cariLabel, KATALOG_BAWAAN, rapikanKatalog, sidikDaftar, type JenisFasil
 import { databaseReady, jalankan, kueri } from "@/lib/db";
 import { bacaJson, ubahJson } from "./gudang";
 import { gantiKayuDalam } from "@/lib/kayu";
+import { CATATAN_LAMA, gantiHargaSelam, HARGA_PROGRAM, VERSI_HARGA_SELAM } from "@/lib/harga-selam";
+import type { PaketGrup } from "@/lib/konten";
 
 /**
  * Sekali jalan (November 2026, permintaan pemilik): tamu menginap boleh memakai kayak
@@ -58,6 +60,7 @@ export function pastikanFasilitasTamu(): Promise<void> {
     for (const m of MIGRASI) await jalankanMigrasi(m);
     for (const g of GANTI_LABEL) await gantiLabel(g);
     await gantiKayuTersimpan();
+    await gantiHargaSelamTersimpan();
   })()
     .catch((e) => console.error("[fasilitas] gagal menambah fasilitas tamu", e))
     .finally(() => { migrasi = undefined; });
@@ -150,4 +153,33 @@ async function gantiKayuTersimpan() {
     }
   }
   await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), kayuBesi: new Date().toISOString() }), 0o644);
+}
+
+/**
+ * Sekali: daftar harga diving yang tersimpan diganti harga Zanclus Dive Center (lib/harga-selam.ts).
+ * Trip snorkeling dan trip pulau tidak disentuh. Catatan daftar harga lama dan harga kartu Program
+ * yang masih kosong ikut diisi.
+ */
+async function gantiHargaSelamTersimpan() {
+  const tanda = await bacaJson<Record<string, string> | null>("migrasi-fasilitas.json", null);
+  if (tanda?.[VERSI_HARGA_SELAM]) return;
+  const ada = await bacaJson<Record<string, unknown> | null>("konten.json", null);
+  if (ada) {
+    await ubahJson<Record<string, unknown> | null>("konten.json", null, (l) => {
+      if (!l) return l;
+      /* Berkas lama satu objek tanpa pembagian bahasa dibaca sebagai versi Indonesia. */
+      const lamaSatu = "tagline" in l && !("en" in l) && !("id" in l);
+      const ubahSisi = (sisi: Record<string, unknown> | undefined, b: "en" | "id") => {
+        if (!sisi || typeof sisi !== "object") return sisi;
+        const x = { ...sisi };
+        if (Array.isArray(x.paket)) x.paket = gantiHargaSelam(x.paket as PaketGrup[], b);
+        if (x.paketCatatan === CATATAN_LAMA[b]) delete x.paketCatatan;
+        if (Array.isArray(x.program)) x.program = (x.program as { judul?: string; harga?: string }[]).map((pr) => { const h = HARGA_PROGRAM.find((y) => y.pola.test(String(pr.judul ?? ""))); return h && !String(pr.harga ?? "").trim() ? { ...pr, harga: h[b] } : pr; });
+        return x;
+      };
+      if (lamaSatu) return ubahSisi(l, "id") ?? l;
+      return { ...l, ...(l.en ? { en: ubahSisi(l.en as Record<string, unknown>, "en") } : {}), ...(l.id ? { id: ubahSisi(l.id as Record<string, unknown>, "id") } : {}) };
+    }, 0o644);
+  }
+  await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), [VERSI_HARGA_SELAM]: new Date().toISOString() }), 0o644);
 }
