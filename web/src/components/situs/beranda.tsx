@@ -245,9 +245,10 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 kartu={k.aktivitas.slice(0, 3).map((x, i) => ({ ...x, termasuk: terjemah(katalog.trip, x.termasuk), video: sumberVideo(k.kontak.aktivitasVideo[i] ?? ""), foto: g((["aktivitas1", "aktivitas2", "aktivitas3"] as const)[i]), posisi: ["object-[60%_40%]", "object-center", "object-[30%_60%]"][i] }))}
               />
               <div className="mt-10">
-                {/* Lima foto pertama galeri aktivitas mengisi mosaik; selebihnya tampil setelah "Show more". */}
+                {/* Sembilan foto selalu tampil: lima di mosaik dan sebaris empat di bawahnya. Selebihnya baru tampil setelah "Show more". */}
                 <Galeri
                   mosaik={5}
+                  tetap={4}
                   teks={{ buka: t.galeri.buka, tutup: t.galeri.tutup, sebelum: t.galeri.sebelum, sesudah: t.galeri.sesudah, lebih: t.galeri.lebih, kurang: t.galeri.kurang }}
                   foto={galeri.aktivitas.map(gambarItem).map((x, i) => {
                     const besar = i === 0;
