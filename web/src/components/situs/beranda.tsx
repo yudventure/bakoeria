@@ -179,10 +179,10 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emas-tua">{bahasa === "id" ? "Asal nama" : "Our name"}</p>
                   <h3 className="mt-3 font-display text-[clamp(30px,3.6vw,44px)] font-normal leading-[1.05] text-malam">{k.kisahJudul}</h3>
-                  <IlustrasiResort className="mt-6 w-full max-w-[420px] drop-shadow-[0_12px_28px_rgba(10,36,64,.12)]" />
+                  <IlustrasiResort className="mt-8 w-full max-w-[440px]" />
                 </div>
-                <div className="grid gap-4 text-[15.5px] leading-[1.75] text-malam/75">
-                  {k.kisahIsi.split(/\n\s*\n/).map((p, i) => <p key={i} className={i === 0 ? "first-letter:float-left first-letter:mr-2 first-letter:font-display first-letter:text-[3.2em] first-letter:leading-[0.85] first-letter:text-emas-tua" : ""}>{p.trim()}</p>)}
+                <div className="grid content-start gap-5 text-[16px] leading-[1.9] text-malam/75 lg:pt-2">
+                  {paragrafKisah(k.kisahIsi).map((p, i) => <p key={i} className={i === 0 ? "first-letter:float-left first-letter:mr-3 first-letter:mt-1 first-letter:font-display first-letter:text-[3.4em] first-letter:leading-[0.8] first-letter:text-emas-tua" : ""}>{p.trim()}</p>)}
                 </div>
               </div>
             )}
@@ -396,4 +396,11 @@ function dataTerstruktur(k: Konten, nama: string, bahasa: Bahasa, wa: string): s
   };
   /* "<" di-escape supaya isi teks tidak bisa menutup tag script. */
   return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+/** Paragraf kisah. Paragraf pertama yang pendek digabung dengan berikutnya, supaya huruf besar pembukanya dibungkus teks. */
+function paragrafKisah(isi: string) {
+  const p = isi.split(/\n\s*\n/).map((x) => x.trim()).filter(Boolean);
+  if (p.length > 1 && p[0].length < 160) return [`${p[0]} ${p[1]}`, ...p.slice(2)];
+  return p;
 }
