@@ -103,7 +103,7 @@ export default function VideoLatar({ video, poster, judul, tegak = false, utuh =
   /* Tiap percobaan ulang memakai alamat yang sedikit berbeda supaya benar-benar dimuat dari awal. */
   const srcCoba = coba ? `${src}&r=${coba}` : src;
   return (
-    <div ref={bingkai} className={`relative overflow-hidden ${utuh ? "" : "rounded-[1.4rem]"} bg-malam ${tegak ? "size-full" : "muncul aspect-video w-full"} ${className}`} role="img" aria-label={judul}>
+    <div ref={bingkai} className={`relative overflow-hidden rounded-[1.4rem] bg-malam ${tegak ? "size-full" : "muncul aspect-video w-full"} ${className}`} role="img" aria-label={judul}>
       <img {...atribut(poster, sizes)} alt="" className="absolute inset-0 size-full object-cover" />
       {muat && (
         <iframe
