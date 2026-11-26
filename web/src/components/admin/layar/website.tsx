@@ -3,7 +3,7 @@
 import { LABEL_UNTUK, tebakUntuk, UNTUK_SELAM } from "@/lib/selam";
 import { KolomHargaTeks } from "../kolom-rupiah";
 import { useEffect, useState } from "react";
-import { bacaTitik, idYoutube, sumberVideo, tautanPendekTiktok, IKON_KEUNGGULAN, KOORDINAT, SEKSI, tautanPeta, type Konten } from "@/lib/konten";
+import { bacaTitik, rapikanTempat, tautanResort, NAMA_TEMPAT_MAPS, idYoutube, sumberVideo, tautanPendekTiktok, IKON_KEUNGGULAN, KOORDINAT, SEKSI, tautanPeta, type Konten } from "@/lib/konten";
 import { api } from "../api";
 import { Bidang, Galat, Kartu, masukan, Memuat, Tab, Tombol, useToast } from "../ui";
 import type { Bahasa } from "@/lib/kamus";
@@ -61,6 +61,10 @@ export default function Website() {
   async function simpan() {
     if (k!.kontak.peta.trim() && !bacaTitik(k!.kontak.peta)) {
       toast("Titik peta belum terbaca. Tempel koordinat dari Google Maps, misalnya -0.460074, 130.691116.", "galat");
+      return;
+    }
+    if (k!.kontak.petaTempat.trim() && !rapikanTempat(k!.kontak.petaTempat)) {
+      toast("Tautan halaman Google Maps belum benar. Pakai link dari tombol Bagikan di Google Maps.", "galat");
       return;
     }
     setSibuk(true);
@@ -333,15 +337,31 @@ export default function Website() {
         <Kartu judul="Titik resort di peta">
           <div className="grid gap-4">
             <Bidang
-              label="Titik peta (koordinat Google Maps)"
+              label="Titik peta (koordinat untuk penanda di peta rute)"
               ket={(() => {
                 const t = bacaTitik(k.kontak.peta);
-                if (!k.kontak.peta.trim()) return `Kosong: memakai titik bawaan ${KOORDINAT.lat}, ${KOORDINAT.lon}. Di Google Maps, klik kanan titik resort lalu klik angka koordinat paling atas untuk menyalinnya, dan tempel di sini.`;
-                if (!t) return <span className="font-bold text-panel-merah">Koordinat tidak terbaca. Tempel angkanya, misalnya -0.460074, 130.691116 (tautan pendek maps.app.goo.gl tidak berisi koordinat).</span>;
-                return <span>Terbaca: <b className="text-panel-hijau">{t.lat}, {t.lon}</b> · <a href={tautanPeta(t)} target="_blank" rel="noopener noreferrer" className="font-bold underline">cek di Google Maps</a>. Dipakai untuk penanda di peta rute, tombol buka peta, dan alamat di footer.</span>;
+                if (!k.kontak.peta.trim()) return `Kosong, memakai titik bawaan ${KOORDINAT.lat}, ${KOORDINAT.lon}. Di Google Maps, klik kanan titik resort lalu klik angka koordinat paling atas untuk menyalinnya, dan tempel di sini.`;
+                if (!t) return <span className="font-bold text-panel-merah">Koordinat tidak terbaca. Tempel angkanya, misalnya -0.460074, 130.691116. Tautan pendek maps.app.goo.gl tidak berisi koordinat, tempel di kolom tautan halaman di bawah.</span>;
+                return <span>Terbaca <b className="text-panel-hijau">{t.lat}, {t.lon}</b> · <a href={tautanPeta(t)} target="_blank" rel="noopener noreferrer" className="font-bold underline">cek titiknya</a>. Hanya untuk penanda di peta rute dan data lokasi untuk Google, bukan tautan yang dibuka tamu.</span>;
               })()}
             >
-              <input className={masukan} value={k.kontak.peta} placeholder={`${KOORDINAT.lat}, ${KOORDINAT.lon}`} inputMode="text" onChange={(e) => set("kontak", { ...k.kontak, peta: e.target.value })} />
+              <input className={masukan} value={k.kontak.peta} placeholder={`${KOORDINAT.lat}, ${KOORDINAT.lon}`} inputMode="text" onChange={(e) => {
+                const v = e.target.value;
+                /* Tautan halaman tempat yang ditempel di sini ikut mengisi kolom tautan halaman. */
+                const tempat = rapikanTempat(v);
+                set("kontak", { ...k.kontak, peta: v, petaTempat: tempat && !k.kontak.petaTempat.trim() ? tempat : k.kontak.petaTempat });
+              }} />
+            </Bidang>
+            <Bidang
+              label="Tautan halaman Bakoeria di Google Maps"
+              ket={(() => {
+                const v = k.kontak.petaTempat.trim();
+                if (!v) return <span>Kosong, tamu dibawa ke pencarian {NAMA_TEMPAT_MAPS} di Google Maps · <a href={tautanResort(k)} target="_blank" rel="noopener noreferrer" className="font-bold underline">coba</a>. Supaya pasti, buka halaman Bakoeria Dive Resort di Google Maps, klik Bagikan, Salin link, lalu tempel di sini.</span>;
+                if (!rapikanTempat(v)) return <span className="font-bold text-panel-merah">Bukan tautan halaman tempat Google Maps. Pakai link dari tombol Bagikan (maps.app.goo.gl/...) atau alamat yang diawali google.com/maps/place/.</span>;
+                return <span>Terbaca · <a href={rapikanTempat(v)} target="_blank" rel="noopener noreferrer" className="font-bold underline">buka untuk mengecek</a>. Dibuka oleh tombol Buka di Google Maps dan alamat di footer.</span>;
+              })()}
+            >
+              <input className={masukan} value={k.kontak.petaTempat} placeholder="https://maps.app.goo.gl/..." inputMode="url" onChange={(e) => set("kontak", { ...k.kontak, petaTempat: e.target.value })} />
             </Bidang>
           </div>
         </Kartu>

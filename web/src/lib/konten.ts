@@ -79,7 +79,7 @@ export interface Konten {
   galeriJudul: string;
   tanya: Tanya[];
   pesanIsi: string;
-  kontak: { whatsapp: string; email: string; instagram: string; alamat: string; /** Titik resort di peta, "lintang, bujur" (disalin dari Google Maps). */ peta: string; facebook: string; tiktok: string; youtube: string; /** Tautan video YouTube untuk bagian Menginap (diputar otomatis, berulang, tanpa suara). */ video: string; /** Tautan video YouTube (sebaiknya tegak/Shorts) untuk tiga aktivitas pertama. */ aktivitasVideo: string[] };
+  kontak: { whatsapp: string; email: string; instagram: string; alamat: string; /** Titik resort di peta, "lintang, bujur" (disalin dari Google Maps). */ peta: string; /** Tautan halaman Bakoeria di Google Maps (nama, foto, ulasan), dibuka oleh tombol peta dan alamat di footer. */ petaTempat: string; facebook: string; tiktok: string; youtube: string; /** Tautan video YouTube untuk bagian Menginap (diputar otomatis, berulang, tanpa suara). */ video: string; /** Tautan video YouTube (sebaiknya tegak/Shorts) untuk tiga aktivitas pertama. */ aktivitasVideo: string[] };
   /** Paragraf pendek di kolom pertama footer. */
   footerTentang: string;
   pengumuman: string;
@@ -233,7 +233,7 @@ export const KONTEN_BAWAAN: Konten = {
     { t: "Apa yang perlu saya bawa?", j: "Pakaian ringan, tabir surya ramah karang, obat pribadi, dan logbook bila ada. Bawa juga uang tunai secukupnya dari Sorong atau Waisai, karena di kampung tidak ada ATM dan pembayaran nontunai belum tentu bisa. Peralatan selam bisa disewa di resort." },
   ],
   pesanIsi: "Pilih tanggal dan cottage. Kami membalas dengan konfirmasi dan cara pembayaran.",
-  kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "", alamat: "", peta: "", facebook: "", tiktok: "", youtube: "", video: "", aktivitasVideo: ["", "", ""] },
+  kontak: { whatsapp: "+62 800 0000 0000", email: "halo@bakoeria.example", instagram: "", alamat: "", peta: "", petaTempat: "", facebook: "", tiktok: "", youtube: "", video: "", aktivitasVideo: ["", "", ""] },
   footerTentang: "Resor selam butik dengan cottage kayu besi di tepi pantai. Menyelam siang bersama pemandu yang mengenal lautnya, bermalam di bawah langit penuh bintang.",
   pengumuman: "",
   tutup: false,
@@ -465,6 +465,8 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
       instagram: s(kontak.instagram, b.kontak.instagram),
       alamat: s(kontak.alamat, b.kontak.alamat),
       peta: rapikanTitik(kontak.peta),
+      /* Tautan tempat. Bila kosong tapi kolom titik berisi tautan halaman tempat, tautan itu yang dipakai. */
+      petaTempat: rapikanTempat(kontak.petaTempat) || rapikanTempat(kontak.peta),
       facebook: tautan(kontak.facebook),
       tiktok: tautan(kontak.tiktok),
       youtube: tautan(kontak.youtube),
@@ -535,6 +537,33 @@ export function idYoutube(tautan: string): string {
 export const KOORDINAT = { lat: -0.460074, lon: 130.691116 } as const;
 export type Titik = { lat: number; lon: number };
 export const tautanPeta = (t: Titik = KOORDINAT) => `https://www.google.com/maps/search/?api=1&query=${t.lat},${t.lon}`;
+/** Nama tempat di Google Maps, dipakai bila tautan halaman tempat belum diisi. */
+export const NAMA_TEMPAT_MAPS = "Bakoeria Dive Resort";
+
+/**
+ * Tautan halaman tempat di Google Maps, disalin dari tombol Bagikan (maps.app.goo.gl/...)
+ * atau dari bilah alamat saat halaman Bakoeria Dive Resort terbuka (google.com/maps/place/...).
+ * Parameter pelacak di belakang tanda tanya dibuang. Bukan tautan Google Maps berarti "".
+ */
+export function rapikanTempat(v: unknown): string {
+  if (typeof v !== "string") return "";
+  let u: URL;
+  try { u = new URL(v.trim()); } catch { return ""; }
+  if (u.protocol !== "https:" && u.protocol !== "http:") return "";
+  const host = u.hostname.replace(/^www\./, "");
+  const pendek = host === "maps.app.goo.gl" || (host === "goo.gl" && u.pathname.startsWith("/maps"));
+  const tempat = /^google\.[a-z.]+$/.test(host) && u.pathname.startsWith("/maps/place/");
+  if (!pendek && !tempat) return "";
+  return `https://${pendek ? host : "www.google.com"}${u.pathname}`.slice(0, 1500);
+}
+
+/**
+ * Tautan yang dibuka tombol "Buka di Google Maps" dan alamat di footer: halaman tempat
+ * Bakoeria (nama, foto, ulasan), bukan sekadar titik koordinat. Tanpa tautan tempat, Google Maps
+ * mencari nama resort, yang juga membuka halaman tempatnya.
+ */
+export const tautanResort = (k: Pick<Konten, "kontak">) =>
+  k.kontak.petaTempat || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(NAMA_TEMPAT_MAPS)}`;
 
 /**
  * Baca titik koordinat dari apa pun yang disalin dari Google Maps:
