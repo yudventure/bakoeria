@@ -1,4 +1,4 @@
-import { nomorTampil, nomorWa, tautanInstagram, tautanPeta, titikResort, type Konten, type SeksiId } from "@/lib/konten";
+import { nomorTampil, nomorWa, tautanInstagram, TAUTAN_TEMPAT, type Konten, type SeksiId } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { Ikon } from "./ikon";
 import { TombolIzinIklan } from "./promosi";
@@ -78,7 +78,7 @@ export default function Footer({ k, namaResort, bahasa, iklan = false }: { k: Ko
             {kontak.alamat && (
               <li className="flex items-start gap-2.5">
                 <Ikon nama="pin" className="mt-0.5 size-5 flex-none text-emas" />
-                <a href={tautanPeta(titikResort(k))} target="_blank" rel="noopener noreferrer" className="font-bold text-white/85 hover:text-white">{kontak.alamat}</a>
+                <a href={TAUTAN_TEMPAT} target="_blank" rel="noopener noreferrer" className="font-bold text-white/85 hover:text-white">{kontak.alamat}</a>
               </li>
             )}
           </ul>
