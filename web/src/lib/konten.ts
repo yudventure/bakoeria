@@ -1,3 +1,4 @@
+import { TENTANG_BARU } from "./kisah";
 import { seragamkanHarga } from "./rupiah-teks";
 import { GRUP_SELAM_EN, GRUP_SELAM_ID } from "./harga-selam";
 /**
@@ -46,6 +47,9 @@ export interface Konten {
   heroKata: string[];
   introJudul: string;
   introIsi: string;
+  /** Kisah di balik nama Bakoeria (bagian About), paragraf dipisah baris kosong. */
+  kisahJudul: string;
+  kisahIsi: string;
   programCatatan: string;
   program: Program[];
   /** Rincian harga dan paket dive trip. */
@@ -111,9 +115,10 @@ export const KONTEN_BAWAAN: Konten = {
   tagline: "Menyelam siang, bermalam di bawah bintang.",
   heroAwalan: "Datang untuk",
   heroKata: ["menyelam di karang", "cottage kayu besi", "kelompok kecil", "malam berbintang"],
-  introJudul: "Tempat laut menjadi rumah",
-  introIsi:
-    "Bakoeria Dive Resort adalah resor selam butik yang tenang dan personal. Siang hari Anda ada di bawah air bersama pemandu yang mengenal lokasinya. Malam hari Anda pulang ke cottage kayu besi, dengan lampu gantung hangat dan pasir di bawah kaki.",
+  introJudul: TENTANG_BARU.id.introJudul,
+  introIsi: TENTANG_BARU.id.introIsi,
+  kisahJudul: TENTANG_BARU.id.kisahJudul,
+  kisahIsi: TENTANG_BARU.id.kisahIsi,
   programCatatan: "Jadwal dan tarif disesuaikan dengan kondisi laut dan kemampuan tamu.",
   program: [
     { judul: "Fun Dive", isi: "Untuk penyelam bersertifikat. Briefing singkat, dua penyelaman per hari, dipandu dive master yang memahami titik selam setempat.", meta: "Bersertifikat · 2 selam per hari", harga: "Rp 2.100.000 per penyelam" },
@@ -237,7 +242,7 @@ export const KONTEN_BAWAAN: Konten = {
     { nilai: "", label: "program selam" },
     { nilai: "2", label: "selam per hari" },
   ],
-  pernyataan: "Kami merancang tempat menyelam dan beristirahat, di mana *laut*, *kayu besi*, dan *kehangatan tim* berjalan dalam keseimbangan",
+  pernyataan: TENTANG_BARU.id.pernyataan,
   keunggulanJudul: "Kenapa memilih Bakoeria",
   keunggulan: [
     { ikon: "selam", judul: "Pemandu yang mengenal laut", isi: "Dive master yang hafal titik selam, arus, dan musimnya." },
@@ -254,9 +259,10 @@ export const KONTEN_BAWAAN_EN: Konten = {
   tagline: "Dive by day, sleep under the stars.",
   heroAwalan: "Here for",
   heroKata: ["reef dives", "ironwood cottages", "small groups", "starry nights"],
-  introJudul: "Where the sea feels like home",
-  introIsi:
-    "Bakoeria Dive Resort is a small, quiet dive resort. By day you are underwater with guides who know these sites well. By night you come home to an ironwood cottage, with warm hanging lights and sand under your feet.",
+  introJudul: TENTANG_BARU.en.introJudul,
+  introIsi: TENTANG_BARU.en.introIsi,
+  kisahJudul: TENTANG_BARU.en.kisahJudul,
+  kisahIsi: TENTANG_BARU.en.kisahIsi,
   programCatatan: "Schedules and prices follow sea conditions and each guest's experience.",
   program: [
     { judul: "Fun Dive", isi: "For certified divers. A short briefing and two dives a day, led by a dive master who knows the local sites.", meta: "Certified · 2 dives a day", harga: "Rp 2.100.000 per diver" },
@@ -371,7 +377,7 @@ export const KONTEN_BAWAAN_EN: Konten = {
     { t: "What should I bring?", j: "Light clothing, reef-safe sunscreen, personal medicine, and your logbook if you have one. Also bring enough cash from Sorong or Waisai: there are no ATMs in the villages and card payment may not work. Dive gear can be rented at the resort." },
   ],
   pesanIsi: "Choose your dates and cottage. We'll reply with a confirmation and payment details.",
-  pernyataan: "We built a place to dive and to rest, where *the sea*, *ironwood*, and *a warm team* are in balance",
+  pernyataan: TENTANG_BARU.en.pernyataan,
   keunggulanJudul: "Why Bakoeria",
   keunggulan: [
     { ikon: "selam", judul: "Guides who know the sea", isi: "Dive masters who know every site, current, and season." },
@@ -409,6 +415,8 @@ export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en
     heroKata: Array.isArray(k.heroKata) ? k.heroKata.filter((x): x is string => typeof x === "string" && x.trim() !== "").map((x) => x.trim().slice(0, 40)).slice(0, 8) : b.heroKata,
     introJudul: s(k.introJudul, b.introJudul),
     introIsi: s(k.introIsi, b.introIsi),
+    kisahJudul: s(k.kisahJudul, b.kisahJudul).slice(0, 120),
+    kisahIsi: s(k.kisahIsi, b.kisahIsi).slice(0, 3000),
     programCatatan: s(k.programCatatan, b.programCatatan),
     program: arr(k.program, b.program, (x) => ({ judul: s(x.judul, ""), isi: s(x.isi, ""), meta: s(x.meta, ""), harga: seragamkanHarga(s(x.harga, "")) })),
     caraJudul: s(k.caraJudul, b.caraJudul),

@@ -3,6 +3,7 @@ import { cariLabel, KATALOG_BAWAAN, rapikanKatalog, sidikDaftar, type JenisFasil
 import { databaseReady, jalankan, kueri } from "@/lib/db";
 import { bacaJson, ubahJson } from "./gudang";
 import { gantiKayuDalam } from "@/lib/kayu";
+import { TENTANG_BARU, TENTANG_LAMA, VERSI_KISAH } from "@/lib/kisah";
 import { CATATAN_LAMA, CATATAN_PAKET, GANTI_TANPA_PERAHU, gantiHargaSelam, HARGA_PROGRAM, VERSI_HARGA_SELAM, VERSI_TANPA_PERAHU } from "@/lib/harga-selam";
 import type { PaketGrup } from "@/lib/konten";
 
@@ -62,6 +63,7 @@ export function pastikanFasilitasTamu(): Promise<void> {
     await gantiKayuTersimpan();
     await gantiHargaSelamTersimpan();
     await selamTanpaPerahu();
+    await perbaruiTentang();
   })()
     .catch((e) => console.error("[fasilitas] gagal menambah fasilitas tamu", e))
     .finally(() => { migrasi = undefined; });
@@ -206,4 +208,24 @@ async function selamTanpaPerahu() {
     }, 0o644);
   }
   await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), [VERSI_TANPA_PERAHU]: new Date().toISOString() }), 0o644);
+}
+
+/** Sekali: teks About tersimpan diganti kisah nama Bakoeria, hanya bila masih sama dengan teks bawaan lama. */
+async function perbaruiTentang() {
+  const tanda = await bacaJson<Record<string, string> | null>("migrasi-fasilitas.json", null);
+  if (tanda?.[VERSI_KISAH]) return;
+  const ubahSisi = (sisi: Record<string, unknown> | undefined, b: "en" | "id") => {
+    if (!sisi || typeof sisi !== "object") return sisi;
+    const x = { ...sisi };
+    for (const kunci of ["introJudul", "introIsi", "pernyataan"] as const) if (typeof x[kunci] === "string" && (TENTANG_LAMA[b][kunci] ?? []).includes(x[kunci] as string)) x[kunci] = TENTANG_BARU[b][kunci];
+    return x;
+  };
+  if (await bacaJson<Record<string, unknown> | null>("konten.json", null)) {
+    await ubahJson<Record<string, unknown> | null>("konten.json", null, (l) => {
+      if (!l) return l;
+      if ("tagline" in l && !("en" in l) && !("id" in l)) return ubahSisi(l, "id") ?? l;
+      return { ...l, ...(l.en ? { en: ubahSisi(l.en as Record<string, unknown>, "en") } : {}), ...(l.id ? { id: ubahSisi(l.id as Record<string, unknown>, "id") } : {}) };
+    }, 0o644);
+  }
+  await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), [VERSI_KISAH]: new Date().toISOString() }), 0o644);
 }

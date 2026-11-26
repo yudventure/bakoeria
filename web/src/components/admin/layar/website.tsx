@@ -168,6 +168,8 @@ export default function Website() {
             </div>
             <Bidang label="Judul sambutan"><input className={masukan} value={k.introJudul} onChange={(e) => set("introJudul", e.target.value)} /></Bidang>
             <Bidang label="Isi sambutan"><textarea rows={4} className={masukan} value={k.introIsi} onChange={(e) => set("introIsi", e.target.value)} /></Bidang>
+            <Bidang label="Judul kisah" ket="Kotak kisah di bawah foto bagian About."><input className={masukan} value={k.kisahJudul} onChange={(e) => set("kisahJudul", e.target.value)} /></Bidang>
+            <Bidang label="Isi kisah" ket="Pisahkan paragraf dengan satu baris kosong. Kosongkan untuk menyembunyikan kotak kisah."><textarea rows={10} className={masukan} value={k.kisahIsi} onChange={(e) => set("kisahIsi", e.target.value)} /></Bidang>
           </div>
         </Kartu>
         <Kartu judul="Bagian Tentang">
