@@ -532,9 +532,15 @@ export function idYoutube(tautan: string): string {
 }
 
 /** Titik resort di peta (lintang, bujur), dipakai peta "Cara menuju ke sini" dan tautan Google Maps. */
-export const KOORDINAT = { lat: -0.460074, lon: 130.691116 } as const;
+export const KOORDINAT = { lat: -0.460063, lon: 130.690813 } as const;
 export type Titik = { lat: number; lon: number };
+/** Tautan ke sebuah titik koordinat (dipakai untuk cek titik di menu Website). */
 export const tautanPeta = (t: Titik = KOORDINAT) => `https://www.google.com/maps/search/?api=1&query=${t.lat},${t.lon}`;
+/**
+ * Tautan ke profil tempat "Bakoeria Dive Resort" di Google Maps (nama, foto, ulasan, rute),
+ * bukan sekadar pin koordinat. cid = 0xd30d8348b2936c55 dari tautan tempat di Google Maps.
+ */
+export const TAUTAN_TEMPAT = "https://maps.google.com/?cid=15207955864956922965";
 
 /**
  * Baca titik koordinat dari apa pun yang disalin dari Google Maps:

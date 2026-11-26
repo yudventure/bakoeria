@@ -8,7 +8,7 @@ import Galeri from "./galeri";
 import { KAMAR_DEMO, pastikanDemo } from "@/lib/server/demo";
 import { databaseReady } from "@/lib/db";
 import { rupiah } from "@/lib/booking";
-import { tautanPeta, idYoutube, nomorTampil, nomorWa, sumberVideo, titikResort, type Konten } from "@/lib/konten";
+import { TAUTAN_TEMPAT, idYoutube, nomorTampil, nomorWa, sumberVideo, titikResort, type Konten } from "@/lib/konten";
 import { KAMUS, type Bahasa } from "@/lib/kamus";
 import { ambilKamar, type Kamar } from "@/lib/server/buku";
 import { bacaKonten, bacaPengaturan } from "@/lib/server/simpanan";
@@ -318,7 +318,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                   </ol>
                   {k.caraCatatan && <p className="muncul mt-5 text-[13.5px] leading-relaxed text-malam/60">{k.caraCatatan}</p>}
                   <div className="muncul mt-5 grid gap-3 sm:grid-cols-2 lg:mt-auto lg:pt-5">
-                    <a href={tautanPeta(titikResort(k))} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-emas-tua px-4 py-3 text-center text-sm font-bold text-white transition hover:brightness-110"><Ikon nama="pin" className="size-4 shrink-0" />{t.peta.buka}</a>
+                    <a href={TAUTAN_TEMPAT} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-emas-tua px-4 py-3 text-center text-sm font-bold text-white transition hover:brightness-110"><Ikon nama="pin" className="size-4 shrink-0" />{t.peta.buka}</a>
                     {wa && <a href={`https://wa.me/${wa}?text=${encodeURIComponent(t.peta.pesanWa)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-4 py-3 text-center text-sm font-bold text-malam ring-1 ring-malam/15 transition hover:bg-busa"><Ikon nama="wa" className="size-4 shrink-0" />{t.peta.tanya}</a>}
                   </div>
                 </div>
@@ -391,6 +391,7 @@ function dataTerstruktur(k: Konten, nama: string, bahasa: Bahasa, wa: string): s
         ...(k.kontak.email ? { email: k.kontak.email } : {}),
         address: { "@type": "PostalAddress", streetAddress: "Yenbeser, Gam Island", addressLocality: "Waigeo Selatan", addressRegion: "Papua Barat Daya", addressCountry: "ID" },
         geo: { "@type": "GeoCoordinates", latitude: titik.lat, longitude: titik.lon },
+        hasMap: TAUTAN_TEMPAT,
         parentOrganization: { "@id": `${asal}/#organisasi` },
       },
     ],
