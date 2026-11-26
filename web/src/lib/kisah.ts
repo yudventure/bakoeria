@@ -13,7 +13,7 @@ export const TENTANG_BARU = {
     pernyataan: "Sebuah nama yang kami jaga, di antara *laut jernih*, *hutan yang alami*, dan *ketenangan* yang memulihkan",
     kisahJudul: "Kisah di balik nama Bakoeria",
     kisahIsi: [
-      "Bakoeria adalah nama nenek dari pemilik tanah tempat resort ini berdiri. Di pulau inilah beliau menemukan hidayahnya dan memilih jalan kebenaran yang ia jalani seumur hidup.",
+      "Bakoeria adalah nama nenek dari pemilik tanah tempat resort ini berdiri.",
       "Semasa kecil, pemilik resort sering diajak sang nenek berkebun di tanah ini. Kenangan itu kini ia abadikan: nama sang nenek menjadi nama resort yang berdiri di antara laut jernih yang terjaga dan hutan yang masih alami.",
       "Bakoeria memadukan alam dan kenyamanan modern dalam satu konsep. Untuk permulaan ada empat cottage, dua dengan kasur double dan dua dengan dua kasur single.",
       "Pemilik ingin tempat ini menjadi ruang untuk menenangkan dan mendetoks pikiran, jauh dari pekerjaan sehari-hari dan ramainya kota.",
@@ -25,7 +25,7 @@ export const TENTANG_BARU = {
     pernyataan: "A name we keep, between *clear water*, *untouched forest*, and a *quiet* that restores",
     kisahJudul: "The story behind the name",
     kisahIsi: [
-      "Bakoeria was the name of the grandmother of the owner of the land where the resort stands. It was on this island that she found her faith and chose the path of truth she followed for the rest of her life.",
+      "Bakoeria was the name of the grandmother of the owner of the land where the resort stands.",
       "As a child, the resort's owner often joined her to tend her garden on this land. That memory lives on: her name is now the name of the resort, standing between protected clear water and forest that is still untouched.",
       "Bakoeria brings nature and modern comfort together in one place. To begin with there are four cottages, two with a double bed and two with twin single beds.",
       "The owner wants this to be a place to calm and detox the mind, far from daily work and the noise of the city.",
@@ -52,3 +52,7 @@ export const TENTANG_LAMA: Record<"id" | "en", Partial<Record<"introJudul" | "in
     pernyataan: ["We built a place to dive and to rest, where *the sea*, *ironwood*, and *a warm team* are in balance", "We built a place to dive and to rest, where *the sea*, *teak wood*, and *a warm team* are in balance"],
   },
 };
+
+/** Pemilik, November 2026: kalimat tentang hidayah dibuang; intinya nama resort dari nama sang nenek. */
+export const VERSI_KISAH_2 = "kisah-bakoeria-2-2026-11-26";
+export const KALIMAT_DIBUANG: Record<"id" | "en", string> = { id: " Di pulau inilah beliau menemukan hidayahnya dan memilih jalan kebenaran yang ia jalani seumur hidup.", en: " It was on this island that she found her faith and chose the path of truth she followed for the rest of her life." };

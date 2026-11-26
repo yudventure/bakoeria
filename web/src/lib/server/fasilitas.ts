@@ -3,7 +3,7 @@ import { cariLabel, KATALOG_BAWAAN, rapikanKatalog, sidikDaftar, type JenisFasil
 import { databaseReady, jalankan, kueri } from "@/lib/db";
 import { bacaJson, ubahJson } from "./gudang";
 import { gantiKayuDalam } from "@/lib/kayu";
-import { TENTANG_BARU, TENTANG_LAMA, VERSI_KISAH } from "@/lib/kisah";
+import { KALIMAT_DIBUANG, TENTANG_BARU, TENTANG_LAMA, VERSI_KISAH, VERSI_KISAH_2 } from "@/lib/kisah";
 import { CATATAN_LAMA, CATATAN_PAKET, GANTI_TANPA_PERAHU, gantiHargaSelam, HARGA_PROGRAM, VERSI_HARGA_SELAM, VERSI_TANPA_PERAHU } from "@/lib/harga-selam";
 import type { PaketGrup } from "@/lib/konten";
 
@@ -64,6 +64,7 @@ export function pastikanFasilitasTamu(): Promise<void> {
     await gantiHargaSelamTersimpan();
     await selamTanpaPerahu();
     await perbaruiTentang();
+    await buangKalimatKisah();
   })()
     .catch((e) => console.error("[fasilitas] gagal menambah fasilitas tamu", e))
     .finally(() => { migrasi = undefined; });
@@ -228,4 +229,15 @@ async function perbaruiTentang() {
     }, 0o644);
   }
   await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), [VERSI_KISAH]: new Date().toISOString() }), 0o644);
+}
+
+/** Sekali: kalimat tentang hidayah dibuang dari kisah yang sudah tersimpan (sisa kisahnya tidak diubah). */
+async function buangKalimatKisah() {
+  const tanda = await bacaJson<Record<string, string> | null>("migrasi-fasilitas.json", null);
+  if (tanda?.[VERSI_KISAH_2]) return;
+  const ubahSisi = (sisi: Record<string, unknown> | undefined, b: "en" | "id") => (sisi && typeof sisi.kisahIsi === "string" ? { ...sisi, kisahIsi: (sisi.kisahIsi as string).split(KALIMAT_DIBUANG[b]).join("") } : sisi);
+  if (await bacaJson<Record<string, unknown> | null>("konten.json", null)) {
+    await ubahJson<Record<string, unknown> | null>("konten.json", null, (l) => (!l ? l : { ...l, ...(l.en ? { en: ubahSisi(l.en as Record<string, unknown>, "en") } : {}), ...(l.id ? { id: ubahSisi(l.id as Record<string, unknown>, "id") } : {}) }), 0o644);
+  }
+  await ubahJson<Record<string, string> | null>("migrasi-fasilitas.json", null, (l) => ({ ...(l ?? {}), [VERSI_KISAH_2]: new Date().toISOString() }), 0o644);
 }
