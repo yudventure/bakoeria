@@ -43,9 +43,9 @@ export async function POST(req: Request) {
         p = await ubahBooking(id, { status: "CONFIRMED" }, "Midtrans");
       } catch (e) {
         if (!(e instanceof BentrokError)) throw e;
-        catatan = "\nPerhatian: cottage bentrok dengan pesanan lain, status belum diubah. Periksa di dashboard.";
+        catatan = "\nPerhatian, cottage bentrok dengan pesanan lain, status belum diubah. Periksa di dashboard.";
       }
-    } else if (p && p.status !== "CONFIRMED") catatan = `\nPerhatian: status pesanan ${p.status}, pembayaran tetap dicatat. Periksa di dashboard.`;
+    } else if (p && p.status !== "CONFIRMED") catatan = `\nPerhatian, status pesanan ${p.status}, pembayaran tetap dicatat. Periksa di dashboard.`;
     await catatKabar({ orderId, hasil: "dicatat" });
     const set = await bacaPengaturan();
     const asal = await asalSitus();

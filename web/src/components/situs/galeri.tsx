@@ -15,7 +15,7 @@ export default function Galeri({ foto, teks, children, mosaik = foto.length, tet
   const bawah = foto.slice(mosaik, mosaik + tetap);
   const sisa = foto.slice(mosaik + tetap);
   const ubinBawah = (x: FotoGaleri, i: number) => (
-    <button key={x.src + i} type="button" onClick={() => setBuka(i)} aria-label={`${teks.buka}: ${x.alt}`} className="group relative aspect-[4/3] overflow-hidden rounded-[1.4rem] outline-none ring-emas-tua ring-offset-2 ring-offset-[#F6F4EF] focus-visible:ring-2">
+    <button key={x.src + i} type="button" onClick={() => setBuka(i)} aria-label={`${teks.buka}, ${x.alt}`} className="group relative aspect-[4/3] overflow-hidden rounded-[1.4rem] outline-none ring-emas-tua ring-offset-2 ring-offset-[#F6F4EF] focus-visible:ring-2">
       <img src={x.src} srcSet={x.srcSet} sizes={x.srcSet ? "(min-width: 1024px) 25vw, 50vw" : undefined} style={x.style} alt={x.alt} loading="lazy" className="size-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.07]" />
     </button>
   );
@@ -39,7 +39,7 @@ export default function Galeri({ foto, teks, children, mosaik = foto.length, tet
             key={x.src + i}
             type="button"
             onClick={() => setBuka(i)}
-            aria-label={`${teks.buka}: ${x.alt}`}
+            aria-label={`${teks.buka}, ${x.alt}`}
             style={{ "--tunda": i } as React.CSSProperties}
             className={`muncul-foto group relative overflow-hidden outline-none ring-emas-tua ring-offset-2 ring-offset-[#F6F4EF] focus-visible:ring-2 ${x.bentuk} ${x.kelas}`}
           >

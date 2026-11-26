@@ -43,15 +43,15 @@ export function emailPesananAdmin(d: IsiEmailPesanan) {
   const subjek = `Pesanan baru ${d.kode}: ${d.nama}, ${tglPanjang(d.masuk)} (${d.cottage})`;
 
   const teks = [
-    `Pesanan baru dari website: ${d.kode}`,
+    `Pesanan baru dari website ${d.kode}`,
     `${d.nama} · ${d.cottage}, ${tglPanjang(d.masuk)} sampai ${tglPanjang(d.keluar)} (${d.malam} malam) · ${d.tamu}`,
     `Total ${rupiah(d.total)}`,
     ...d.baris,
-    d.catatan ? `Catatan tamu: ${d.catatan}` : "",
+    d.catatan ? `Catatan tamu\n${d.catatan}` : "",
     "",
-    `Konfirmasi di dashboard: ${dashboard}`,
-    wa ? `Balas lewat WhatsApp: ${wa}` : "Tamu tidak mengisi nomor WhatsApp.",
-    d.email ? `Balas lewat email: balas email ini (langsung ke ${d.email}).` : "",
+    `Konfirmasi di dashboard\n${dashboard}`,
+    wa ? `Balas lewat WhatsApp\n${wa}` : "Tamu tidak mengisi nomor WhatsApp.",
+    d.email ? `Balas lewat email dengan membalas email ini, langsung ke ${d.email}.` : "",
     `Tahanan berlaku ${d.jamTahanan} jam, lalu batal sendiri bila belum dikonfirmasi.`,
   ].filter((x) => x !== "").join("\n");
 

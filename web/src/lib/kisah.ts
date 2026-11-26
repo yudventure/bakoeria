@@ -14,7 +14,7 @@ export const TENTANG_BARU = {
     kisahJudul: "Kisah di balik nama Bakoeria",
     kisahIsi: [
       "Bakoeria adalah nama nenek dari pemilik tanah tempat resort ini berdiri.",
-      "Semasa kecil, pemilik resort sering diajak sang nenek berkebun di tanah ini. Kenangan itu kini ia abadikan: nama sang nenek menjadi nama resort yang berdiri di antara laut jernih yang terjaga dan hutan yang masih alami.",
+      "Semasa kecil, pemilik resort sering diajak sang nenek berkebun di tanah ini. Kenangan itu kini ia abadikan dengan menjadikan nama sang nenek sebagai nama resort yang berdiri di antara laut jernih yang terjaga dan hutan yang masih alami.",
       "Bakoeria memadukan alam dan kenyamanan modern dalam satu konsep. Untuk permulaan ada empat cottage, dua dengan kasur double dan dua dengan dua kasur single.",
       "Pemilik ingin tempat ini menjadi ruang untuk menenangkan dan mendetoks pikiran, jauh dari pekerjaan sehari-hari dan ramainya kota.",
     ].join("\n\n"),
@@ -26,7 +26,7 @@ export const TENTANG_BARU = {
     kisahJudul: "The story behind the name",
     kisahIsi: [
       "Bakoeria was the name of the grandmother of the owner of the land where the resort stands.",
-      "As a child, the resort's owner often joined her to tend her garden on this land. That memory lives on: her name is now the name of the resort, standing between protected clear water and forest that is still untouched.",
+      "As a child, the resort's owner often joined her to tend her garden on this land. That memory lives on in the resort, which now carries her name, standing between protected clear water and forest that is still untouched.",
       "Bakoeria brings nature and modern comfort together in one place. To begin with there are four cottages, two with a double bed and two with twin single beds.",
       "The owner wants this to be a place to calm and detox the mind, far from daily work and the noise of the city.",
     ].join("\n\n"),

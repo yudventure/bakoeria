@@ -19,8 +19,8 @@ const HASIL: Record<string, string> = {
   sudahTercatat: "Sudah tercatat sebelumnya",
   belumLunas: "Diterima, transaksi belum lunas",
   bukanPesanan: "Bukan pesanan Bakoeria (misalnya tombol uji Midtrans)",
-  tandaTanganSalah: "Ditolak: tanda tangan tidak cocok. Periksa Signature Secret Key",
-  belumDipasang: "Ditolak: pembayaran online belum dipasang",
+  tandaTanganSalah: "Ditolak, tanda tangan tidak cocok. Periksa Signature Secret Key",
+  belumDipasang: "Ditolak, pembayaran online belum dipasang",
   statusTidakCocok: "Status di kabar berbeda dengan status di Midtrans",
 };
 const waktu = (s: string) => (s ? new Date(s).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jayapura" }) + " WIT" : "");
@@ -87,13 +87,13 @@ export default function PengaturanMidtrans({ boleh }: { boleh: boolean }) {
           <Bidang label="Server Key" ket={st.serverKey ? `Terpasang ${st.serverKey}${st.diuji ? `, diuji ${waktu(st.diuji)}` : ""}. Kosongkan bila tidak diganti.` : "Belum dipasang."}>
             <input className={`${masukan} font-mono`} type="password" autoComplete="off" disabled={!boleh} placeholder={st.serverKey ? "Tidak diganti" : "Tempel Server Key"} value={f.serverKey} onChange={(e) => setF({ ...f, serverKey: e.target.value.trim() })} />
           </Bidang>
-          <Bidang label="Signature Secret Key" ket={st.signatureKey ? `Terpasang ${st.signatureKey}. Setelah diganti, kunci lama masih diterima 3 hari untuk kabar ulangan.` : "Akun lama yang belum pernah membuat Server Key baru boleh mengosongkannya: Server Key dipakai sebagai gantinya."}>
+          <Bidang label="Signature Secret Key" ket={st.signatureKey ? `Terpasang ${st.signatureKey}. Setelah diganti, kunci lama masih diterima 3 hari untuk kabar ulangan.` : "Akun lama yang belum pernah membuat Server Key baru boleh mengosongkannya. Server Key dipakai sebagai gantinya."}>
             <input className={`${masukan} font-mono`} type="password" autoComplete="off" disabled={!boleh} placeholder={st.signatureKey ? "Tidak diganti" : "Tempel Signature Secret Key"} value={f.signatureKey} onChange={(e) => setF({ ...f, signatureKey: e.target.value.trim() })} />
           </Bidang>
         </div>
         {st.kabar && (
           <p className="rounded-xl bg-panel-latar px-3 py-2 text-sm">
-            Kabar terakhir dari Midtrans: <b>{HASIL[st.kabar.hasil] ?? st.kabar.hasil}</b>, {waktu(st.kabar.waktu)}{st.kabar.orderId ? `, order ${st.kabar.orderId}` : ""}.
+            Kabar terakhir dari Midtrans <b>{HASIL[st.kabar.hasil] ?? st.kabar.hasil}</b>, {waktu(st.kabar.waktu)}{st.kabar.orderId ? `, order ${st.kabar.orderId}` : ""}.
           </p>
         )}
         {boleh && (

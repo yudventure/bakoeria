@@ -69,12 +69,12 @@ async function kirimEmailKode(akun: Akun, kode: string) {
   const asal = await asalSitus();
   const kodeBesar = `<p style="margin:6px 0 18px;font:700 34px/1.2 'Courier New', monospace;letter-spacing:.3em;color:${WARNA.malam};">${esc(kode)}</p>`;
   const isi = `${kepala("Reset kata sandi", "Kode reset kata sandi", `Halo ${akun.nama.split(" ")[0]}, ada permintaan reset kata sandi dashboard Bakoeria untuk ${akun.email}.`)}
-          ${paragraf("Masukkan kode ini di halaman Masuk:")}
+          ${paragraf("Masukkan kode ini di halaman Masuk.")}
           ${kodeBesar}
-          ${kotak("Kode berlaku <b>10 menit</b> dan hanya bisa dipakai sekali. Jangan berikan kode ini kepada siapa pun, termasuk yang mengaku dari tim Bakoeria. Kalau Anda tidak meminta reset, abaikan email ini: kata sandi Anda tidak berubah.", WARNA.kertas)}
+          ${kotak("Kode berlaku <b>10 menit</b> dan hanya bisa dipakai sekali. Jangan berikan kode ini kepada siapa pun, termasuk yang mengaku dari tim Bakoeria. Kalau Anda tidak meminta reset, abaikan email ini. Kata sandi Anda tidak berubah.", WARNA.kertas)}
           ${salam("Salam,", "Dashboard Bakoeria Dive Resort")}`;
-  const teks = `Kode reset kata sandi dashboard Bakoeria: ${kode}\nBerlaku 10 menit. Jangan berikan kode ini kepada siapa pun. Abaikan email ini bila Anda tidak meminta reset.`;
-  await kirimEmail(akun.email, `${kode} adalah kode reset kata sandi Bakoeria`, teks, alamatSaja(pengirim()) || undefined, kerangka({ asal, en: false, pratinjau: `Kode reset: ${kode}`, isi, kontak: await kontakEmail(false) }));
+  const teks = `Kode reset kata sandi dashboard Bakoeria adalah ${kode}.\nBerlaku 10 menit. Jangan berikan kode ini kepada siapa pun. Abaikan email ini bila Anda tidak meminta reset.`;
+  await kirimEmail(akun.email, `${kode} adalah kode reset kata sandi Bakoeria`, teks, alamatSaja(pengirim()) || undefined, kerangka({ asal, en: false, pratinjau: `Kode reset ${kode}`, isi, kontak: await kontakEmail(false) }));
 }
 
 async function kirimEmailBerubah(akun: Akun) {

@@ -100,7 +100,7 @@ function barisPesanan(d: DataEmail): [string, string][] {
   return [
     [t.kode, d.kode],
     [t.cottage, d.cottage],
-    [t.tanggal, `${tb(d.masuk, d.en)} – ${tb(d.keluar, d.en)}${r ? ` · ${t.malam(r.malam)}` : ""}`],
+    [t.tanggal, `${tb(d.masuk, d.en)} ${d.en ? "to" : "sampai"} ${tb(d.keluar, d.en)}${r ? ` · ${t.malam(r.malam)}` : ""}`],
     ...(r ? [[t.tamuL, t.tamu(r.dewasa, r.anak, r.balita)] as [string, string], [t.tarif, r.tarif === "fleksibel" ? t.fleksibel : t.standar] as [string, string]] : []),
     [t.total, rupiah(d.total)],
   ];
@@ -130,7 +130,7 @@ export function emailDiterima(d: DataEmail, o: { jamTahanan: number; bayar: stri
           ${kotak(t.diterima.langkah(o.jamTahanan, Boolean(o.bayar)))}
           ${deretTombol(`${o.bayar ? tombol(o.bayar, t.bayar(rupiah(d.total)), WARNA.malam) : ""}${tombolWa(d)}`)}
           ${salam(t.salam, t.tim)}`;
-  const teksPolos = [`${t.diterima.judul(sapa)}`, t.diterima.sub, "", ...barisPesanan(d).map(([a, b]) => `${a}: ${b}`), ...(d.rincian?.tambahan ?? []), "", o.bayar ? `${t.bayar(rupiah(d.total))}: ${o.bayar}` : "", `${t.salam}\n${t.tim}`].filter((x) => x !== "").join("\n");
+  const teksPolos = [`${t.diterima.judul(sapa)}`, t.diterima.sub, "", ...barisPesanan(d).map(([a, b]) => `${a} · ${b}`), ...(d.rincian?.tambahan ?? []).map((x) => x.replace(": ", " · ")), "", o.bayar ? `${t.bayar(rupiah(d.total))}\n${o.bayar}` : "", `${t.salam}\n${t.tim}`].filter((x) => x !== "").join("\n");
   return { subjek: t.diterima.subjek(d.kode), html: kerangka({ asal: d.asal, en: d.en, pratinjau: t.diterima.pratinjau(d.kode), isi, kontak: d.kontak }), teks: teksPolos };
 }
 
@@ -146,13 +146,13 @@ export function blokInvoice(d: DataEmail, bayar: Bayaran[]) {
   const nomor = `INV/${d.kode}`;
   const item: [string, number][] = r
     ? [
-        [`${d.cottage} · ${teks(d.en).malam(r.malam)} (${tb(d.masuk, d.en)} – ${tb(d.keluar, d.en)})`, r.hargaKamar],
+        [`${d.cottage} · ${teks(d.en).malam(r.malam)} (${tb(d.masuk, d.en)} ${d.en ? "to" : "sampai"} ${tb(d.keluar, d.en)})`, r.hargaKamar],
         ...(r.tambahanAnak ? [[t.anak(r.anak), r.tambahanAnak] as [string, number]] : []),
         ...(r.kenaikan ? [[t.fleks(r.persen), r.kenaikan] as [string, number]] : []),
         ...(r.ekstra ?? []),
         ...(r.potongan ? [[t.kupon(r.kupon), -r.potongan] as [string, number]] : []),
       ]
-    : [[`${d.cottage} (${tb(d.masuk, d.en)} – ${tb(d.keluar, d.en)})`, d.total]];
+    : [[`${d.cottage} (${tb(d.masuk, d.en)} ${d.en ? "to" : "sampai"} ${tb(d.keluar, d.en)})`, d.total]];
   const sel = (s: string, kanan = false, tebal = false) => `<td style="padding:10px 12px;font:${tebal ? "700 " : ""}14px/1.5 ${HURUF};color:${WARNA.malam};${kanan ? "text-align:right;white-space:nowrap;" : ""}">${s}</td>`;
   const tanggalInv = bayar.length ? bayar[bayar.length - 1].tanggal : new Date().toISOString().slice(0, 10);
   return `
@@ -172,7 +172,7 @@ export function blokInvoice(d: DataEmail, bayar: Bayaran[]) {
             <tr style="background:${WARNA.malam};"><td style="padding:10px 12px;font:700 12px/1.4 ${HURUF};color:#FFFFFF;letter-spacing:.06em;">${esc(t.deskripsi)}</td><td style="padding:10px 12px;font:700 12px/1.4 ${HURUF};color:#FFFFFF;text-align:right;letter-spacing:.06em;">${esc(t.jumlah)}</td></tr>
             ${item.map(([k, v], i) => `<tr style="background:${i % 2 ? "#FFFFFF" : WARNA.kertas};">${sel(esc(k))}${sel(`${v < 0 ? "−" : ""}${esc(rupiah(Math.abs(v)))}`, true)}</tr>`).join("")}
             <tr style="background:${WARNA.busa};">${sel(esc(teks(d.en).total), false, true)}${sel(esc(rupiah(d.total)), true, true)}</tr>
-            ${bayar.map((b) => `<tr style="background:#FFFFFF;">${sel(`${esc(t.dibayar)} · ${esc(tb(b.tanggal, d.en))}<br><span style="font-size:12px;color:${WARNA.teks2};">${esc(t.cara)}: ${esc(b.cara)}${b.idTransaksi ? ` · ${esc(t.idTr)}: ${esc(b.idTransaksi)}` : ""}</span>`)}${sel(`−${esc(rupiah(b.jumlah))}`, true)}</tr>`).join("")}
+            ${bayar.map((b) => `<tr style="background:#FFFFFF;">${sel(`${esc(t.dibayar)} · ${esc(tb(b.tanggal, d.en))}<br><span style="font-size:12px;color:${WARNA.teks2};">${esc(b.cara)}${b.idTransaksi ? ` · ${esc(t.idTr)} ${esc(b.idTransaksi)}` : ""}</span>`)}${sel(`−${esc(rupiah(b.jumlah))}`, true)}</tr>`).join("")}
             <tr style="background:${WARNA.kertas};">${sel(esc(t.sisa), false, true)}${sel(esc(rupiah(sisa)), true, true)}</tr>
           </table>
           <p style="margin:12px 0 0;font:12px/1.6 ${HURUF};color:${WARNA.redup};">${esc(t.catatan)}</p>`;
@@ -189,7 +189,7 @@ export function emailLunas(d: DataEmail, bayar: Bayaran[], tautanInvoice: string
           ${kotak(t.tiba)}
           ${deretTombol(`${tombol(tautanInvoice, t.lunas.cetak, WARNA.malam)}${tombolWa(d)}`)}
           ${salam(t.salam, t.tim)}`;
-  const teksPolos = [t.lunas.judul, t.lunas.sub(sapa), "", ...barisPesanan(d).map(([a, b]) => `${a}: ${b}`), ...bayar.map((b) => `${t.inv.dibayar} ${rupiah(b.jumlah)} · ${b.cara}${b.idTransaksi ? ` · ${b.idTransaksi}` : ""}`), "", `${t.lunas.cetak}: ${tautanInvoice}`, "", `${t.salam}\n${t.tim}`].join("\n");
+  const teksPolos = [t.lunas.judul, t.lunas.sub(sapa), "", ...barisPesanan(d).map(([a, b]) => `${a} · ${b}`), ...bayar.map((b) => `${t.inv.dibayar} ${rupiah(b.jumlah)} · ${b.cara}${b.idTransaksi ? ` · ${b.idTransaksi}` : ""}`), "", `${t.lunas.cetak}\n${tautanInvoice}`, "", `${t.salam}\n${t.tim}`].join("\n");
   return { subjek: t.lunas.subjek(d.kode), html: kerangka({ asal: d.asal, en: d.en, pratinjau: t.lunas.pratinjau(d.kode), isi, kontak: d.kontak }), teks: teksPolos };
 }
 
@@ -205,7 +205,7 @@ export function emailTerkonfirmasi(d: DataEmail, o: { sudahLunas: boolean; bayar
           ${kotak(t.tiba)}
           ${deretTombol(`${!o.sudahLunas && o.bayar ? tombol(o.bayar, t.bayar(rupiah(d.total)), WARNA.malam) : ""}${tombolWa(d)}`)}
           ${salam(t.salam, t.tim)}`;
-  const teksPolos = [t.konfirmasi.judul, t.konfirmasi.sub(sapa), "", ...barisPesanan(d).map(([a, b]) => `${a}: ${b}`), "", `${t.salam}\n${t.tim}`].join("\n");
+  const teksPolos = [t.konfirmasi.judul, t.konfirmasi.sub(sapa), "", ...barisPesanan(d).map(([a, b]) => `${a} · ${b}`), "", `${t.salam}\n${t.tim}`].join("\n");
   return { subjek: t.konfirmasi.subjek(d.kode), html: kerangka({ asal: d.asal, en: d.en, pratinjau: t.konfirmasi.pratinjau(d.kode), isi, kontak: d.kontak }), teks: teksPolos };
 }
 

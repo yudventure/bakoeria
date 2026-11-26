@@ -21,6 +21,7 @@ import { Nav } from "@/components/situs/interaksi";
 import { Gerak, JudulHero } from "@/components/situs/gerak";
 import Pemesanan, { type CottagePesan } from "@/components/situs/pemesanan";
 import Footer from "@/components/situs/footer";
+import IlustrasiResort from "@/components/situs/ilustrasi-resort";
 import Promosi from "@/components/situs/promosi";
 
 const ALT = {
@@ -178,6 +179,7 @@ export default async function Beranda({ bahasa }: { bahasa: Bahasa }) {
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emas-tua">{bahasa === "id" ? "Asal nama" : "Our name"}</p>
                   <h3 className="mt-3 font-display text-[clamp(30px,3.6vw,44px)] font-normal leading-[1.05] text-malam">{k.kisahJudul}</h3>
+                  <IlustrasiResort className="mt-6 w-full max-w-[420px] drop-shadow-[0_12px_28px_rgba(10,36,64,.12)]" />
                 </div>
                 <div className="grid gap-4 text-[15.5px] leading-[1.75] text-malam/75">
                   {k.kisahIsi.split(/\n\s*\n/).map((p, i) => <p key={i} className={i === 0 ? "first-letter:float-left first-letter:mr-2 first-letter:font-display first-letter:text-[3.2em] first-letter:leading-[0.85] first-letter:text-emas-tua" : ""}>{p.trim()}</p>)}
