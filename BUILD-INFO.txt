@@ -1,0 +1,4 @@
+Dibuat : 2026-11-27T08:25:02.842Z
+Commit : f0aac2584476d666c4bd507f69f69d14f7d50012
+Jalankan dengan: node server.js
+PORT dan HOSTNAME dibaca dari lingkungan.

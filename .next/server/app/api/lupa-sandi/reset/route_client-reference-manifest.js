@@ -1,0 +1,1 @@
+globalThis.__RSC_MANIFEST=(globalThis.__RSC_MANIFEST||{});globalThis.__RSC_MANIFEST["/api/lupa-sandi/reset/route"]={"moduleLoading":{"prefix":"/_next/"},"ssrModuleMapping":{},"edgeSSRModuleMapping":{},"clientModules":{},"entryCSSFiles":{"/home/runner/work/bakoeria/bakoeria/web/src/app/api/lupa-sandi/reset/route":[]},"rscModuleMapping":{},"edgeRscModuleMapping":{}};

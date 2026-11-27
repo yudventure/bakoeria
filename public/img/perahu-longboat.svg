@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <defs>
+    <linearGradient id="l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7F3EC"/><stop offset="1" stop-color="#D7EEF0"/></linearGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA3AE"/><stop offset="1" stop-color="#0F6490"/></linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#l)"/>
+  <circle cx="640" cy="110" r="46" fill="#F3D9A4" opacity=".8"/>
+  <path d="M0 268c70-40 120-62 180-50 40 8 70 30 120 34 60 5 90-40 160-44 60-3 90 30 140 36 70 8 140-10 200-6v62H0z" fill="#188B9A" opacity=".55"/>
+  <path d="M470 262c20-36 50-62 86-62 34 0 58 30 78 62z" fill="#133250" opacity=".35"/>
+  <rect y="290" width="800" height="210" fill="url(#a)"/>
+  <path d="M0 330q40-10 80 0t80 0 80 0 80 0 80 0 80 0 80 0 80 0 80 0 80 0" fill="none" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="4"/>
+  <path d="M0 440q40-10 80 0t80 0 80 0 80 0 80 0 80 0 80 0 80 0 80 0 80 0" fill="none" stroke="#FFFFFF" stroke-opacity=".25" stroke-width="4"/>
+  <!-- longboat kayu, satu mesin tempel 15 PK -->
+  <g transform="translate(150 300)">
+    <path d="M20 28 C120 54 360 56 500 30 L470 74 C350 92 140 92 60 70 Z" fill="#6B5840"/>
+    <path d="M20 28 C120 54 360 56 500 30" fill="none" stroke="#E9DFCD" stroke-width="7" stroke-linecap="round"/>
+    <path d="M62 66 C150 84 340 86 466 66" fill="none" stroke="#947C5F" stroke-width="6"/>
+    <path d="M500 30 L540 6" stroke="#6B5840" stroke-width="9" stroke-linecap="round"/>
+    <path d="M150 44 v-34 h170 v36" fill="none" stroke="#133250" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M140 12 h190" stroke="#188B9A" stroke-width="12" stroke-linecap="round"/>
+    <rect x="-6" y="0" width="34" height="34" rx="8" fill="#133250"/>
+    <path d="M10 34 v52" stroke="#133250" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-60 92q30-12 60 0t60 0 60 0" fill="none" stroke="#FFFFFF" stroke-opacity=".7" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>
