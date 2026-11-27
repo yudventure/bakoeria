@@ -1,4 +1,5 @@
 import { TENTANG_BARU } from "./kisah";
+import { rapikanTandaBaca } from "./tanda-baca";
 import { seragamkanHarga } from "./rupiah-teks";
 import { GRUP_SELAM_EN, GRUP_SELAM_ID } from "./harga-selam";
 /**
@@ -405,7 +406,8 @@ const kunciFasilitas = (v: unknown) => (Array.isArray(v) ? [...new Set(v.filter(
 /** Gabungkan isi tersimpan dengan bawaan, supaya kolom baru tidak pernah kosong. */
 export function rapikanKonten(o: Partial<Konten> | null | undefined, bahasa: "en" | "id" = "id"): Konten {
   const b = bawaanKonten(bahasa);
-  const s = (v: unknown, d: string) => (typeof v === "string" ? v.slice(0, 4000) : d);
+  /* Teks lama yang masih memakai titik dua atau titik koma yang tidak perlu selalu ditulis ulang, juga bila tersimpan lagi dari formulir lama. */
+  const s = (v: unknown, d: string) => (typeof v === "string" ? rapikanTandaBaca(v).slice(0, 4000) : d);
   const arr = <T,>(v: unknown, d: T[], f: (x: Record<string, unknown>) => T) => (Array.isArray(v) ? v.slice(0, 30).map((x) => f((x ?? {}) as Record<string, unknown>)) : d);
   const k = (o ?? {}) as Record<string, unknown>;
   const kontak = (k.kontak ?? {}) as Record<string, unknown>;

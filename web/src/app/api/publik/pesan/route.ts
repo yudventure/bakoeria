@@ -166,7 +166,7 @@ export async function POST(req: Request) {
       ...(ekstra.perahu ? [[`${en ? "Boat transfer" : "Antar-jemput perahu"} · ${labelPerahu}`, ekstra.perahu] as [string, number]] : []),
       ...(ekstra.selam && itemSelam ? [[`Diving · ${itemSelam.nama} (${ekstra.kali} × ${rupiah(ekstra.satuanSelam)}, ${en ? "excl. dive boat" : "belum termasuk perahu selam"})`, ekstra.selam] as [string, number]] : []),
     ];
-    const tambahanTamu = [perahuPilih && rutePilih && !ekstra.perahu ? (en ? `Boat transfer: ${pt}` : `Antar-jemput perahu: ${pt}`) : "", penyelam && !ekstra.selam ? (en ? `Diving: ${penyelam} ${penyelam === 1 ? "person" : "people"}, ${sertifikat}, ${await paketDari("en")}` : `Diving: ${penyelam} orang, ${sertifikat}, ${teksSelamTim}`) : ""].filter(Boolean);
+    const tambahanTamu = [perahuPilih && rutePilih && !ekstra.perahu ? (en ? `Boat transfer · ${pt}` : `Antar-jemput perahu · ${pt}`) : "", penyelam && !ekstra.selam ? (en ? `Diving · ${penyelam} ${penyelam === 1 ? "person" : "people"}, ${sertifikat}, ${await paketDari("en")}` : `Diving · ${penyelam} orang, ${sertifikat}, ${teksSelamTim}`) : ""].filter(Boolean);
     const rincian = { en, dewasa, anak, balita, malam: jumlahMalam(masuk, keluar), hargaKamar: harga.kamar, tambahanAnak: harga.tambahanAnak, kupon: kode && potongan ? kode : "", potongan, tarif: (fleksibel ? "fleksibel" : "standar") as "fleksibel" | "standar", persen: tf.persen, kenaikan, batas, tambahan: tambahanTamu, ekstra: ekstraTamu };
     await simpanRincian(p.id, rincian).catch((e) => console.error("[pesan] rincian tidak tersimpan", e));
     const midtrans = await konfigMidtrans();
