@@ -1,3 +1,4 @@
+import { untukBaris } from "@/lib/selam";
 import { headers } from "next/headers";
 
 import { jumlahMalam, rupiah, tanggalSah, tglPanjang, hariIniWit, totalDenganAnak } from "@/lib/booking";
@@ -119,7 +120,10 @@ export async function POST(req: Request) {
   const ekstra = hitungTambahan({ hargaPerahu: rutePilih ? (sekaliJalan ? rutePilih.sekali : rutePilih.harga) : null, paket: itemSelam, penyelam });
   const bayar = bayarCottage + ekstra.jumlah;
   const teksTransportTotal = teksTransport ? `${teksTransport.replace(" (dibayar terpisah)", "")}${ekstra.perahu ? ", masuk total pesanan" : ", dibayar terpisah"}` : "";
-  const teksSelamTotal = penyelam ? `ya, ${penyelam} penyelam, ${sertifikat || "sertifikat belum diisi"}, ${teksSelamTim}${ekstra.selam ? `, ${ekstra.kali} × ${rupiah(ekstra.satuanSelam)} = ${rupiah(ekstra.selam)} masuk total pesanan, belum termasuk perahu selam` : ", dibayar di tempat, belum termasuk perahu selam"}` : "tidak";
+  /* Fun dive dan try scuba Zanclus 2026 sudah termasuk perahu. Hanya kursus yang belum. */
+  const selamKursus = !!itemSelam && gs >= 0 && untukBaris((await bacaKonten(en ? "en" : "id")).paket[gs]?.judul ?? "", itemSelam) === "kursus";
+  const teksPerahuSelam = itemSelam ? (selamKursus ? "belum termasuk perahu selam" : "sudah termasuk perahu") : "perahu menyesuaikan paket";
+  const teksSelamTotal = penyelam ? `ya, ${penyelam} penyelam, ${sertifikat || "sertifikat belum diisi"}, ${teksSelamTim}${ekstra.selam ? `, ${ekstra.kali} × ${rupiah(ekstra.satuanSelam)} = ${rupiah(ekstra.selam)} masuk total pesanan, ${teksPerahuSelam}` : `, dibayar di tempat, ${teksPerahuSelam}`}` : "tidak";
   const kamarId = o.kamar;
   const terisi = (await bookingDalam(masuk, keluar)).some((b) => b.roomId === kamarId && (MENEMPATI.includes(b.status) || b.status === "TENTATIVE") && tumpang(b.checkIn, b.checkOut, masuk, keluar));
   if (terisi) return gagal(m("Cottage itu baru saja terisi untuk tanggal tersebut. Pilih cottage lain.", "That cottage has just been booked for those dates. Please choose another."), 409);
@@ -164,7 +168,7 @@ export async function POST(req: Request) {
     const labelPerahu = hk ? `${kt!.perahu[ip_].judul} · ${hk.rute} · ${sekaliJalan ? (en ? "one way" : "sekali jalan") : en ? "return" : "pulang pergi"}` : "";
     const ekstraTamu: [string, number][] = [
       ...(ekstra.perahu ? [[`${en ? "Boat transfer" : "Antar-jemput perahu"} · ${labelPerahu}`, ekstra.perahu] as [string, number]] : []),
-      ...(ekstra.selam && itemSelam ? [[`Diving · ${itemSelam.nama} (${ekstra.kali} × ${rupiah(ekstra.satuanSelam)}, ${en ? "excl. dive boat" : "belum termasuk perahu selam"})`, ekstra.selam] as [string, number]] : []),
+      ...(ekstra.selam && itemSelam ? [[`Diving · ${itemSelam.nama} (${ekstra.kali} × ${rupiah(ekstra.satuanSelam)}${selamKursus ? `, ${en ? "excl. dive boat" : "belum termasuk perahu selam"}` : ""})`, ekstra.selam] as [string, number]] : []),
     ];
     const tambahanTamu = [perahuPilih && rutePilih && !ekstra.perahu ? (en ? `Boat transfer · ${pt}` : `Antar-jemput perahu · ${pt}`) : "", penyelam && !ekstra.selam ? (en ? `Diving · ${penyelam} ${penyelam === 1 ? "person" : "people"}, ${sertifikat}, ${await paketDari("en")}` : `Diving · ${penyelam} orang, ${sertifikat}, ${teksSelamTim}`) : ""].filter(Boolean);
     const rincian = { en, dewasa, anak, balita, malam: jumlahMalam(masuk, keluar), hargaKamar: harga.kamar, tambahanAnak: harga.tambahanAnak, kupon: kode && potongan ? kode : "", potongan, tarif: (fleksibel ? "fleksibel" : "standar") as "fleksibel" | "standar", persen: tf.persen, kenaikan, batas, tambahan: tambahanTamu, ekstra: ekstraTamu };

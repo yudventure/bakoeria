@@ -6,24 +6,35 @@ import type { PaketGrup } from "./konten";
  * Trip snorkeling dan trip pulau milik Bakoeria tidak termasuk di sini.
  * `untuk` menentukan siapa yang ditawari di formulir pesan (lib/selam.ts).
  */
-export const VERSI_HARGA_SELAM = "zanclus-2026-11-25";
+export const VERSI_HARGA_SELAM = "zanclus-2026-11-27";
+
+/** Isi paket Zanclus 2026, sama untuk fun dive dan try scuba. */
+export const TERMASUK_PAKET = { id: "Termasuk perahu dan kru, divemaster, alat selam, kopi, teh, air minum, snack dan buah, serta biaya lokasi. Belum termasuk park fee, tip divemaster dan kru, pengeluaran pribadi, dan asuransi.", en: "Includes boat and crew, divemaster, dive gear, coffee, tea, drinking water, snacks and fruit, and the site fee. Excludes the park fee, tips for the divemaster and crew, personal expenses, and insurance." };
 
 export const GRUP_SELAM_ID: PaketGrup[] = [
   {
     judul: "Fun dive",
-    catatan: "Per penyelam, satu hari bersama divemaster. Untuk penyelam bersertifikat. Belum termasuk perahu selam.",
+    catatan: `Per orang per hari, untuk penyelam berlisensi. ${TERMASUK_PAKET.id}`,
     isi: [
-      { nama: "Fun dive pesisir Waigeo", ket: "2 selam di karang pesisir Waigeo, termasuk divemaster, tabung dan pemberat, makan siang piknik di pulau", harga: "Rp 2.100.000", untuk: "sertifikat" },
-      { nama: "Fun dive Kri, Mansuar, dan Arborek", ket: "3 selam di Selat Dampier, 1 pemandu untuk 4 penyelam, makan siang di gosong pasir atau dermaga", harga: "Rp 2.700.000", untuk: "sertifikat" },
-      { nama: "Fun dive Piaynemo", ket: "2 selam di Melissa's Garden dan Batu Rufas, naik ke puncak pandang Piaynemo, Star Lagoon, izin pulau, makan siang", harga: "Rp 4.000.000", untuk: "sertifikat" },
-      { nama: "Pemandu selam", ket: "2 selam dalam satu hari, per hari", harga: "Rp 750.000", untuk: "sertifikat" },
+      { nama: "Fun dive Central, 2 selam", ket: "Area tengah sekitar Mansuar. Minimal 2 orang berlisensi", harga: "Rp 2.700.000", untuk: "sertifikat" },
+      { nama: "Fun dive Central, 3 selam", ket: "Area tengah sekitar Mansuar. Minimal 2 orang berlisensi", harga: "Rp 3.000.000", untuk: "sertifikat" },
+      { nama: "Fun dive Waigeo, 2 selam pagi", ket: "Friwen Wall dan Five Rock. Minimal 4 orang berlisensi", harga: "Rp 2.450.000", untuk: "sertifikat" },
+      { nama: "Fun dive Piaynemo, 2 selam", ket: "Minimal 4 orang berlisensi", harga: "Rp 4.000.000", untuk: "sertifikat" },
     ],
   },
   {
-    judul: "Kursus dan selam pertama",
+    judul: "Try scuba, tanpa lisensi",
+    catatan: `Per orang per hari, selam pertama bersama pemandu. ${TERMASUK_PAKET.id}`,
+    isi: [
+      { nama: "Try scuba, 1 selam", ket: "Tanpa lisensi selam", harga: "Rp 1.800.000", untuk: "pemula" },
+      { nama: "Try scuba, 2 selam", ket: "Tanpa lisensi selam", harga: "Rp 2.000.000", untuk: "pemula" },
+      { nama: "Try scuba, 3 selam", ket: "Tanpa lisensi selam", harga: "Rp 2.500.000", untuk: "pemula" },
+    ],
+  },
+  {
+    judul: "Kursus selam",
     catatan: "Per orang. Alat selam dan biaya lisensi termasuk dalam kursus. Belum termasuk perahu selam.",
     isi: [
-      { nama: "Discovery Dive", ket: "Selam pertama tanpa lisensi, 2 selam bersama pemandu, gratis dokumentasi bawah air untuk lebih dari 4 peserta", harga: "Rp 1.200.000", untuk: "pemula" },
       { nama: "Kursus Open Water Diver", ket: "3 sampai 4 hari, sampai 18 m, umur 10+, 4 penyelaman di laut, alat dan biaya lisensi", harga: "Rp 7.500.000", untuk: "kursus" },
       { nama: "Kursus Advanced Open Water", ket: "2 sampai 3 hari, sampai 30 m, 5 penyelaman petualangan, perlu lisensi Open Water", harga: "Rp 6.500.000", untuk: "sertifikat" },
       { nama: "Kursus Rescue Diver", ket: "3 hari, skenario penyelamatan di laut, pertolongan pertama, perlu lisensi Advanced dan sertifikat pertolongan pertama", harga: "Rp 7.000.000", untuk: "sertifikat" },
@@ -31,7 +42,7 @@ export const GRUP_SELAM_ID: PaketGrup[] = [
   },
   {
     judul: "Sewa alat selam",
-    catatan: "Per hari.",
+    catatan: "Per hari. Paket fun dive dan try scuba sudah termasuk alat selam.",
     isi: [
       { nama: "Perlengkapan scuba", ket: "Masker, fin, BCD, regulator, wetsuit", harga: "Rp 600.000", untuk: "lain" },
       { nama: "Tabung dan isi ulang", ket: "Satu tabung penuh (200 bar)", harga: "Rp 100.000", untuk: "lain" },
@@ -42,7 +53,7 @@ export const GRUP_SELAM_ID: PaketGrup[] = [
   },
   {
     judul: "Perahu selam",
-    catatan: "Per perahu, untuk fun dive dan kursus, dibagi dalam satu grup. 2 selam di area Arborek.",
+    catatan: "Per perahu, untuk kursus, dibagi dalam satu grup. 2 selam di area Arborek. Paket fun dive dan try scuba sudah termasuk perahu.",
     isi: [
       { nama: "Perahu selam kecil", ket: "5 sampai 10 penyelam", harga: "Rp 4.000.000", untuk: "lain" },
       { nama: "Perahu selam sedang", ket: "10 sampai 15 penyelam", harga: "Rp 8.000.000", untuk: "lain" },
@@ -53,19 +64,27 @@ export const GRUP_SELAM_ID: PaketGrup[] = [
 export const GRUP_SELAM_EN: PaketGrup[] = [
   {
     judul: "Fun dives",
-    catatan: "Per diver, one day with a divemaster. For certified divers. Dive boat not included.",
+    catatan: `Per person per day, for licensed divers. ${TERMASUK_PAKET.en}`,
     isi: [
-      { nama: "Fun dive, Waigeo coastal reefs", ket: "2 dives on Waigeo coastal reefs, with divemaster, tanks and weights, island picnic lunch", harga: "Rp 2.100.000", untuk: "sertifikat" },
-      { nama: "Fun dive, Kri, Mansuar and Arborek", ket: "3 dives in the Dampier Strait, 1 guide per 4 divers, lunch on a sandbank or jetty", harga: "Rp 2.700.000", untuk: "sertifikat" },
-      { nama: "Fun dive, Piaynemo", ket: "2 dives at Melissa's Garden and Batu Rufas, Piaynemo viewpoint hike, Star Lagoon, island permits, lunch", harga: "Rp 4.000.000", untuk: "sertifikat" },
-      { nama: "Dive guide", ket: "2 dives in one day, per day", harga: "Rp 750.000", untuk: "sertifikat" },
+      { nama: "Fun dive, Central, 2 dives", ket: "Central area around Mansuar. Minimum 2 licensed divers", harga: "Rp 2.700.000", untuk: "sertifikat" },
+      { nama: "Fun dive, Central, 3 dives", ket: "Central area around Mansuar. Minimum 2 licensed divers", harga: "Rp 3.000.000", untuk: "sertifikat" },
+      { nama: "Fun dive, Waigeo, 2 morning dives", ket: "Friwen Wall and Five Rock. Minimum 4 licensed divers", harga: "Rp 2.450.000", untuk: "sertifikat" },
+      { nama: "Fun dive, Piaynemo, 2 dives", ket: "Minimum 4 licensed divers", harga: "Rp 4.000.000", untuk: "sertifikat" },
     ],
   },
   {
-    judul: "Courses and first dives",
+    judul: "Try scuba, no licence",
+    catatan: `Per person per day, a first dive with a guide. ${TERMASUK_PAKET.en}`,
+    isi: [
+      { nama: "Try scuba, 1 dive", ket: "No dive licence needed", harga: "Rp 1.800.000", untuk: "pemula" },
+      { nama: "Try scuba, 2 dives", ket: "No dive licence needed", harga: "Rp 2.000.000", untuk: "pemula" },
+      { nama: "Try scuba, 3 dives", ket: "No dive licence needed", harga: "Rp 2.500.000", untuk: "pemula" },
+    ],
+  },
+  {
+    judul: "Dive courses",
     catatan: "Per person. Dive gear and licence fee are included in courses. Dive boat not included.",
     isi: [
-      { nama: "Discovery Dive", ket: "First dive without a licence, 2 dives with a guide, free underwater photos for groups over 4", harga: "Rp 1.200.000", untuk: "pemula" },
       { nama: "Open Water Diver course", ket: "3 to 4 days, down to 18 m, age 10+, 4 open water dives, gear and licence fee", harga: "Rp 7.500.000", untuk: "kursus" },
       { nama: "Advanced Open Water course", ket: "2 to 3 days, down to 30 m, 5 adventure dives, Open Water licence required", harga: "Rp 6.500.000", untuk: "sertifikat" },
       { nama: "Rescue Diver course", ket: "3 days, rescue scenarios at sea, first aid, Advanced licence and a first aid certificate required", harga: "Rp 7.000.000", untuk: "sertifikat" },
@@ -73,7 +92,7 @@ export const GRUP_SELAM_EN: PaketGrup[] = [
   },
   {
     judul: "Dive gear rental",
-    catatan: "Per day.",
+    catatan: "Per day. Fun dive and try scuba packages already include dive gear.",
     isi: [
       { nama: "Scuba equipment", ket: "Mask, fins, BCD, regulator, wetsuit", harga: "Rp 600.000", untuk: "lain" },
       { nama: "Tank and refill", ket: "One full tank (200 bar)", harga: "Rp 100.000", untuk: "lain" },
@@ -84,7 +103,7 @@ export const GRUP_SELAM_EN: PaketGrup[] = [
   },
   {
     judul: "Dive boats",
-    catatan: "Per boat, for fun dives and courses, shared by one group. 2 dives in the Arborek area.",
+    catatan: "Per boat, for courses, shared by one group. 2 dives in the Arborek area. Fun dive and try scuba packages already include the boat.",
     isi: [
       { nama: "Small dive boat", ket: "5 to 10 divers", harga: "Rp 4.000.000", untuk: "lain" },
       { nama: "Medium dive boat", ket: "10 to 15 divers", harga: "Rp 8.000.000", untuk: "lain" },
@@ -101,7 +120,7 @@ export function gantiHargaSelam(paket: PaketGrup[], bahasa: "en" | "id"): PaketG
   const lama = paket.filter((g) => !kelompokBukanSelam(g));
   const termasuk = (pola: RegExp) => lama.find((g) => pola.test(g.judul))?.termasuk;
   return [
-    ...baru.map((g, i) => ({ ...g, isi: g.isi.map((x) => ({ ...x })), termasuk: (i === 0 ? termasuk(/fun dive/i) : i === 1 ? termasuk(/kursus|course/i) : undefined) ?? [] })),
+    ...baru.map((g, i) => ({ ...g, isi: g.isi.map((x) => ({ ...x })), termasuk: (i === 0 ? termasuk(/fun dive/i) : i === 2 ? termasuk(/kursus|course/i) : undefined) ?? [] })),
     ...paket.filter(kelompokBukanSelam),
   ];
 }
@@ -110,9 +129,9 @@ export function gantiHargaSelam(paket: PaketGrup[], bahasa: "en" | "id"): PaketG
 export const CATATAN_LAMA: Record<"en" | "id", string> = { id: "Harga dalam Rupiah. Titik selam yang jauh bisa dikenai biaya bensin Rp 300.000 sampai 500.000 bila penyelam kurang dari 3.", en: "Prices in Indonesian Rupiah. Far sites may add a fuel charge of Rp 300.000 to 500.000 with fewer than 3 divers." };
 /** Harga kartu Program selam, diisi bila masih kosong (dicocokkan dari judulnya). */
 export const HARGA_PROGRAM: { pola: RegExp; id: string; en: string }[] = [
-  { pola: /fun dive/i, id: "Rp 2.100.000 per penyelam", en: "Rp 2.100.000 per diver" },
+  { pola: /fun dive/i, id: "Mulai Rp 2.450.000 per penyelam", en: "From Rp 2.450.000 per diver" },
   { pola: /open water/i, id: "Rp 7.500.000 per orang", en: "Rp 7.500.000 per person" },
-  { pola: /discover/i, id: "Rp 1.200.000 per orang", en: "Rp 1.200.000 per person" },
+  { pola: /discover|try scuba|try dive/i, id: "Mulai Rp 1.800.000 per orang", en: "From Rp 1.800.000 per person" },
 ];
 
 /** Sejak 25 November 2026 semua harga diving belum termasuk perahu selam (pemilik). Teks lama diganti di isi tersimpan bila belum diubah. */
@@ -121,4 +140,12 @@ export const GANTI_TANPA_PERAHU: [string, string][] = [["Per penyelam, satu hari
 export const CATATAN_PAKET: Record<"en" | "id", [string, string]> = {
   id: ["Harga dalam Rupiah dan bisa berubah. Jadwal selam menyesuaikan cuaca dan kondisi laut.", "Harga dalam Rupiah dan bisa berubah. Semua harga diving belum termasuk perahu selam. Jadwal selam menyesuaikan cuaca dan kondisi laut."],
   en: ["Prices in Indonesian Rupiah and may change. Dive plans follow the weather and sea conditions.", "Prices in Indonesian Rupiah and may change. All dive prices exclude the dive boat. Dive plans follow the weather and sea conditions."],
+};
+
+/** Harga kartu Program selam lama yang diganti harga paket 2026 (bila belum diubah pemilik). */
+export const HARGA_PROGRAM_LAMA = ["Rp 2.100.000 per penyelam", "Rp 2.100.000 per diver", "Rp 1.200.000 per orang", "Rp 1.200.000 per person"];
+/** Catatan daftar harga sejak paket Zanclus 2026: fun dive dan try scuba sudah termasuk perahu. */
+export const CATATAN_PAKET_2026: Record<"en" | "id", string> = {
+  id: "Harga dalam Rupiah dan bisa berubah. Paket fun dive dan try scuba sudah termasuk perahu dan kru. Kursus belum termasuk perahu selam. Jadwal selam menyesuaikan cuaca dan kondisi laut.",
+  en: "Prices in Indonesian Rupiah and may change. Fun dive and try scuba packages include the boat and crew. Courses exclude the dive boat. Dive plans follow the weather and sea conditions.",
 };

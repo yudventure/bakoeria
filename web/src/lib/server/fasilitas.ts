@@ -5,7 +5,7 @@ import { bacaJson, ubahJson } from "./gudang";
 import { gantiKayuDalam } from "@/lib/kayu";
 import { rapikanTandaBaca, VERSI_TANDA_BACA } from "@/lib/tanda-baca";
 import { KALIMAT_DIBUANG, TENTANG_BARU, TENTANG_LAMA, VERSI_KISAH, VERSI_KISAH_2 } from "@/lib/kisah";
-import { CATATAN_LAMA, CATATAN_PAKET, GANTI_TANPA_PERAHU, gantiHargaSelam, HARGA_PROGRAM, VERSI_HARGA_SELAM, VERSI_TANPA_PERAHU } from "@/lib/harga-selam";
+import { CATATAN_LAMA, CATATAN_PAKET, CATATAN_PAKET_2026, HARGA_PROGRAM_LAMA, GANTI_TANPA_PERAHU, gantiHargaSelam, HARGA_PROGRAM, VERSI_HARGA_SELAM, VERSI_TANPA_PERAHU } from "@/lib/harga-selam";
 import type { PaketGrup } from "@/lib/konten";
 
 /**
@@ -180,8 +180,8 @@ async function gantiHargaSelamTersimpan() {
         if (!sisi || typeof sisi !== "object") return sisi;
         const x = { ...sisi };
         if (Array.isArray(x.paket)) x.paket = gantiHargaSelam(x.paket as PaketGrup[], b);
-        if (x.paketCatatan === CATATAN_LAMA[b]) delete x.paketCatatan;
-        if (Array.isArray(x.program)) x.program = (x.program as { judul?: string; harga?: string }[]).map((pr) => { const h = HARGA_PROGRAM.find((y) => y.pola.test(String(pr.judul ?? ""))); return h && !String(pr.harga ?? "").trim() ? { ...pr, harga: h[b] } : pr; });
+        if (x.paketCatatan === CATATAN_LAMA[b] || CATATAN_PAKET[b].includes(x.paketCatatan as string)) x.paketCatatan = CATATAN_PAKET_2026[b];
+        if (Array.isArray(x.program)) x.program = (x.program as { judul?: string; harga?: string }[]).map((pr) => { const h = HARGA_PROGRAM.find((y) => y.pola.test(String(pr.judul ?? ""))); const kini = String(pr.harga ?? "").trim(); return h && (!kini || HARGA_PROGRAM_LAMA.includes(kini)) ? { ...pr, harga: h[b] } : pr; });
         return x;
       };
       if (lamaSatu) return ubahSisi(l, "id") ?? l;
